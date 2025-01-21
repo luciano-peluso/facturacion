@@ -1,8 +1,13 @@
 const express = require('express');
 require('dotenv').config(); 
+const cors = require('cors');
+
 const facturaRoutes = require('./routes/facturasRoutes'); 
 
 const app = express();
+
+app.use(cors());
+
 const port = process.env.PORT || 3000;
 
 // Middlewares
