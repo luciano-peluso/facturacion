@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
+import Header from "../componentes/header";
 
 
 const FacturasPage = () => {
@@ -36,53 +37,94 @@ const FacturasPage = () => {
         console.log("Buscamos un monto entre:", montoTope, " y ", montoMin);
 
         const nuevasFacturas = facturas.filter(factura => 
-            factura.valor > montoMin && factura.valor < montoTope
+            factura.valor > montoMin && factura.valor < montoTope && factura.estado === false
         );
 
         setFacturas(nuevasFacturas);
     };
 
-    const resultadosPosibles = () => {
-        const facturasNoCobradas = facturas.filter(factura => 
+    const buscarPares = () => {
+        // Calculamos el rango de tolerancia (±10%)
+        const rangoMinimo = monto * 0.9;
+        const rangoMaximo = monto * 1.1;
+        
+        // Filtramos solo facturas no cobradas
+        const facturasPendientes = facturas.filter(f => !f.estado);
+      
+        // Agrupamos facturas por paciente
+        const facturasPorPaciente = facturasPendientes.reduce((acc, factura) => {
+          if (!acc[factura.paciente]) {
+            acc[factura.paciente] = [];
+          }
+          acc[factura.paciente].push(factura);
+          return acc;
+        }, {});
+      
+        // Array para almacenar las facturas que cumplen con el criterio
+        let facturasResultado = [];
+      
+        // Para cada paciente, buscamos si la suma de sus facturas está en el rango
+        Object.entries(facturasPorPaciente).forEach(([paciente, facturasDelPaciente]) => {
+          // Si el paciente tiene más de una factura, calculamos todas las combinaciones posibles de 2
+          if (facturasDelPaciente.length >= 2) {
+            for (let i = 0; i < facturasDelPaciente.length - 1; i++) {
+              for (let j = i + 1; j < facturasDelPaciente.length; j++) {
+                const suma = facturasDelPaciente[i].valor + facturasDelPaciente[j].valor;
+                if (suma >= rangoMinimo && suma <= rangoMaximo) {
+                  facturasResultado.push(facturasDelPaciente[i], facturasDelPaciente[j]);
+                }
+              }
+            }
+          }
+        });
+      
+        // Ordenamos el resultado final por paciente
+        facturasResultado.sort((a, b) => {
+          if (a.paciente < b.paciente) return -1;
+          if (a.paciente > b.paciente) return 1;
+          return 0;
+        });
+        console.log(facturasResultado);
+        setFacturas(facturasResultado);
+    };
+
+    const filtrarNoCobradas = () => {
+        const facturasFiltradas = facturas.filter(factura => 
             factura.estado === false
         );
 
-        const contadorPacientes = facturasNoCobradas.reduce((acc, factura) => {
-            acc[factura.paciente] = (acc[factura.paciente] || 0) + 1;
-            return acc;
-        }, {});
-
-        console.log(contadorPacientes);
-    
-        // Paso 2: Filtrar las facturas cuyos pacientes aparecen más de una vez
-        const facturasFiltradas = facturasNoCobradas.filter(factura => 
-            contadorPacientes[factura.paciente] > 1
-        );
-    
-        return facturasFiltradas;
-    };
-
-    const handleResultadosPosibles = () => {
-        
-        const facturasAIterar = resultadosPosibles();
-
-        // Agrupamos y sumamos los valores por paciente
-        const facturasAgrupadas = facturasAIterar.reduce((acc, factura) => {
-            // Si el paciente ya existe en el acumulador, sumamos el valor de su factura
-            if (acc[factura.paciente]) {
-                acc[factura.paciente] += factura.valor;
-            } else {
-                // Si no existe, inicializamos con el valor de su factura
-                acc[factura.paciente] = factura.valor;
-            }
-            return acc;
-        }, {});
-    
-        console.log("Sumatoria por paciente:", facturasAgrupadas);
+        setFacturas(facturasFiltradas);
     }
 
+    const marcarCobrada = async (id) => {
+        try {
+            const response = await axios.put(`http://localhost:3000/api/facturas/actualizar/${id}`, {
+                estado: true,
+            });
+            console.log(`Factura con ID ${id} marcada como cobrada:`, response.data);
+    
+            // Si necesitas actualizar el listado en tu frontend después de marcarla como cobrada:
+            traerFacturas(); // O actualiza el estado de facturas si lo tienes.
+        } catch (error) {
+            console.error("Error al marcar la factura como cobrada:", error);
+        }
+    }
+
+    const eliminar = async (id) => {
+        try {
+            const response = await axios.put(`http://localhost:3000/api/facturas/borrar/${id}`);
+            console.log(`Factura con ID ${id} eliminada:`, response.data);
+    
+            // Si necesitas actualizar el listado en tu frontend después de marcarla como cobrada:
+            traerFacturas(); // O actualiza el estado de facturas si lo tienes.
+        } catch (error) {
+            console.error("Error al eliminar la factura:", error);
+        }
+    }
 
     return (
+        <>
+        <Header />
         <Container maxW="container.xl" py={8}>
 
             <HStack mb="10" alignItems="center" spacing={2}>
@@ -108,9 +150,16 @@ const FacturasPage = () => {
             <Button
                 size="md"
                 colorScheme="blue"
-                onClick={handleResultadosPosibles}
+                onClick={buscarPares}
             >
-                    PRUEBA
+                    ¿Más de una?
+            </Button>
+            <Button
+                size="md"
+                colorScheme="red"
+                onClick={filtrarNoCobradas}
+            >
+                    No cobradas
             </Button>
             </HStack>
 
@@ -127,6 +176,7 @@ const FacturasPage = () => {
                             <Th>Valor</Th>
                             <Th>Fecha</Th>
                             <Th>Cobrado</Th>
+                            <Th>Acciones</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -138,12 +188,33 @@ const FacturasPage = () => {
                                 <Td isNumeric>${factura.valor}</Td>
                                 <Td>{factura.fecha}</Td>
                                 <Td>{factura.estado ? "Cobrado" : "Pendiente"}</Td>
+                                <Td>
+                                    <HStack spacing={"2"} justifyContent={"center"}>
+                                        {!factura.estado && ( // Mostrar el botón "Cobrar" solo si la factura está pendiente
+                                            <Button
+                                                size={"md"} 
+                                                colorScheme="green"
+                                                onClick={() => marcarCobrada(factura.id)}
+                                            >
+                                                Cobrar
+                                            </Button>
+                                        )}
+                                        <Button
+                                            size={"md"} 
+                                            colorScheme="red"
+                                            onClick={() => eliminar(factura.id)}
+                                        >
+                                            X
+                                        </Button>
+                                    </HStack>
+                                </Td>
                             </Tr>
                         ))}
                     </Tbody>
                 </Table>
             </Box>
         </Container>
+        </>
     );
 };
 

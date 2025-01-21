@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Heading, Box, Table, Thead, Tbody, Tr, Th, Td, IconButton } from "@chakra-ui/react";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import Header from "../componentes/header";
 
 const FacturasPage = () => {
     const [facturas, setFacturas] = useState([]);
@@ -45,6 +46,8 @@ const FacturasPage = () => {
     };
 
     return (
+        <>
+        <Header></Header>
         <Container maxW="container.xl" py={8}>
             <Heading as="h1" size="lg" mb={6}>
                 Listado de Facturas
@@ -130,6 +133,7 @@ const FacturasPage = () => {
                 </Table>
             </Box>
         </Container>
+        </>
     );
 };
 
