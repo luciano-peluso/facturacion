@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input } from "@chakra-ui/react";
+import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
 import Header from "../componentes/header";
 
 
 const FacturasPage = () => {
+    const [facturaActualizada, setFacturaActualizada] = useState({});
     const [facturas, setFacturas] = useState([]);
     const [monto, setMonto] = useState([]);
+    const {isOpen, onOpen, onClose } = useDisclosure();
 
     const traerFacturas = async () => {
         try {
             const response = await axios.get("http://localhost:3000/api/facturas");
-            setFacturas(response.data.data);
+            const facturasSorted = response.data.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            setFacturas(facturasSorted);
         } catch (error) {
             console.log("Error al traer las facturas: ", error);
         }
@@ -122,6 +125,33 @@ const FacturasPage = () => {
         }
     }
 
+    const handleActualizar = async (fid, facturaActualizada) => { 
+        try {
+            const response = await axios.put('http://localhost:3000/api/facturas/actualizar/'+fid, facturaActualizada);
+            console.log("Factura con ID: ", fid, " actualizada con exito: ", response.data);
+            onClose();
+            traerFacturas();
+        } catch (error) {
+            console.error("Error al editar la factura: ", error);
+        }
+    }
+ 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFacturaActualizada((prev) => ({ ...prev, [name]: value }));
+    };
+    
+      const handleNumberChange = (_, valueAsNumber) => {
+        setFacturaActualizada((prev) => ({ ...prev, valor: valueAsNumber }));
+    };
+
+    const handleEditClick = (factura) => {
+        setFacturaActualizada(factura);
+        console.log(factura);
+        onOpen();  // Abrir la modal
+    };
+     
+    
     return (
         <>
         <Header />
@@ -170,7 +200,7 @@ const FacturasPage = () => {
                 <Table variant="striped" size="md">
                     <Thead>
                         <Tr>
-                            <Th>Nombre del Cliente</Th>
+                            <Th>Nombre del Paciente</Th>
                             <Th>Obra Social</Th>
                             <Th>Numero de factura</Th>
                             <Th>Valor</Th>
@@ -189,30 +219,89 @@ const FacturasPage = () => {
                                 <Td>{factura.fecha}</Td>
                                 <Td>{factura.estado ? "Cobrado" : "Pendiente"}</Td>
                                 <Td>
-                                    <HStack spacing={"2"} justifyContent={"center"}>
-                                        {!factura.estado && ( // Mostrar el botón "Cobrar" solo si la factura está pendiente
+                                    <VStack>
+                                        <HStack spacing={"2"} justifyContent={"center"}>
+                                            {!factura.estado && ( // Mostrar el botón "Cobrar" solo si la factura está pendiente
+                                                <Button
+                                                    size={"md"} 
+                                                    colorScheme="green"
+                                                    onClick={() => marcarCobrada(factura.id)}
+                                                >
+                                                    Cobrar
+                                                </Button>
+                                            )}
                                             <Button
                                                 size={"md"} 
-                                                colorScheme="green"
-                                                onClick={() => marcarCobrada(factura.id)}
+                                                colorScheme="red"
+                                                onClick={() => eliminar(factura.id)}
                                             >
-                                                Cobrar
+                                                X
                                             </Button>
-                                        )}
-                                        <Button
-                                            size={"md"} 
-                                            colorScheme="red"
-                                            onClick={() => eliminar(factura.id)}
-                                        >
-                                            X
-                                        </Button>
-                                    </HStack>
+                                        </HStack>
+                                        <HStack spacing={2} justifyContent={"center"}>
+                                            <Button colorScheme="blue" 
+                                                onClick={() => handleEditClick(factura)}>
+                                                Editar
+                                            </Button>
+                                        </HStack>
+                                    </VStack>
                                 </Td>
                             </Tr>
                         ))}
                     </Tbody>
                 </Table>
             </Box>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Editar un paciente</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <VStack>
+                            <Input 
+                                placeholder="Nombre del cliente"
+                                name="paciente"
+                                value={facturaActualizada.paciente}
+                                onChange={handleChange}/>
+                            <Input 
+                                placeholder="Obra social"
+                                name="os"
+                                value={facturaActualizada.os}
+                                onChange={handleChange}/>
+                            <Input 
+                                placeholder="Numero de factura"
+                                name="num_factura"
+                                value={facturaActualizada.num_factura}
+                                onChange={handleChange}/>
+                            <NumberInput
+                                name="valor"
+                                min={0}
+                                value={facturaActualizada.valor}
+                                precision={2}
+                                onChange={handleNumberChange}
+                                >
+                                <NumberInputField 
+                                placeholder="Monto de la factura"/>
+                            </NumberInput>
+                            <Input 
+                                placeholder="Fecha de la factura"
+                                name="fecha"
+                                type="date"
+                                value={facturaActualizada.fecha}
+                                onChange={handleChange}/>
+                        </VStack>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} 
+                            onClick={() => handleActualizar(facturaActualizada.id, facturaActualizada)}>
+                            Actualizar
+                        </Button>
+                        <Button variant={"ghost"} onClick={onClose}>
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Container>
         </>
     );

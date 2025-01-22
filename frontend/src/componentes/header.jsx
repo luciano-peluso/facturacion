@@ -12,7 +12,7 @@ const Header = () => {
       align="center"
       justify="space-between"
       p={4}
-      bg="pink.500"
+      bg="pink.300"
       color="white"
     >
       <Heading size="md">Factureitor</Heading>

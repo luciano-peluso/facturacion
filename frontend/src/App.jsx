@@ -4,6 +4,7 @@ import Index from './pages/Index'
 import FacturasAccordionPage from './pages/FacturasAccordionPage'
 import FacturasFiltroPage from './pages/FacturasFiltroPage'
 import FacturasPage from './pages/FacturasPage';
+import CrearFacturasPage from './pages/CrearFacturasPage';
 
 const App = () => {
   return(
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/facturas-accordion" element={<FacturasAccordionPage />}/>
         <Route path="/facturas-filtro" element={<FacturasFiltroPage />}/>
         <Route path="/facturas" element={<FacturasPage />}/>
+        <Route path="/crear-facturas" element={<CrearFacturasPage />}/>
       </Routes> 
     </Router>
   );  
