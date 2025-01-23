@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter } from "@chakra-ui/react";
+import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
 import Header from "../componentes/header";
 
@@ -10,6 +10,8 @@ const FacturasPage = () => {
     const [facturas, setFacturas] = useState([]);
     const [monto, setMonto] = useState([]);
     const {isOpen, onOpen, onClose } = useDisclosure();
+
+    const toast = useToast();
 
     const traerFacturas = async () => {
         try {
@@ -117,11 +119,23 @@ const FacturasPage = () => {
         try {
             const response = await axios.put(`http://localhost:3000/api/facturas/borrar/${id}`);
             console.log(`Factura con ID ${id} eliminada:`, response.data);
-    
-            // Si necesitas actualizar el listado en tu frontend después de marcarla como cobrada:
-            traerFacturas(); // O actualiza el estado de facturas si lo tienes.
+            traerFacturas();
+            toast({
+                title: "Éxito",
+                description: "La factura ha sido eliminada exitosamente.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
         } catch (error) {
             console.error("Error al eliminar la factura:", error);
+            toast({
+                title: "Error",
+                description: "La factura no se ha podido eliminar.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
         }
     }
 
@@ -131,8 +145,22 @@ const FacturasPage = () => {
             console.log("Factura con ID: ", fid, " actualizada con exito: ", response.data);
             onClose();
             traerFacturas();
+            toast({
+                title: "Éxito",
+                description: "La factura ha sido editada exitosamente.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
         } catch (error) {
             console.error("Error al editar la factura: ", error);
+            toast({
+                title: "Error",
+                description: "La factura no se ha podido editar.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
         }
     }
  
