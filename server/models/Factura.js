@@ -9,10 +9,16 @@ const Factura = sequelize.define('Factura', {
       autoIncrement: true,
     },
     paciente: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'pacientes', // Nombre de la tabla de los pacientes
+        key: 'id',
     },
-    os: {
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+    },
+    punto_de_venta: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -20,7 +26,7 @@ const Factura = sequelize.define('Factura', {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    valor: {
+    monto: {
       type: DataTypes.DOUBLE,
       allowNull: false,
     },

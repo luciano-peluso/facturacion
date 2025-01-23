@@ -2,7 +2,10 @@ const express = require('express');
 require('dotenv').config(); 
 const cors = require('cors');
 
-const facturaRoutes = require('./routes/facturasRoutes'); 
+const facturasRoutes = require('./routes/facturasRoutes'); 
+const pacientesRoutes = require('./routes/pacienteRoutes');
+const obrasSocialesRoutes = require('./routes/obrasSocialesRoutes');
+const tutoresRoutes = require('./routes/tutoresRoutes');
 
 const app = express();
 
@@ -12,7 +15,11 @@ const port = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json()); // Parsear JSON
-app.use('/api/facturas', facturaRoutes); // Prefijo para las rutas de facturas
+
+app.use('/api/facturas', facturasRoutes); // Prefijo para las rutas de facturas
+app.use('/api/pacientes', pacientesRoutes); // Prefijo para las rutas de pacientes
+app.use('/api/os', obrasSocialesRoutes); // Prefijo para las rutas de las obras sociales
+app.use('/api/tutores', tutoresRoutes); // Prefijo para las rutas de las obras sociales
 
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
