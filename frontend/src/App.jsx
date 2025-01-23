@@ -3,8 +3,15 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Index from './pages/Index'
 import FacturasAccordionPage from './pages/FacturasAccordionPage'
 import FacturasFiltroPage from './pages/FacturasFiltroPage'
-import FacturasPage from './pages/FacturasPage';
+
+import VerFacturasPage from './pages/FacturasPage';
 import CrearFacturasPage from './pages/CrearFacturasPage';
+
+import CrearOSPage from './pages/CrearOSPage';
+import VerOSPage from './pages/VerOSPage';
+
+import VerTutoresPage from './pages/VerTutoresPage';
+import CrearTutoresPage from './pages/CrearTutoresPage';
 
 const App = () => {
   return(
@@ -14,8 +21,15 @@ const App = () => {
         <Route path="*" element={<Index />}/>
         <Route path="/facturas-accordion" element={<FacturasAccordionPage />}/>
         <Route path="/facturas-filtro" element={<FacturasFiltroPage />}/>
-        <Route path="/facturas" element={<FacturasPage />}/>
+
         <Route path="/crear-facturas" element={<CrearFacturasPage />}/>
+        <Route path="/ver-facturas" element={<VerFacturasPage />}/>
+        
+        <Route path="/crear-obras-sociales" element={<CrearOSPage />}/>
+        <Route path="/ver-obras-sociales" element={<VerOSPage />}/>
+
+        <Route path="/crear-tutores" element={<CrearTutoresPage />}/>
+        <Route path="/ver-tutores" element={<VerTutoresPage />}/>
       </Routes> 
     </Router>
   );  

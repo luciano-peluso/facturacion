@@ -81,13 +81,13 @@ import {
                   justifyContent="flex-start"
                   _hover={{ bg: "pink.200" }}
                   onClick={() => {
-                    onNavigate("/facturas");
+                    onNavigate("/ver-facturas");
                     onClose();
                   }}
                 >
                   Ver Facturas
                 </Button>
-                <Button
+                {/* <Button
                   variant="solid"
                   colorScheme="gray"
                   color="black"
@@ -115,7 +115,73 @@ import {
                 >
                   Ver Facturas con Filtros
                 </Button>
-  
+   */}
+                <Divider />
+                <DrawerHeader fontSize="md" color="black" pl={0}>
+                  Obras Sociales
+                </DrawerHeader>
+                { /* Divide la seccion a la de obras sociales */ }
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/crear-obras-sociales");
+                    onClose();
+                  }}
+                >
+                  Crear Obras Sociales
+                </Button>
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/ver-obras-sociales");
+                    onClose();
+                  }}
+                >
+                  Ver Obras Sociales
+                </Button>
+                <Divider />
+                <DrawerHeader fontSize="md" color="black" pl={0}>
+                  Tutores
+                </DrawerHeader>
+                { /* Divide la seccion a la de tutores */ }
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/crear-tutores");
+                    onClose();
+                  }}
+                >
+                  Crear Tutores
+                </Button>
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/ver-tutores");
+                    onClose();
+                  }}
+                >
+                  Ver Tutores
+                </Button>
                 <Divider />
                 <Button
                   variant="solid"
