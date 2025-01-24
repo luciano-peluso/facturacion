@@ -87,6 +87,39 @@ import {
                 >
                   Ver Facturas
                 </Button>
+                <Divider />
+                <DrawerHeader fontSize="md" color="black" pl={0}>
+                  Pacientes
+                </DrawerHeader>
+                { /* Divide la seccion a la de obras sociales */ }
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/crear-pacientes");
+                    onClose();
+                  }}
+                >
+                  Crear Paciente
+                </Button>
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/ver-pacientes");
+                    onClose();
+                  }}
+                >
+                  Ver Pacientes
+                </Button>
                 {/* <Button
                   variant="solid"
                   colorScheme="gray"

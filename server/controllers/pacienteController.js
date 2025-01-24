@@ -1,14 +1,38 @@
 const Paciente = require('../models/Paciente');
+const  ObraSocial  = require('../models/ObraSocial');
+const  Tutor  = require('../models/Tutor');
 
 const getPacientes = async (req, res) => {
     try {
-        const pacientes = await Paciente.findAll({ paranoid:true }); 
-        res.status(200).json({success: true, message:"Pacientes traidos con éxito", data: pacientes});
+        const pacientes = await Paciente.findAll({
+            paranoid: true, // Incluye solo los registros no eliminados
+            include: [
+                {
+                    model: ObraSocial, // Relación con ObraSocial
+                    as: 'obra_social', // Alias definido en las asociaciones
+                    attributes: ['id', 'nombre'], // Solo traemos el id y nombre de la obra social
+                },
+                {
+                    model: Tutor, // Relación con Tutor
+                    as: 'tutor', // Alias definido en las asociaciones
+                    attributes: ['id', 'nombre'], // Solo traemos el id y nombre del tutor
+                },
+            ],
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Pacientes traídos con éxito",
+            data: pacientes,
+        });
     } catch (error) {
         console.error("Error al traer los pacientes: ", error);
-        res.status(500).json({success: false, message: "Error al traer los pacientes."});
+        res.status(500).json({
+            success: false,
+            message: "Error al traer los pacientes.",
+        });
     }
-}
+};
 
 const getPacienteById = async (req, res) => {
     const { id } = req.params;
@@ -27,7 +51,7 @@ const getPacienteById = async (req, res) => {
 const createPaciente = async (req, res) => {
     const { nombre, dni, obra_social_id, tutor_id } = req.body;
     try {
-        const paciente = await Paciente.create({ nombre, dni, obra_social_id, tutor_id });
+        const paciente = await Paciente.create({ nombre, dni, obra_social_id, tutor_id: tutor_id || null });
         res.status(201).json({ success: true, message: "Paciente creado", data: paciente });
     } catch (error) {
         console.error("Error al crear el paciente:", error);
@@ -43,7 +67,7 @@ const updatePaciente = async (req, res) => {
         if (!paciente) {
             return res.status(404).json({ success: false, message: "Paciente no encontrado" });
         }
-        await paciente.update({ nombre, dni, obra_social_id, tutor_id });
+        await paciente.update({ nombre, dni, obra_social_id, tutor_id: tutor_id || null, });
         res.status(200).json({ success: true, message: "Paciente actualizado", data: paciente });
     } catch (error) {
         console.error("Error al actualizar el paciente:", error);

@@ -13,6 +13,9 @@ import VerOSPage from './pages/VerOSPage';
 import VerTutoresPage from './pages/VerTutoresPage';
 import CrearTutoresPage from './pages/CrearTutoresPage';
 
+import VerPacientesPage from './pages/VerPacientesPage';
+import CrearPacientesPage from './pages/CrearPacientesPage';
+
 const App = () => {
   return(
     <Router>
@@ -30,6 +33,9 @@ const App = () => {
 
         <Route path="/crear-tutores" element={<CrearTutoresPage />}/>
         <Route path="/ver-tutores" element={<VerTutoresPage />}/>
+
+        <Route path="/crear-pacientes" element={<CrearPacientesPage />}/>
+        <Route path="/ver-pacientes" element={<VerPacientesPage />}/>
       </Routes> 
     </Router>
   );  

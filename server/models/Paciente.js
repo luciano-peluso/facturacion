@@ -1,6 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const ObraSocial = require('./ObraSocial');
+const Tutor = require('./Tutor');
 
+// Definición del modelo Paciente
 const Paciente = sequelize.define('Paciente', {
     id: {
         type: DataTypes.INTEGER,
@@ -9,7 +12,7 @@ const Paciente = sequelize.define('Paciente', {
     },
     nombre: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     dni: {
         type: DataTypes.STRING,
@@ -44,5 +47,9 @@ const Paciente = sequelize.define('Paciente', {
     paranoid: true,   // Activa deletedAt para borrado lógico
     tableName: 'pacientes', // Especifica el nombre de la tabla
 });
+
+// Establecimiento de asociaciones
+Paciente.belongsTo(ObraSocial, { as: 'obra_social', foreignKey: 'obra_social_id' });
+Paciente.belongsTo(Tutor, { as: 'tutor', foreignKey: 'tutor_id' });
 
 module.exports = Paciente;
