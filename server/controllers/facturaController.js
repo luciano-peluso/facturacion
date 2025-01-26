@@ -27,7 +27,7 @@ const getFacturaById = async (req, res) => {
 const createFactura = async (req, res) => {
     const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada } = req.body;
     try {
-        const factura = await Factura.create({ paciente, os, num_factura, valor, estado, fecha });
+        const factura = await Factura.create({ paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada });
         res.status(201).json({ success: true, message: "Factura creada", data: factura });
     } catch (error) {
         console.error("Error al crear la factura:", error);
@@ -43,7 +43,7 @@ const updateFactura = async (req, res) => {
         if (!factura) {
             return res.status(404).json({ success: false, message: "Factura no encontrada" });
         }
-        await factura.update({ paciente, os, num_factura, valor, estado, fecha });
+        await factura.update({ paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada });
         res.status(200).json({ success: true, message: "Factura actualizada", data: factura });
     } catch (error) {
         console.error("Error al actualizar la factura:", error);
