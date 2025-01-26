@@ -34,7 +34,11 @@ const Factura = sequelize.define('Factura', {
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    fecha: {
+    fecha_emision: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    fecha_facturada: {
       type: DataTypes.DATE,
       allowNull: false,
     },

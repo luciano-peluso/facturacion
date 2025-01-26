@@ -25,7 +25,7 @@ const getFacturaById = async (req, res) => {
 };
 
 const createFactura = async (req, res) => {
-    const { paciente, os, num_factura, valor, estado, fecha } = req.body;
+    const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada } = req.body;
     try {
         const factura = await Factura.create({ paciente, os, num_factura, valor, estado, fecha });
         res.status(201).json({ success: true, message: "Factura creada", data: factura });
@@ -37,7 +37,7 @@ const createFactura = async (req, res) => {
 
 const updateFactura = async (req, res) => {
     const { id } = req.params;
-    const { paciente, os, num_factura, valor, estado, fecha } = req.body;
+    const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada } = req.body;
     try {
         const factura = await Factura.findByPk(id);
         if (!factura) {
