@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
 

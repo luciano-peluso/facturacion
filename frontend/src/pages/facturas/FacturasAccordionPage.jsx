@@ -17,7 +17,7 @@ import {
     Td,
     Text,
 } from "@chakra-ui/react";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 
 const FacturasPage = () => {
     const [facturas, setFacturas] = useState([]);

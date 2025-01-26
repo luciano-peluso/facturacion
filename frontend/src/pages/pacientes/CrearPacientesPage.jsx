@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Card, CardBody, Heading, FormControl, FormLabel, Input, Select, Button, useToast, } from "@chakra-ui/react";
 import axios from "axios";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 
 const CrearPacientePage = () => {
   const [formData, setFormData] = useState({ nombre: "", dni: "", obra_social_id: "", tutor_id: ""});

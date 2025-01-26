@@ -14,7 +14,7 @@ import {
   } from "@chakra-ui/react";
   import { useState } from "react";
   import axios from "axios";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
   
   const CrearFactura = () => {
     const [formData, setFormData] = useState({

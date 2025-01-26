@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 import { Card, CardBody, Container, FormControl, FormLabel, Heading, Input, Button, useToast } from "@chakra-ui/react";
 import axios from "axios";
 

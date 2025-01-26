@@ -8,7 +8,7 @@ const Factura = sequelize.define('Factura', {
       primaryKey: true,
       autoIncrement: true,
     },
-    paciente: {
+    paciente_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -22,7 +22,7 @@ const Factura = sequelize.define('Factura', {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    num_factura: {
+    numero_factura: {
       type: DataTypes.STRING,
       allowNull: false,
     },

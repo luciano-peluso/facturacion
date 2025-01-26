@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Index from './pages/Index'
-import FacturasAccordionPage from './pages/FacturasAccordionPage'
-import FacturasFiltroPage from './pages/FacturasFiltroPage'
+import FacturasAccordionPage from './pages/facturas/FacturasAccordionPage'
+import FacturasFiltroPage from './pages/facturas/FacturasFiltroPage'
 
-import VerFacturasPage from './pages/FacturasPage';
-import CrearFacturasPage from './pages/CrearFacturasPage';
+import VerFacturasPage from './pages/facturas/VerFacturasPage';
+import CrearFacturasPage from './pages/facturas/CrearFacturasPage';
 
-import CrearOSPage from './pages/CrearOSPage';
-import VerOSPage from './pages/VerOSPage';
+import CrearOSPage from './pages/os/CrearOSPage';
+import VerOSPage from './pages/os/VerOSPage';
 
-import VerTutoresPage from './pages/VerTutoresPage';
-import CrearTutoresPage from './pages/CrearTutoresPage';
+import VerTutoresPage from './pages/tutores/VerTutoresPage';
+import CrearTutoresPage from './pages/tutores/CrearTutoresPage';
 
-import VerPacientesPage from './pages/VerPacientesPage';
-import CrearPacientesPage from './pages/CrearPacientesPage';
+import VerPacientesPage from './pages/pacientes/VerPacientesPage';
+import CrearPacientesPage from './pages/pacientes/CrearPacientesPage';
 
 const App = () => {
   return(

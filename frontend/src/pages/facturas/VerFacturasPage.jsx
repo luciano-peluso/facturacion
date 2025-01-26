@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 
 
 const FacturasPage = () => {

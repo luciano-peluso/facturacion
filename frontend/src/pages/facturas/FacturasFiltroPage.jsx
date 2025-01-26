@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Container, Heading, Box, Table, Thead, Tbody, Tr, Th, Td, IconButton } from "@chakra-ui/react";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import Header from "../componentes/header";
+import Header from "../../componentes/header";
 
 const FacturasPage = () => {
     const [facturas, setFacturas] = useState([]);
