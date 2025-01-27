@@ -3,7 +3,8 @@ import axios from "axios";
 import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
 import Header from "../../componentes/header";
-
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const FacturasPage = () => {
     const [facturaActualizada, setFacturaActualizada] = useState({});
@@ -16,7 +17,7 @@ const FacturasPage = () => {
     const traerFacturas = async () => {
         try {
             const response = await axios.get("http://localhost:3000/api/facturas");
-            const facturasSorted = response.data.data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            const facturasSorted = response.data.data.sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision));
             setFacturas(facturasSorted);
         } catch (error) {
             console.log("Error al traer las facturas: ", error);
@@ -42,39 +43,36 @@ const FacturasPage = () => {
         console.log("Buscamos un monto entre:", montoTope, " y ", montoMin);
 
         const nuevasFacturas = facturas.filter(factura => 
-            factura.valor > montoMin && factura.valor < montoTope && factura.estado === false
+            factura.monto > montoMin && factura.monto < montoTope && factura.estado === false
         );
 
         setFacturas(nuevasFacturas);
     };
 
     const buscarPares = () => {
-        // Calculamos el rango de tolerancia (±10%)
         const rangoMinimo = monto * 0.9;
         const rangoMaximo = monto * 1.1;
         
-        // Filtramos solo facturas no cobradas
         const facturasPendientes = facturas.filter(f => !f.estado);
       
-        // Agrupamos facturas por paciente
         const facturasPorPaciente = facturasPendientes.reduce((acc, factura) => {
-          if (!acc[factura.paciente]) {
-            acc[factura.paciente] = [];
+          if (!acc[factura.paciente_id]) {
+            acc[factura.paciente_id] = [];
           }
-          acc[factura.paciente].push(factura);
+          acc[factura.paciente_id].push(factura);
           return acc;
         }, {});
       
-        // Array para almacenar las facturas que cumplen con el criterio
         let facturasResultado = [];
       
-        // Para cada paciente, buscamos si la suma de sus facturas está en el rango
-        Object.entries(facturasPorPaciente).forEach(([paciente, facturasDelPaciente]) => {
-          // Si el paciente tiene más de una factura, calculamos todas las combinaciones posibles de 2
+        Object.entries(facturasPorPaciente).forEach(([paciente_id, facturasDelPaciente]) => {
           if (facturasDelPaciente.length >= 2) {
             for (let i = 0; i < facturasDelPaciente.length - 1; i++) {
               for (let j = i + 1; j < facturasDelPaciente.length; j++) {
-                const suma = facturasDelPaciente[i].valor + facturasDelPaciente[j].valor;
+                const valor1 = parseFloat(facturasDelPaciente[i].monto);
+                const valor2 = parseFloat(facturasDelPaciente[j].monto)
+                const suma = valor1 + valor2;
+                console.log(suma);
                 if (suma >= rangoMinimo && suma <= rangoMaximo) {
                   facturasResultado.push(facturasDelPaciente[i], facturasDelPaciente[j]);
                 }
@@ -83,15 +81,14 @@ const FacturasPage = () => {
           }
         });
       
-        // Ordenamos el resultado final por paciente
         facturasResultado.sort((a, b) => {
-          if (a.paciente < b.paciente) return -1;
-          if (a.paciente > b.paciente) return 1;
+          if (a.paciente_id < b.paciente_id) return -1;
+          if (a.paciente_id > b.paciente_id) return 1;
           return 0;
         });
-        console.log(facturasResultado);
+        
         setFacturas(facturasResultado);
-    };
+     };
 
     const filtrarNoCobradas = () => {
         const facturasFiltradas = facturas.filter(factura => 
@@ -183,7 +180,7 @@ const FacturasPage = () => {
     return (
         <>
         <Header />
-        <Container maxW="container.xl" py={8}>
+        <Container maxW="container.2xl" py={8}>
 
             <HStack mb="10" alignItems="center" spacing={2}>
             <InputGroup>
@@ -230,21 +227,26 @@ const FacturasPage = () => {
                         <Tr>
                             <Th>Nombre del Paciente</Th>
                             <Th>Obra Social</Th>
+                            <Th>Representante legal</Th>
                             <Th>Numero de factura</Th>
                             <Th>Valor</Th>
-                            <Th>Fecha</Th>
+                            <Th>Periodo facturado</Th>
+                            <Th>Fecha de emision</Th>
                             <Th>Cobrado</Th>
-                            <Th>Acciones</Th>
+                            <Th textAlign="center">Acciones</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
                         {facturas.map((factura) => (
                             <Tr key={factura.id}>
-                                <Td>{factura.paciente}</Td>
-                                <Td>{factura.os}</Td>
-                                <Td>{factura.num_factura}</Td>
-                                <Td isNumeric>${factura.valor}</Td>
-                                <Td>{factura.fecha}</Td>
+                                <Td>{factura.paciente.nombre}</Td>
+                                <Td>{factura.paciente.obra_social.nombre} (CUIT: {factura.paciente.obra_social.cuit})</Td>
+                                <Td>{factura.paciente?.tutor? `${factura.paciente.tutor.nombre} (DNI: ${factura.paciente.tutor.dni})`: "Sin tutor"}</Td>
+                                <Td>{factura.numero_factura}</Td>
+                                <Td>${factura.monto}</Td>
+                                <Td>{factura.fecha_facturada ? format(new Date(factura.fecha_facturada), "MMMM yyyy", { locale: es })
+                                    .replace(/^\w/, (c) => c.toUpperCase()) : "Fecha no disponible"}</Td>
+                                <Td>{factura.fecha_emision}</Td>
                                 <Td>{factura.estado ? "Cobrado" : "Pendiente"}</Td>
                                 <Td>
                                     <VStack>

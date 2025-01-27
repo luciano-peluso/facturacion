@@ -1,8 +1,30 @@
 const Factura = require('../models/Factura');
+const Paciente = require('../models/Paciente')
+const ObraSocial = require('../models/ObraSocial');
+const Tutor = require('../models/Tutor');
 
 const getFacturas = async (req, res) => {
     try {
-        const facturas = await Factura.findAll({ paranoid:false }); 
+        const facturas = await Factura.findAll({ 
+            paranoid:true,
+            include: [
+                {
+                    model: Paciente, 
+                    as: 'paciente', // Alias definido en las asociaciones
+                    attributes: ['id', 'nombre'],
+                    include: [{
+                            model: ObraSocial, // Relación con ObraSocial
+                            as: 'obra_social', // Alias definido en la asociación
+                            attributes: ['id', 'nombre', 'cuit'], // Selecciona solo los campos relevantes de la obra social
+                        },
+                        {
+                            model: Tutor, // Relación con Tutor
+                            as: 'tutor', // Alias definido en la asociación
+                            attributes: ['id', 'nombre', 'dni'], // Selecciona solo los campos relevantes del tutor
+                        },
+                    ] 
+                }
+            ], }); 
         res.status(200).json({success: true, message:"Facturas traidas con éxito", data: facturas});
     } catch (error) {
         console.error("Error al traer las facturas: ", error);
@@ -65,6 +87,7 @@ const deleteFactura = async (req, res) => {
         res.status(500).json({ success: false, message: "Error al eliminar la factura" });
     }
 };
+
 
 module.exports = {
     getFacturas,

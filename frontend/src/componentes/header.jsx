@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Flex, Spacer, Heading } from "@chakra-ui/react";
+import { Box, Flex, Spacer, Heading, HStack } from "@chakra-ui/react";
 import MenuHamburguesa from "./menuHamburguesa";
+import MenuNotificaciones from "./MenuNotificaciones"
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -17,7 +18,10 @@ const Header = () => {
     >
       <Heading size="md">Factureitor</Heading>
       <Spacer />
+      <HStack>
+      <MenuNotificaciones />
       <MenuHamburguesa onNavigate={(path) => navigate(path)} />
+      </HStack>
     </Flex>
   );
 };

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const Paciente = require('./Paciente');
 
 // Definimos el modelo de Factura
 const Factura = sequelize.define('Factura', {
@@ -50,5 +51,7 @@ const Factura = sequelize.define('Factura', {
     paranoid: true,   // Activa deletedAt para borrado lógico
     tableName: 'facturas', // Especifica el nombre de la tabla
   });
-  
-  module.exports = Factura;
+  // Factura pertenece a un Paciente
+Factura.belongsTo(Paciente, { as: 'paciente', foreignKey: 'paciente_id' });
+
+module.exports = Factura;

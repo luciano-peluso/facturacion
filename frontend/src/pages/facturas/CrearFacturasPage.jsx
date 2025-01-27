@@ -1,32 +1,33 @@
-import {
-    Container,
-    Card,
-    CardBody,
-    Heading,
-    FormControl,
-    FormLabel,
-    Input,
-    NumberInput,
-    NumberInputField,
-    Select,
-    Button,
-    useToast,
-  } from "@chakra-ui/react";
-  import { useState } from "react";
-  import axios from "axios";
+import { Container, Card, CardBody, Heading, FormControl, FormLabel, Input, NumberInput, NumberInputField, Select, Button, useToast, InputGroup, InputLeftElement, } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import Header from "../../componentes/header";
   
   const CrearFactura = () => {
-    const [formData, setFormData] = useState({
-      paciente: "",
-      os: "",
-      num_factura: "",
-      valor: 0,
-      estado: "false",
-      fecha: "",
-    });
-  
+    const [pacientes, setPacientes] = useState([]);
     const toast = useToast();
+    const [formData, setFormData] = useState({
+      paciente_id: "",
+      punto_de_venta: "",
+      numero_factura: "",
+      monto: '',
+      estado: "false",
+      fecha_emision: "",
+      fecha_facturada: "",
+    });
+
+    const traerPacientes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/pacientes');
+        if(!response) {
+          console.error("Error en la respuesta al traer los pacientes:", error);
+        }
+        setPacientes(response.data.data);
+      } catch (error) {
+        console.error("Error al traer los pacientes:", error);
+      }
+    } 
+
   
     // Manejar cambios en los inputs
     const handleChange = (e) => {
@@ -35,10 +36,20 @@ import Header from "../../componentes/header";
     };
   
     // Manejar cambios en el NumberInput
-    const handleNumberChange = (valueAsNumber) => {
-      setFormData((prev) => ({ ...prev, valor: valueAsNumber }));
+    const handleNumberChange = (event) => {
+      const value = event.target.value;
+  
+      // Reemplaza comas por puntos para manejar decimales
+      const sanitizedValue = value.replace(',', '.');
+  
+      // Actualiza el estado con el valor sanitizado
+      setFormData({
+        ...formData,
+        monto: sanitizedValue,
+      });
     };
   
+    const formattedValue = formData.monto.replace('.', ',');
     // Enviar los datos al backend
     const handleSubmit = async () => {
       try {
@@ -61,8 +72,20 @@ import Header from "../../componentes/header";
           isClosable: true,
         });
       }
+      setFormData({paciente_id: "",
+        punto_de_venta: "",
+        numero_factura: "",
+        monto: '',
+        estado: "false",
+        fecha_emision: "",
+        fecha_facturada: "",
+      });
     };
   
+    useEffect(() => {
+      traerPacientes();
+    },[]);
+
     return (
         <>
         <Header></Header>
@@ -71,43 +94,57 @@ import Header from "../../componentes/header";
           <CardBody>
             <Heading pb={5}>Crear una factura</Heading>
             <FormControl>
-              <FormLabel>Nombre de Paciente</FormLabel>
-              <Input
-                type="text"
-                name="paciente"
-                placeholder="Ej. Luis Quinteros"
-                value={formData.paciente}
-                onChange={handleChange}
-              />
-  
-              <FormLabel>Obra Social</FormLabel>
-              <Input
-                type="text"
-                name="os"
-                placeholder="Ej. OSDE"
-                value={formData.os}
-                onChange={handleChange}
-              />
-  
+              <FormControl isRequired mt={4}>
+                <FormLabel>Paciente</FormLabel>
+                <Select
+                  placeholder="Selecciona un paciente"
+                  name="paciente_id"
+                  value={formData.paciente_id}
+                  onChange={handleChange}
+                >
+                  {pacientes.map((paciente) => (
+                    <option key={paciente.id} value={paciente.id}>
+                      {paciente.nombre}
+                    </option>
+                  ))}
+                </Select></FormControl>
+              
+              <FormControl isRequired mt={4}>
+              <FormLabel>Punto de venta</FormLabel>
+                <Input
+                  type="text"
+                  name="punto_de_venta"
+                  placeholder="Ej. 00002"
+                  value={formData.punto_de_venta}
+                  onChange={handleChange}
+                /></FormControl>
+
+              
+              <FormControl isRequired mt={4}>
               <FormLabel>Número de factura</FormLabel>
               <Input
                 type="text"
-                name="num_factura"
+                name="numero_factura"
                 placeholder="Ej. 0000007"
-                value={formData.num_factura}
+                value={formData.numero_factura}
                 onChange={handleChange}
-              />
+              /></FormControl>
+  
   
               <FormLabel>Monto</FormLabel>
-              <NumberInput
-                value={formData.valor}
-                min={0}
-                precision={2}
-                onChange={(_, valueAsNumber) => handleNumberChange(valueAsNumber)}
-              >
-                <NumberInputField />
-              </NumberInput>
-  
+              <InputGroup>
+                <InputLeftElement pointerEvents='none' color='gray.500' fontSize='1.2em'>
+                  $
+                </InputLeftElement>
+                  <Input
+                    type="text" // Usamos type="text" para permitir comas 
+                    value={formattedValue} // Muestra el valor con comas
+                    placeholder="23456,78"
+                    onChange={handleNumberChange}
+                  /></InputGroup>
+              
+              
+              <FormControl isRequired mt={4}>
               <FormLabel>Estado</FormLabel>
               <Select
                 name="estado"
@@ -116,15 +153,27 @@ import Header from "../../componentes/header";
               >
                 <option value="true">Cobrado</option>
                 <option value="false">Pendiente</option>
-              </Select>
-  
-              <FormLabel>Fecha</FormLabel>
+              </Select></FormControl>
+              
+              
+              <FormControl isRequired mt={4}>
+              <FormLabel>Inicio de periodo facturado</FormLabel>
               <Input
                 type="date"
-                name="fecha"
-                value={formData.fecha}
+                name="fecha_facturada"
+                value={formData.fecha_facturada}
                 onChange={handleChange}
-              />
+              /></FormControl>
+
+              
+              <FormControl isRequired mt={4}>
+              <FormLabel>Fecha emision</FormLabel>
+              <Input
+                type="date"
+                name="fecha_emision"
+                value={formData.fecha_emision}
+                onChange={handleChange}
+              /></FormControl>
   
               <Button
                 mt={4}
