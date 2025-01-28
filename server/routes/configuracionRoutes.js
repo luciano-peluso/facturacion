@@ -6,7 +6,7 @@ const router = express.Router();
 // Endpoints
 router.get('/', getConfiguracion);
 router.post('/', createConfiguracion);
-router.put('/actualizar/:id', updateConfiguracion);
-router.delete('/borrar/:id', deleteConfiguracion);
+router.put('/actualizar', updateConfiguracion);
+router.delete('/borrar', deleteConfiguracion);
 
 module.exports = router;

@@ -10,10 +10,21 @@ const FacturasPage = () => {
     const [facturaActualizada, setFacturaActualizada] = useState({});
     const [facturas, setFacturas] = useState([]);
     const [monto, setMonto] = useState([]);
-    const {isOpen, onOpen, onClose } = useDisclosure();
+    const [rangoPrecision, setRangoPrecision] = useState([]);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const toast = useToast();
 
+    const obtenerRangoPrecision = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/configuracion');
+            setRangoPrecision(response.data.data.rango_precision);
+        } catch (error) {
+            console.error("Error al traer el rango precision. Dejandolo en default...");
+            setRangoPrecision(10);
+        }
+    }
+    
     const traerFacturas = async () => {
         try {
             const response = await axios.get("http://localhost:3000/api/facturas");
@@ -26,6 +37,7 @@ const FacturasPage = () => {
 
     useEffect(() => {
         traerFacturas();
+        obtenerRangoPrecision();
     }, []);
 
     const handleRefresh = () => {
@@ -35,9 +47,9 @@ const FacturasPage = () => {
 
    const handleClick = () => {
         console.log("Monto buscado:", monto);
-
-        const montoTope = monto*1.10;
-        const montoMin = monto*0.90
+        
+        const montoTope = monto * (1 + parseFloat(rangoPrecision) / 100); // Sumar el porcentaje de rango
+        const montoMin = monto * (1 - parseFloat(rangoPrecision) / 100);
 
         
         console.log("Buscamos un monto entre:", montoTope, " y ", montoMin);
@@ -50,8 +62,8 @@ const FacturasPage = () => {
     };
 
     const buscarPares = () => {
-        const rangoMinimo = monto * 0.9;
-        const rangoMaximo = monto * 1.1;
+        const rangoMinimo = monto * (1 - rangoPrecision / 100);
+        const rangoMaximo = monto * (1 + rangoPrecision / 100);
         
         const facturasPendientes = facturas.filter(f => !f.estado);
       
@@ -166,7 +178,7 @@ const FacturasPage = () => {
         setFacturaActualizada((prev) => ({ ...prev, [name]: value }));
     };
     
-      const handleNumberChange = (_, valueAsNumber) => {
+    const handleNumberChange = (_, valueAsNumber) => {
         setFacturaActualizada((prev) => ({ ...prev, valor: valueAsNumber }));
     };
 
