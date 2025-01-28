@@ -1,31 +1,45 @@
-const express = require('express');
 require('dotenv').config(); 
+const express = require('express');
 const cors = require('cors');
+const { createDatabaseIfNotExists, syncModels } = require('./config/db');
 
-const facturasRoutes = require('./routes/facturasRoutes'); 
+const facturasRoutes = require('./routes/facturasRoutes');
 const pacientesRoutes = require('./routes/pacienteRoutes');
 const obrasSocialesRoutes = require('./routes/obrasSocialesRoutes');
 const tutoresRoutes = require('./routes/tutoresRoutes');
-const { revisarFacturasVencidas } = require('./cronJobs/facturasVencidas')
-const { getNotificaciones } = require('./controllers/notificacionController');
+
+const { revisarFacturasVencidas } = require('./cronJobs/facturasVencidas');
 
 const app = express();
-
-app.use(cors());
-
 const port = process.env.PORT || 3000;
 
-// Middlewares
+app.use(cors());
 app.use(express.json()); // Parsear JSON
 
-app.use('/api/facturas', facturasRoutes); // Prefijo para las rutas de facturas
-app.use('/api/pacientes', pacientesRoutes); // Prefijo para las rutas de pacientes
-app.use('/api/os', obrasSocialesRoutes); // Prefijo para las rutas de las obras sociales
-app.use('/api/tutores', tutoresRoutes); // Prefijo para las rutas de las obras sociales
-app.get('/api/notificaciones', getNotificaciones);
+// Rutas
+app.use('/api/facturas', facturasRoutes);
+app.use('/api/pacientes', pacientesRoutes);
+app.use('/api/os', obrasSocialesRoutes);
+app.use('/api/tutores', tutoresRoutes);
 
-revisarFacturasVencidas();
+// Inicialización
+(async () => {
+  try {
+    // Crea la base de datos si no existe
+    await createDatabaseIfNotExists();
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
-});
+    // Sincroniza los modelos y las tablas
+    await syncModels();
+
+    // Inicia el servidor
+    app.listen(port, () => {
+      console.log(`Servidor corriendo en http://localhost:${port}`);
+    });
+
+    // Ejecuta el cron job
+    revisarFacturasVencidas();
+  } catch (error) {
+    console.error('Error al iniciar la aplicación:', error);
+    process.exit(1);
+  }
+})();
