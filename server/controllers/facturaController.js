@@ -103,7 +103,7 @@ const obtenerFacturasPorMes = async (req, res) => {
                 [Op.between]: [inicioMes, finMes],
             },
         },
-        attributes: ["id", "monto", "fecha_cobro", "es_consultorio"],
+        attributes: ["id", "numero_factura", "monto", "fecha_cobro", "es_consultorio"],
         paranoid: true
         });
         res.status(200).json({ success: true, data: facturas });
