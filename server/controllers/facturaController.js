@@ -61,12 +61,20 @@ const createFactura = async (req, res) => {
 const updateFactura = async (req, res) => {
     const { id } = req.params;
     const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+
     try {
         const factura = await Factura.findByPk(id);
         if (!factura) {
             return res.status(404).json({ success: false, message: "Factura no encontrada" });
         }
-        await factura.update({ paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio });
+
+        // Si la factura se marca como "Pendiente", borramos la fecha de cobro
+        const nuevaFechaCobro = estado ? fecha_cobro : null;
+
+        const nuevoMonto = parseFloat(monto.replace(",","."));
+
+        await factura.update({ paciente_id, punto_de_venta, numero_factura, monto: nuevoMonto, estado, fecha_emision, fecha_facturada, fecha_cobro: nuevaFechaCobro, es_consultorio });
+
         res.status(200).json({ success: true, message: "Factura actualizada", data: factura });
     } catch (error) {
         console.error("Error al actualizar la factura:", error);

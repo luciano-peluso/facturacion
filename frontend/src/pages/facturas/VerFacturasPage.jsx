@@ -1,19 +1,34 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputRightElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast } from "@chakra-ui/react";
+import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputLeftElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast, Select, FormLabel } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
 import Header from "../../componentes/header";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 const FacturasPage = () => {
-    const [facturaActualizada, setFacturaActualizada] = useState({});
     const [facturas, setFacturas] = useState([]);
     const [monto, setMonto] = useState([]);
+    const [pacientes, setPacientes] = useState([]);
     const [rangoPrecision, setRangoPrecision] = useState([]);
     const { isOpen, onOpen, onClose } = useDisclosure();
 
+    const [facturaActualizada, setFacturaActualizada] = useState({
+        paciente_id: "",
+        punto_de_venta: "",
+        numero_factura: "",
+        monto: '',
+        estado: "false",
+        fecha_emision: "",
+        fecha_facturada: "",
+        es_consultorio: "false",
+        fecha_cobro: "",
+      });
+      
     const toast = useToast();
+
+    const formattedValue = facturaActualizada.monto ? facturaActualizada.monto.toString().replace('.', ',') : '';
+
 
     const obtenerRangoPrecision = async () => {
         try {
@@ -38,6 +53,7 @@ const FacturasPage = () => {
     useEffect(() => {
         traerFacturas();
         obtenerRangoPrecision();
+        traerPacientes();
     }, []);
 
     const handleRefresh = () => {
@@ -112,8 +128,10 @@ const FacturasPage = () => {
 
     const marcarCobrada = async (id) => {
         try {
+            const hoy = new Date();
             const response = await axios.put(`http://localhost:3000/api/facturas/actualizar/${id}`, {
                 estado: true,
+                fecha_cobro: hoy,
             });
             console.log(`Factura con ID ${id} marcada como cobrada:`, response.data);
     
@@ -126,7 +144,7 @@ const FacturasPage = () => {
 
     const eliminar = async (id) => {
         try {
-            const response = await axios.put(`http://localhost:3000/api/facturas/borrar/${id}`);
+            const response = await axios.delete(`http://localhost:3000/api/facturas/borrar/${id}`);
             console.log(`Factura con ID ${id} eliminada:`, response.data);
             traerFacturas();
             toast({
@@ -175,11 +193,34 @@ const FacturasPage = () => {
  
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFacturaActualizada((prev) => ({ ...prev, [name]: value }));
+        const newValue = name === "estado" ? value === "true" : value;
+    
+        setFacturaActualizada((prevState) => ({
+            ...prevState,
+            [name]: newValue,
+            ...(name === "estado" && !newValue ? { fecha_cobro: "" } : {}), // Si estado es false, limpiar fecha_cobro
+        }));
     };
     
-    const handleNumberChange = (_, valueAsNumber) => {
-        setFacturaActualizada((prev) => ({ ...prev, valor: valueAsNumber }));
+    
+    const handleMontoChange = (event) => {
+        const inputValue = event.target.value;
+
+        // Filtra los caracteres no deseados (solo permite números y una coma)
+        const filteredValue = inputValue.replace(/[^0-9,]/g, '');
+        
+        // Asegúrate de que solo haya una coma
+        const parts = filteredValue.split(',');
+        if (parts.length > 2) {
+            // Si hay más de una coma, no actualices el estado
+            return;
+        }
+
+        // Actualiza el estado con el valor filtrado
+        setFacturaActualizada({
+            ...facturaActualizada,
+            monto: filteredValue,
+        });
     };
 
     const handleEditClick = (factura) => {
@@ -187,7 +228,15 @@ const FacturasPage = () => {
         console.log(factura);
         onOpen();  // Abrir la modal
     };
-     
+    
+    const traerPacientes = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/pacientes');
+            setPacientes(response.data.data);
+        } catch (error) {
+            console.error("Error al traer los pacientes:", error);
+        }
+    }
     
     return (
         <>
@@ -296,51 +345,115 @@ const FacturasPage = () => {
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Editar un paciente</ModalHeader>
+                    <ModalHeader>Editar Factura</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <VStack>
-                            <Input 
-                                placeholder="Nombre del cliente"
-                                name="paciente"
-                                value={facturaActualizada.paciente}
-                                onChange={handleChange}/>
-                            <Input 
-                                placeholder="Obra social"
-                                name="os"
-                                value={facturaActualizada.os}
-                                onChange={handleChange}/>
-                            <Input 
-                                placeholder="Numero de factura"
-                                name="num_factura"
-                                value={facturaActualizada.num_factura}
-                                onChange={handleChange}/>
-                            <NumberInput
-                                name="valor"
-                                min={0}
-                                value={facturaActualizada.valor}
-                                precision={2}
-                                onChange={handleNumberChange}
-                                >
-                                <NumberInputField 
-                                placeholder="Monto de la factura"/>
-                            </NumberInput>
-                            <Input 
-                                placeholder="Fecha de la factura"
-                                name="fecha"
-                                type="date"
-                                value={facturaActualizada.fecha}
-                                onChange={handleChange}/>
-                        </VStack>
+                    <VStack spacing={1}>
+                        {/* Select de Pacientes */}
+                        <FormLabel htmlFor="paciente_id">Paciente</FormLabel>
+                        <Select
+                        name="paciente_id"
+                        value={facturaActualizada.paciente_id}
+                        onChange={handleChange}
+                        placeholder="Selecciona un paciente"
+                        >
+                        {pacientes.map((paciente) => (
+                            <option key={paciente.id} value={paciente.id}>
+                            {paciente.nombre} {paciente.apellido}
+                            </option>
+                        ))}
+                        </Select>
+
+                        {/* Número de factura */}
+                        <FormLabel>Número de factura</FormLabel>
+                        <Input
+                        type="text"
+                        name="numero_factura"
+                        placeholder="Ej. 0000007"
+                        value={facturaActualizada.numero_factura}
+                        onChange={handleChange}
+                        />
+
+                        <FormLabel>Monto</FormLabel>
+                        <InputGroup>
+                            <InputLeftElement pointerEvents="none" color="gray.500" fontSize="1.2em">
+                                $
+                            </InputLeftElement>
+                            <Input
+                                type="text"
+                                value={facturaActualizada.monto || ""}
+                                placeholder="23456,78"
+                                onChange={handleMontoChange}
+                            />
+                        </InputGroup>
+
+                        {/* Fecha de facturación */}
+                        <FormLabel htmlFor="fecha_facturada">Fecha de facturación</FormLabel>
+                        <Input
+                        placeholder="Fecha de facturación"
+                        name="fecha_facturada"
+                        type="date"
+                        value={facturaActualizada.fecha_facturada}
+                        onChange={handleChange}
+                        />
+
+                        {/* Fecha de emisión */}
+                        <FormLabel htmlFor="fecha_emision">Fecha de emisión</FormLabel>
+                        <Input
+                        placeholder="Fecha de emisión"
+                        name="fecha_emision"
+                        type="date"
+                        value={facturaActualizada.fecha_emision}
+                        onChange={handleChange}
+                        />
+
+                        {/* Consultorio */}
+                        <FormLabel>¿Consultorio o particular?</FormLabel>
+                        <Select
+                        name="es_consultorio"
+                        value={facturaActualizada.es_consultorio}
+                        onChange={handleChange}
+                        >
+                        <option value="true">Consultorio</option>
+                        <option value="false">Particular</option>
+                        </Select>
+
+                        <FormLabel htmlFor="estado">Estado</FormLabel>
+                        <Select
+                        name="estado"
+                        value={facturaActualizada.estado ? "true" : "false"}  // Usamos "true" y "false" como valores de cadena
+                        onChange={handleChange}
+                        >
+                        <option value="false">Pendiente</option>
+                        <option value="true">Cobrada</option>
+                        </Select>
+
+                        {/* Si el estado es "Cobrada", mostrar la fecha de cobro */}
+                        {facturaActualizada.estado && (
+                        <>
+                            <FormLabel htmlFor="fecha_cobro">Fecha de cobro</FormLabel>
+                            <Input
+                            placeholder="Fecha de cobro"
+                            name="fecha_cobro"
+                            type="date"
+                            value={facturaActualizada.fecha_cobro}
+                            onChange={handleChange}
+                            />
+                        </>
+                        )}
+                    </VStack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} 
-                            onClick={() => handleActualizar(facturaActualizada.id, facturaActualizada)}>
-                            Actualizar
-                        </Button>
-                        <Button variant={"ghost"} onClick={onClose}>
-                            Cancelar
-                        </Button>
+                    <Button
+                        colorScheme="blue"
+                        mr={3}
+                        onClick={() => handleActualizar(facturaActualizada.id, facturaActualizada)}
+                    >
+                        Actualizar
+                    </Button>
+                    <Button variant={"ghost"} onClick={onClose}>
+                        Cancelar
+                    </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

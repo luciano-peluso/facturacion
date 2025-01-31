@@ -28,7 +28,7 @@ const Factura = sequelize.define('Factura', {
       allowNull: false,
     },
     monto: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.DECIMAL(10,2),
       allowNull: false,
     },
     estado: {
@@ -36,15 +36,15 @@ const Factura = sequelize.define('Factura', {
       allowNull: false,
     },
     fecha_emision: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     fecha_facturada: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
     fecha_cobro: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true, // Debe estar en null hasta que se cobre
     },
     es_consultorio: {

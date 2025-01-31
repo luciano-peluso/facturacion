@@ -14,6 +14,8 @@ import Header from "../../componentes/header";
       estado: "false",
       fecha_emision: "",
       fecha_facturada: "",
+      es_consultorio: "false",
+      fecha_cobro: "",
     });
 
     const traerPacientes = async () => {
@@ -79,6 +81,8 @@ import Header from "../../componentes/header";
         estado: "false",
         fecha_emision: "",
         fecha_facturada: "",
+        es_consultorio: "false",
+        fecha_cobro: "",
       });
     };
   
@@ -142,20 +146,7 @@ import Header from "../../componentes/header";
                     placeholder="23456,78"
                     onChange={handleNumberChange}
                   /></InputGroup>
-              
-              
-              <FormControl isRequired mt={4}>
-              <FormLabel>Estado</FormLabel>
-              <Select
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-              >
-                <option value="true">Cobrado</option>
-                <option value="false">Pendiente</option>
-              </Select></FormControl>
-              
-              
+                           
               <FormControl isRequired mt={4}>
               <FormLabel>Inicio de periodo facturado</FormLabel>
               <Input
@@ -174,6 +165,40 @@ import Header from "../../componentes/header";
                 value={formData.fecha_emision}
                 onChange={handleChange}
               /></FormControl>
+
+              <FormControl isRequired mt={4}>
+              <FormLabel>¿Consultorio o particular?</FormLabel>
+              <Select
+                name="es_consultorio"
+                value={formData.es_consultorio}
+                onChange={handleChange}
+              >
+                <option value="true">Consultorio</option>
+                <option value="false">Particular</option>
+              </Select></FormControl>
+
+              <FormControl isRequired mt={4}>
+              <FormLabel>Estado</FormLabel>
+              <Select
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+              >
+                <option value="true">Cobrado</option>
+                <option value="false">Pendiente</option>
+              </Select></FormControl>
+
+              {formData.estado === "true" ? 
+              <FormControl isRequired mt={4}>
+              <FormLabel>Fecha cobro</FormLabel>
+              <Input
+                type="date"
+                name="fecha_cobro"
+                value={formData.fecha_cobro}
+                onChange={handleChange}
+              /></FormControl>
+              : <>{formData.fecha_cobro = null}</>}
+              
   
               <Button
                 mt={4}
