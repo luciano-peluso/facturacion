@@ -43,6 +43,14 @@ const Factura = sequelize.define('Factura', {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    fecha_cobro: {
+      type: DataTypes.DATE,
+      allowNull: true, // Debe estar en null hasta que se cobre
+    },
+    es_consultorio: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   }, {
     timestamps: true, // Activa createdAt y updatedAt
     createdAt: 'createdat', // Mapea el nombre en minúsculas
