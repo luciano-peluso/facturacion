@@ -87,6 +87,20 @@ import {
                 >
                   Ver Facturas
                 </Button>
+                <Button
+                  variant="solid"
+                  colorScheme="gray"
+                  color="black"
+                  fontWeight="normal"
+                  justifyContent="flex-start"
+                  _hover={{ bg: "pink.200" }}
+                  onClick={() => {
+                    onNavigate("/calcular-totales");
+                    onClose();
+                  }}
+                >
+                  Ver totales comision
+                </Button>
                 <Divider />
                 <DrawerHeader fontSize="md" color="black" pl={0}>
                   Pacientes
