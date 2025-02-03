@@ -1,7 +1,9 @@
-import { Box, Button, Card, CardBody, CardHeader, Container, Divider, Flex, FormControl, FormLabel, Heading, Select, Text } from "@chakra-ui/react";
+import { Box, Button, Card, CardBody, CardHeader, Container, Divider, Flex, FormControl, FormLabel, Heading, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import axios from "axios";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 
 const TotalesPage = () => {
@@ -45,8 +47,15 @@ const TotalesPage = () => {
                 return;
             }
     
+            // Sumar todos los montos
             let total = nuevasFacturas.reduce((acc, factura) => acc + parseFloat(factura.monto), 0);
-            const comision = total * (porcentajeComision / 100);
+    
+            // Filtrar solo las facturas del consultorio y calcular la comisión
+            let totalConsultorio = nuevasFacturas
+                .filter(factura => factura.es_consultorio) // Solo consultorio
+                .reduce((acc, factura) => acc + parseFloat(factura.monto), 0);
+    
+            const comision = totalConsultorio * (porcentajeComision / 100);
     
             setTotales({
                 total_bruto: total,
@@ -104,20 +113,59 @@ const TotalesPage = () => {
                     <Divider mt={5} mb={5} />
                     
                     {facturas.length > 0 ? (
-                    <Box mt={4}>
-                        <Heading size="md" mb={2}>Facturas encontradas:</Heading>
-                        {facturas.map((factura) => (
-                            <Text key={factura.id}>
-                                Factura #{factura.numero_factura} - ${factura.monto} - {factura.fecha_cobro} - {factura.es_consultorio ? "Consultorio" : "Particular"}
-                            </Text>
-                        ))}
-                        <Divider mt={3} mb={3}/>
-                        <Text>
-                            <strong>Total Bruto:</strong> {totales.total_bruto} - <strong>Total Neto:</strong> {totales.total_neto} - <strong>Total Comisión:</strong> {totales.total_comision}
-                        </Text>
-                    </Box>
+                        <Box
+                         mt={4} p={4} border="1px solid" borderColor="gray.300" borderRadius="md">
+                            <Heading size="md" mb={4} textAlign="center">Facturas encontradas</Heading>
+                            
+                            {/* Tabla de facturas */}
+                            <Table variant="striped" colorScheme="teal" size="sm">
+                                <Thead>
+                                    <Tr>
+                                        <Th>#</Th>
+                                        <Th>Número Factura</Th>
+                                        <Th>Monto</Th>
+                                        <Th>Fecha Facturada</Th>
+                                        <Th>Fecha Cobro</Th>
+                                        <Th>Tipo</Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {facturas.map((factura, index) => (
+                                        <Tr key={factura.id}>
+                                            <Td>{index + 1}</Td>
+                                            <Td>{factura.numero_factura}</Td>
+                                            <Td>${Number(factura.monto).toFixed(2)}</Td>
+                                            <Td>{factura.fecha_facturada ? format(new Date(factura.fecha_facturada), "MMMM yyyy", { locale: es })
+                                                                                .replace(/^\w/, (c) => c.toUpperCase()) : "Fecha no disponible"}</Td>
+                                            <Td>{factura.fecha_cobro}</Td>
+                                            <Td>{factura.es_consultorio ? "Consultorio" : "Particular"}</Td>
+                                        </Tr>
+                                    ))}
+                                </Tbody>
+                            </Table>
+
+                            <Divider mt={3} mb={3} />
+
+                            {/* Diseño tipo ticket */}
+                            <Box mt={4} p={3} bg="gray.100" border="2px dashed gray"
+                                borderRadius="md" textAlign="center">
+                                <Text fontSize="lg" fontWeight="bold" color="gray.700">Total Facturado</Text>
+                                <Flex justify="space-between" fontSize="md" fontWeight="medium" mt={2}>
+                                    <Text color="gray.600">Total Bruto:</Text>
+                                    <Text color="blue.600">${totales.total_bruto.toFixed(2)}</Text>
+                                </Flex>
+                                <Flex justify="space-between" fontSize="md" fontWeight="medium">
+                                    <Text color="gray.600">Total Comisión:</Text>
+                                    <Text color="red.500">${totales.total_comision.toFixed(2)}</Text>
+                                </Flex>
+                                <Flex justify="space-between" fontSize="md" fontWeight="medium">
+                                    <Text color="gray.600">Total Neto:</Text>
+                                    <Text color="green.600">${totales.total_neto.toFixed(2)}</Text>
+                                </Flex>
+                            </Box>
+                        </Box>
                     ) : (
-                        <Text mt={4}>No hay facturas para este período.</Text>
+                        <Text mt={4} color="red.500" textAlign="center">No hay facturas para este período.</Text>
                     )}
                 </CardBody>
             </Card>

@@ -16,6 +16,7 @@ import CrearTutoresPage from './pages/tutores/CrearTutoresPage';
 
 import VerPacientesPage from './pages/pacientes/VerPacientesPage';
 import CrearPacientesPage from './pages/pacientes/CrearPacientesPage';
+import ConfiguracionPage from './pages/ConfiguracionPage';
 
 const App = () => {
   return(
@@ -38,6 +39,8 @@ const App = () => {
 
         <Route path="/crear-pacientes" element={<CrearPacientesPage />}/>
         <Route path="/ver-pacientes" element={<VerPacientesPage />}/>
+
+        <Route path="/configuracion" element={<ConfiguracionPage />} />
       </Routes> 
     </Router>
   );  
