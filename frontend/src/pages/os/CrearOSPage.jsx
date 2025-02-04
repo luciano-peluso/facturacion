@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Header from "../../componentes/header";
-import { Card, CardBody, Container, FormControl, FormLabel, Heading, Input, Button, useToast } from "@chakra-ui/react";
+import { Card, CardBody, Container, FormControl, FormLabel, Heading, Input, Button, useToast, Select } from "@chakra-ui/react";
 import axios from "axios";
 
 const CrearOSPage = () => {
@@ -8,7 +8,8 @@ const CrearOSPage = () => {
     nombre: "",
     cuit: "",
     mail: "",
-    telefono: ""
+    telefono: "",
+    clasificacion: ""
   });
   const toast = useToast();
 
@@ -29,7 +30,7 @@ const CrearOSPage = () => {
         duration: 3000,
         isClosable: true,
       });
-      setFormData({ nombre: "", cuit: "" }); // Reinicia el formulario
+      setFormData({ nombre: "", cuit: "", mail: "", telefono: "" }); // Reinicia el formulario
     } catch (error) {
       console.error("Error al crear la obra social:", error);
       toast({
@@ -71,8 +72,19 @@ const CrearOSPage = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
-              
               <FormControl isRequired mt={4}>
+                <FormLabel>Clasificación</FormLabel>
+                <Select
+                  value={formData.clasificacion} // El valor actual seleccionado
+                  onChange={(e) => setFormData({ ...formData, clasificacion: e.target.value })} // Actualiza el estado cuando se elige una opción
+                  placeholder="Seleccione una clasificacion de contribuyente"
+                >
+                  <option value="Responsable Inscripto">Responsable Inscripto</option>
+                  <option value="Sujeto Exento">Sujeto Exento</option>
+                  <option value="Consumidor Final">Consumidor Final</option>
+                </Select>
+              </FormControl>
+              <FormControl mt={4}>
                 <FormLabel>Mail</FormLabel>
                 <Input
                   type="email"
@@ -82,7 +94,7 @@ const CrearOSPage = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
-              <FormControl isRequired mt={4}>
+              <FormControl mt={4}>
                 <FormLabel>Telefono</FormLabel>
                 <Input
                   type="text"
@@ -96,7 +108,7 @@ const CrearOSPage = () => {
                 mt={4} 
                 colorScheme="green" 
                 type="submit"
-                isDisabled={!formData.nombre || !formData.cuit || !(formData.mail || formData.telefono)} // Deshabilita si los campos están vacíos
+                isDisabled={!formData.nombre || !formData.cuit || !formData.clasificacion }  // Deshabilita si los campos están vacíos
               >
                 Crear Obra Social
               </Button>

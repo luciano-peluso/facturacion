@@ -26,6 +26,10 @@ const ObraSocial = sequelize.define('ObraSocial', {
     allowNull: true,
     unique: true,
   },
+  clasificacion: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 }, {
   timestamps: true,
   createdAt: 'createdat',

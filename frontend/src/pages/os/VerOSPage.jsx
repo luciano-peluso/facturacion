@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel } from "@chakra-ui/react";
+import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
 
 const VerOSPage = () => {
@@ -95,6 +95,7 @@ const VerOSPage = () => {
                     <Tr>
                         <Th>Nombre o Abreviatura</Th>
                         <Th>CUIT</Th>
+                        <Th>Clasificacion</Th>
                         <Th>Mail</Th>
                         <Th>Telefono</Th>
                         <Th textAlign={"center"}>Acciones</Th>
@@ -105,6 +106,7 @@ const VerOSPage = () => {
                         <Tr key={obraSocial.id}>
                             <Td>{obraSocial.nombre}</Td>
                             <Td>{obraSocial.cuit}</Td>
+                            <Td>{obraSocial.clasificacion}</Td>
                             <Td>{obraSocial.mail? `${obraSocial.mail}`: `No hay un mail cargado`}</Td>
                             <Td>{obraSocial.telefono? `${obraSocial.telefono}`: `No hay un numero de telefono cargado`}</Td>
                             <Td>
@@ -149,6 +151,17 @@ const VerOSPage = () => {
                                         value={obraSocialActualizada.cuit}
                                         onChange={handleChange}
                                         minW={"200px"}/></FormLabel>
+                              
+                                    <FormLabel>Clasificación</FormLabel>
+                                    <Select
+                                    value={obraSocialActualizada.clasificacion || ""} // El valor actual seleccionado
+                                    onChange={(e) => setObraSocialActualizada({ ...obraSocialActualizada, clasificacion: e.target.value })} // Actualiza el estado cuando se elige una opción
+                                    placeholder="Seleccione una clasificacion de contribuyente"
+                                    >
+                                    <option value="Responsable Inscripto">Responsable Inscripto</option>
+                                    <option value="Sujeto Exento">Sujeto Exento</option>
+                                    <option value="Consumidor Final">Consumidor Final</option>
+                                    </Select>
 
                                     <FormLabel>Mail
                                     <Input 
