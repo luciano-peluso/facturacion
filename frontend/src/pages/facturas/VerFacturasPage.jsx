@@ -288,7 +288,7 @@ const FacturasPage = () => {
                         <Tr>
                             <Th>Nombre del Paciente</Th>
                             <Th>Obra Social</Th>
-                            <Th>Representante legal</Th>
+                            <Th>Cuidador o encargado</Th>
                             <Th>Numero de factura</Th>
                             <Th>Valor</Th>
                             <Th>Periodo facturado</Th>
@@ -302,7 +302,7 @@ const FacturasPage = () => {
                             <Tr key={factura.id}>
                                 <Td>{factura.paciente.nombre}</Td>
                                 <Td>{factura.paciente.obra_social.nombre} (CUIT: {factura.paciente.obra_social.cuit})</Td>
-                                <Td>{factura.paciente?.tutor? `${factura.paciente.tutor.nombre} (DNI: ${factura.paciente.tutor.dni})`: "Sin tutor"}</Td>
+                                <Td>{factura.paciente?.tutor? `${factura.paciente.tutor.nombre} (DNI: ${factura.paciente.tutor.dni})`: "Sin cuidador o encargado"}</Td>
                                 <Td>{factura.numero_factura}</Td>
                                 <Td>${factura.monto}</Td>
                                 <Td>

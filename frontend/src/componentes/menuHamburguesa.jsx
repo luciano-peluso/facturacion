@@ -198,7 +198,7 @@ import {
                 </Button>
                 <Divider />
                 <DrawerHeader fontSize="md" color="black" pl={0}>
-                  Tutores
+                  Encargados
                 </DrawerHeader>
                 { /* Divide la seccion a la de tutores */ }
                 <Button
@@ -209,11 +209,11 @@ import {
                   justifyContent="flex-start"
                   _hover={{ bg: "pink.200" }}
                   onClick={() => {
-                    onNavigate("/crear-tutores");
+                    onNavigate("/crear-encargado");
                     onClose();
                   }}
                 >
-                  Crear Tutores
+                  Crear encargado
                 </Button>
                 <Button
                   variant="solid"
@@ -223,11 +223,11 @@ import {
                   justifyContent="flex-start"
                   _hover={{ bg: "pink.200" }}
                   onClick={() => {
-                    onNavigate("/ver-tutores");
+                    onNavigate("/ver-encargado");
                     onClose();
                   }}
                 >
-                  Ver Tutores
+                  Ver encargado
                 </Button>
                 <Divider />
                 <Button

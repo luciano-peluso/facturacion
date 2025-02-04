@@ -61,16 +61,16 @@ const VerTutoresPage = () => {
             traerTutores();
             toast({
                 title: "Éxito",
-                description: "El tutor ha sido actualizado exitosamente.",
+                description: "El encargado ha sido actualizado exitosamente.",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
               });
         } catch (error) {
-            console.error("Error al editar el tutor: ", error);
+            console.error("Error al editar al encargado: ", error);
             toast({
                 title: "Error",
-                description: "El tutor no se ha podido editar.",
+                description: "El encargado no se ha podido editar.",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -87,7 +87,7 @@ const VerTutoresPage = () => {
         <Header />
         <Container maxW="container.xl" py={8}>
                 <Heading as="h1" size="lg" mb={6}>
-                    Listado de Tutores
+                    Lista de Encargados
                 </Heading>
                 <Box overflowX="auto" border="1px solid" borderColor="gray.200" borderRadius="md" p={4}>
                     <Table variant="striped" size="md">
@@ -131,7 +131,7 @@ const VerTutoresPage = () => {
                 <Modal isOpen={isOpen} onClose={onClose}>
                                 <ModalOverlay />
                                 <ModalContent>
-                                    <ModalHeader>Editar un tutor</ModalHeader>
+                                    <ModalHeader>Editar un encargado</ModalHeader>
                                     <ModalCloseButton />
                                     <ModalBody>
                                         <VStack alignItems={"start"}>

@@ -46,7 +46,7 @@ const CrearTutoresPage = () => {
         <Container maxW={"container.xl"} mt={"10px"}>
         <Card>
           <CardBody>
-            <Heading pb={5}>Crear un Tutor</Heading>
+            <Heading pb={5}>Crear un Encargado</Heading>
             <form onSubmit={handleSubmit}>
               <FormControl isRequired>
                 <FormLabel>Nombre</FormLabel>
