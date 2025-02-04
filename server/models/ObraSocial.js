@@ -16,6 +16,16 @@ const ObraSocial = sequelize.define('ObraSocial', {
     allowNull: false,
     unique: true,
   },
+  mail: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
+  telefono: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
 }, {
   timestamps: true,
   createdAt: 'createdat',

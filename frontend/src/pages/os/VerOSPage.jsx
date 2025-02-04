@@ -93,18 +93,20 @@ const VerOSPage = () => {
             <Table variant="striped" size="md">
                 <Thead>
                     <Tr>
-                        <Th>ID</Th>
                         <Th>Nombre o Abreviatura</Th>
                         <Th>CUIT</Th>
+                        <Th>Mail</Th>
+                        <Th>Telefono</Th>
                         <Th textAlign={"center"}>Acciones</Th>
                     </Tr>
                 </Thead>
                 <Tbody>
                     {obrasSociales.map((obraSocial) => (
                         <Tr key={obraSocial.id}>
-                            <Td>{obraSocial.id}</Td>
                             <Td>{obraSocial.nombre}</Td>
                             <Td>{obraSocial.cuit}</Td>
+                            <Td>{obraSocial.mail? `${obraSocial.mail}`: `No hay un mail cargado`}</Td>
+                            <Td>{obraSocial.telefono? `${obraSocial.telefono}`: `No hay un numero de telefono cargado`}</Td>
                             <Td>
                                 <HStack spacing={"2"} justifyContent={"center"}>
                                     <Button
@@ -145,6 +147,22 @@ const VerOSPage = () => {
                                         placeholder="Numero de CUIT"
                                         name="cuit"
                                         value={obraSocialActualizada.cuit}
+                                        onChange={handleChange}
+                                        minW={"200px"}/></FormLabel>
+
+                                    <FormLabel>Mail
+                                    <Input 
+                                        placeholder="ayuda@obrasocial.com.ar"
+                                        name="mail"
+                                        value={obraSocialActualizada.mail || ""}
+                                        onChange={handleChange}
+                                        minW={"200px"}/></FormLabel>
+
+                                    <FormLabel>Número de telefono
+                                    <Input 
+                                        placeholder="11 1234-5678"
+                                        name="telefono"
+                                        value={obraSocialActualizada.telefono || ""}
                                         onChange={handleChange}
                                         minW={"200px"}/></FormLabel>
                                 </VStack>

@@ -7,6 +7,8 @@ const CrearOSPage = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     cuit: "",
+    mail: "",
+    telefono: ""
   });
   const toast = useToast();
 
@@ -69,12 +71,32 @@ const CrearOSPage = () => {
                   onChange={handleInputChange}
                 />
               </FormControl>
-
+              
+              <FormControl isRequired mt={4}>
+                <FormLabel>Mail</FormLabel>
+                <Input
+                  type="email"
+                  name="mail"
+                  placeholder="ayuda@obrasocial.com.ar"
+                  value={formData.mail}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
+              <FormControl isRequired mt={4}>
+                <FormLabel>Telefono</FormLabel>
+                <Input
+                  type="text"
+                  name="telefono"
+                  placeholder="11 1234-5678"
+                  value={formData.telefono}
+                  onChange={handleInputChange}
+                />
+              </FormControl>
               <Button 
                 mt={4} 
                 colorScheme="green" 
                 type="submit"
-                isDisabled={!formData.nombre || !formData.cuit} // Deshabilita si los campos están vacíos
+                isDisabled={!formData.nombre || !formData.cuit || !(formData.mail || formData.telefono)} // Deshabilita si los campos están vacíos
               >
                 Crear Obra Social
               </Button>

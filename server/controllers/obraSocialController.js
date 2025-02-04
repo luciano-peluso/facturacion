@@ -25,9 +25,9 @@ const getObraSocialById = async (req, res) => {
 };
 
 const createObraSocial = async (req, res) => {
-    const { nombre, cuit } = req.body;
+    const { nombre, cuit, mail, telefono } = req.body;
     try {
-        const obra_social = await ObraSocial.create({ nombre, cuit });
+        const obra_social = await ObraSocial.create({ nombre, cuit, mail, telefono });
         res.status(201).json({ success: true, message: "Obra Social creada", data: obra_social });
     } catch (error) {
         console.error("Error al crear la obra social:", error);
@@ -37,13 +37,13 @@ const createObraSocial = async (req, res) => {
 
 const updateObraSocial = async (req, res) => {
     const { id } = req.params;
-    const { nombre, cuit } = req.body;
+    const { nombre, cuit, mail, telefono } = req.body;
     try {
         const obra_social = await ObraSocial.findByPk(id);
         if (!obra_social) {
             return res.status(404).json({ success: false, message: "Obra Social no encontrada" });
         }
-        await obra_social.update({ nombre, cuit });
+        await obra_social.update({ nombre, cuit, mail, telefono });
         res.status(200).json({ success: true, message: "Obra Social actualizada", data: obra_social });
     } catch (error) {
         console.error("Error al actualizar la obra social:", error);
