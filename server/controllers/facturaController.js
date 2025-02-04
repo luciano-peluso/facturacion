@@ -36,7 +36,23 @@ const getFacturas = async (req, res) => {
 const getFacturaById = async (req, res) => {
     const { id } = req.params;
     try {
-        const factura = await Factura.findByPk(id);
+        const factura = await Factura.findByPk(id, {  // Pasar id directamente
+            include: [
+                {
+                    model: Paciente,
+                    as: 'paciente', // Alias definido en las asociaciones
+                    attributes: ['id', 'nombre'],
+                    include: [
+                        {
+                            model: ObraSocial, // Relación con ObraSocial
+                            as: 'obra_social', // Alias definido en la asociación
+                            attributes: ['id', 'nombre', 'cuit', 'mail'], // Selecciona solo los campos relevantes de la obra social
+                        },
+                    ],
+                },
+            ],
+        });
+
         if (!factura) {
             return res.status(404).json({ success: false, message: "Factura no encontrada" });
         }

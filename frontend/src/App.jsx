@@ -7,6 +7,7 @@ import FacturasFiltroPage from './pages/facturas/FacturasFiltroPage'
 import VerFacturasPage from './pages/facturas/VerFacturasPage';
 import CrearFacturasPage from './pages/facturas/CrearFacturasPage';
 import TotalesPage from './pages/facturas/TotalesPage';
+import VerUnaFacturaPage from './pages/facturas/VerUnaFacturaPage';
 
 import CrearOSPage from './pages/os/CrearOSPage';
 import VerOSPage from './pages/os/VerOSPage';
@@ -24,8 +25,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Index />}/>
         <Route path="*" element={<Index />}/>
+        
         <Route path="/facturas-accordion" element={<FacturasAccordionPage />}/>
         <Route path="/facturas-filtro" element={<FacturasFiltroPage />}/>
+        <Route path="/factura/:id" element={<VerUnaFacturaPage />} />
         <Route path="/calcular-totales" element={<TotalesPage/>}/>
 
         <Route path="/crear-facturas" element={<CrearFacturasPage />}/>

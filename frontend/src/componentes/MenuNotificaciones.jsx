@@ -1,12 +1,15 @@
 import { BellIcon } from "@chakra-ui/icons";
-import { Badge, Button, IconButton, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Badge, Button, HStack, IconButton, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Eye, Check } from "lucide-react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const MenuNotificaciones = () => {
     const [notificationCount, setNotificacionCount] = useState(0);
     const [notificaciones, setNotificaciones] = useState([]);
+    const navigate = useNavigate();
 
     const traerNotificaciones = async () => {
       try {
@@ -42,28 +45,6 @@ const MenuNotificaciones = () => {
         traerNotificaciones();
     },[])
     return (<>
-        {/*<Button
-          variant="outline"
-          bg="white"
-          _hover={{ bg: "pink.200" }}
-          size="md"
-          maxW={50}
-          position="relative"  // Hace que el Badge esté posicionado sobre el Button
-      >
-          <BellIcon />
-          {notificationCount > 0 && (
-              <Badge
-                  colorScheme="red"
-                  borderRadius="full"
-                  fontSize="0.8em"
-                  position="absolute" // Lo hace flotar sobre el icono
-                  top={0.5}  // Ajusta la posición vertical
-                  right={2}  // Ajusta la posición horizontal
-              >
-                  {notificationCount}
-              </Badge>
-          )}
-      </Button>*/}
       <Menu>
         <MenuButton
           as={Button}
@@ -73,31 +54,41 @@ const MenuNotificaciones = () => {
           size="md"
           maxW={50}
           position="relative">
-          <BellIcon />
-            {notificationCount > 0 && (
-            <Badge
-              colorScheme="red"
-              borderRadius="full"
-              fontSize="0.8em"
-              position="absolute"
-              top={0.5}
-              right={2}
-            >
-              {notificationCount}
-            </Badge>
-          )}
+            <BellIcon />
+              {notificationCount > 0 && (
+              <Badge
+                colorScheme="red"
+                borderRadius="full"
+                fontSize="0.8em"
+                position="absolute"
+                top={0.5}
+                right={2}
+              >
+                {notificationCount}
+              </Badge>)}
         </MenuButton>
         <MenuList>
           { notificationCount > 0 ? (
             notificaciones.map(notificacion => (
-              <MenuItem
-                key={notificacion.id}
-                onClick={() => marcarComoLeida(notificacion.id)}
-                isDisabled={notificacion.leida}
-                color={"black"}
-                >
-                {notificacion.mensaje}
-              </MenuItem>
+              <MenuItem key={notificacion.id} display="flex" justifyContent="space-between" color={"black"}>
+              {notificacion.mensaje}
+              <HStack spacing={2}>
+                  <IconButton
+                      aria-label="Ver factura"
+                      icon={<Eye size={16} />}
+                      colorScheme="blue"
+                      size="sm"
+                      onClick={() => navigate(`/factura/${notificacion.factura_id}`)}
+                  />
+                  <IconButton
+                      aria-label="Marcar como leída"
+                      icon={<Check size={16} />}
+                      colorScheme="green"
+                      size="sm"
+                      onClick={() => marcarComoLeida(notificacion.id)}
+                  />
+              </HStack>
+          </MenuItem>
             ))
           ) : (
             <MenuItem
