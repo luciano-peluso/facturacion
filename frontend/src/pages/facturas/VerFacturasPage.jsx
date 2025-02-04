@@ -129,7 +129,7 @@ const FacturasPage = () => {
     const marcarCobrada = async (id) => {
         try {
             const hoy = new Date();
-            const response = await axios.put(`http://localhost:3000/api/facturas/actualizar/${id}`, {
+            const response = await axios.put(`http://localhost:3000/api/facturas/cobrar/${id}`, {
                 estado: true,
                 fecha_cobro: hoy,
             });
@@ -305,8 +305,15 @@ const FacturasPage = () => {
                                 <Td>{factura.paciente?.tutor? `${factura.paciente.tutor.nombre} (DNI: ${factura.paciente.tutor.dni})`: "Sin tutor"}</Td>
                                 <Td>{factura.numero_factura}</Td>
                                 <Td>${factura.monto}</Td>
-                                <Td>{factura.fecha_facturada ? format(new Date(factura.fecha_facturada), "MMMM yyyy", { locale: es })
-                                    .replace(/^\w/, (c) => c.toUpperCase()) : "Fecha no disponible"}</Td>
+                                <Td>
+                                {factura.fecha_facturada
+                                    ? format(
+                                        new Date(factura.fecha_facturada + "T12:00:00Z"), // Asegura que la fecha se mantenga en el mismo día
+                                        "MMMM yyyy",
+                                        { locale: es }
+                                    ).replace(/^\w/, (c) => c.toUpperCase())
+                                    : "Fecha no disponible"}
+                                </Td>
                                 <Td>{factura.fecha_emision}</Td>
                                 <Td>{factura.estado ? "Cobrado" : "Pendiente"}</Td>
                                 <Td>

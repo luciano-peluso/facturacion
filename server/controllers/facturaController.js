@@ -82,6 +82,22 @@ const updateFactura = async (req, res) => {
     }
 };
 
+const cobrarFactura = async(req, res) => {
+    const { id } = req.params;
+    const { fecha_cobro, estado } = req.body;
+    try {
+        const factura = await Factura.findByPk(id);
+        if (!factura) {
+            return res.status(404).json({ success: false, message: "Factura no encontrada" });
+        }
+        await factura.update({ fecha_cobro, estado })
+        res.status(200).json({ success: true, message: "Factura actualizada", data: factura });
+    } catch (error) {
+        console.error("Error al actualizar la factura:", error);
+        res.status(500).json({ success: false, message: "Error al actualizar la factura" });
+    }
+}
+
 const deleteFactura = async (req, res) => {
     const { id } = req.params;
     try {
@@ -126,6 +142,7 @@ module.exports = {
     getFacturaById,
     createFactura,
     updateFactura,
+    cobrarFactura,
     deleteFactura,
     obtenerFacturasPorMes
 };
