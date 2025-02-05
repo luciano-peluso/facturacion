@@ -298,54 +298,58 @@ const FacturasPage = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {facturas.map((factura) => (
-                            <Tr key={factura.id}>
-                                <Td>{factura.paciente.nombre}</Td>
-                                <Td>{factura.paciente.obra_social.nombre} (CUIT: {factura.paciente.obra_social.cuit})</Td>
-                                <Td>{factura.paciente?.tutor? `${factura.paciente.tutor.nombre} (DNI: ${factura.paciente.tutor.dni})`: "Sin cuidador o encargado"}</Td>
-                                <Td>{factura.numero_factura}</Td>
-                                <Td>${factura.monto}</Td>
-                                <Td>
-                                {factura.fecha_facturada
-                                    ? format(
-                                        new Date(factura.fecha_facturada + "T12:00:00Z"), // Asegura que la fecha se mantenga en el mismo día
-                                        "MMMM yyyy",
-                                        { locale: es }
-                                    ).replace(/^\w/, (c) => c.toUpperCase())
-                                    : "Fecha no disponible"}
-                                </Td>
-                                <Td>{factura.fecha_emision}</Td>
-                                <Td>{factura.estado ? "Cobrado" : "Pendiente"}</Td>
-                                <Td>
-                                    <VStack>
-                                        <HStack spacing={"2"} justifyContent={"center"}>
-                                            {!factura.estado && ( // Mostrar el botón "Cobrar" solo si la factura está pendiente
-                                                <Button
-                                                    size={"md"} 
-                                                    colorScheme="green"
-                                                    onClick={() => marcarCobrada(factura.id)}
-                                                >
-                                                    Cobrar
+                    {facturas.length > 0 ? (
+                        facturas.map((factura) => {
+                            const { paciente, numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
+                            const obraSocial = paciente?.obra_social;
+                            const tutor = paciente?.tutor;
+
+                            return (
+                                <Tr key={id}>
+                                    <Td>{paciente ? paciente.nombre : "Eliminado"}</Td>
+                                    <Td>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Eliminada"}</Td>
+                                    <Td>{tutor ? `${tutor.nombre} (DNI: ${tutor.dni})` : "Sin cuidador o encargado"}</Td>
+                                    <Td>{numero_factura}</Td>
+                                    <Td>${monto}</Td>
+                                    <Td>
+                                        {fecha_facturada
+                                            ? format(new Date(fecha_facturada + "T12:00:00Z"), "MMMM yyyy", { locale: es })
+                                                .replace(/^\w/, (c) => c.toUpperCase())
+                                            : "Fecha no disponible"}
+                                    </Td>
+                                    <Td>
+                                        {fecha_emision
+                                            ? format(new Date(fecha_emision), "dd/MM/yyyy")
+                                            : "Fecha no disponible"}
+                                    </Td>
+                                    <Td>{estado ? "Cobrado" : "Pendiente"}</Td>
+                                    <Td>
+                                        <VStack>
+                                            <HStack spacing={2} justifyContent={"center"}>
+                                                {!estado && (
+                                                    <Button size="md" colorScheme="green" onClick={() => marcarCobrada(id)}>
+                                                        Cobrar
+                                                    </Button>
+                                                )}
+                                                <Button size="md" colorScheme="red" onClick={() => eliminar(id)}>
+                                                    X
                                                 </Button>
-                                            )}
-                                            <Button
-                                                size={"md"} 
-                                                colorScheme="red"
-                                                onClick={() => eliminar(factura.id)}
-                                            >
-                                                X
-                                            </Button>
-                                        </HStack>
-                                        <HStack spacing={2} justifyContent={"center"}>
-                                            <Button colorScheme="blue" 
-                                                onClick={() => handleEditClick(factura)}>
-                                                Editar
-                                            </Button>
-                                        </HStack>
-                                    </VStack>
-                                </Td>
-                            </Tr>
-                        ))}
+                                            </HStack>
+                                            <HStack spacing={2} justifyContent={"center"}>
+                                                <Button colorScheme="blue" onClick={() => handleEditClick(factura)}>
+                                                    Editar
+                                                </Button>
+                                            </HStack>
+                                        </VStack>
+                                    </Td>
+                                </Tr>
+                            );
+                        })
+                    ) : (
+                        <Tr>
+                            <Td colSpan={9} textAlign="center">No hay facturas registradas</Td>
+                        </Tr>
+                    )} 
                     </Tbody>
                 </Table>
             </Box>

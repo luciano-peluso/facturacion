@@ -100,7 +100,8 @@ const VerTutoresPage = () => {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {tutores.map((tutor) => (
+                            {tutores.length > 0 ? (
+                            tutores.map((tutor) => (
                                 <Tr key={tutor.id}>
                                     <Td>{tutor.id}</Td>
                                     <Td>{tutor.nombre}</Td>
@@ -124,7 +125,11 @@ const VerTutoresPage = () => {
                                         </HStack>
                                     </Td>
                                 </Tr>
-                            ))}
+                            )) 
+                        ) : 
+                        <Tr>
+                            <Td colSpan="4" textAlign="center">No hay encargados cargados en el sistema</Td>
+                        </Tr> }
                         </Tbody>
                     </Table>
                 </Box>

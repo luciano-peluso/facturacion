@@ -3,6 +3,7 @@ const Paciente = require('../models/Paciente')
 const ObraSocial = require('../models/ObraSocial');
 const Tutor = require('../models/Tutor');
 const { Op } = require('sequelize');
+const Notificacion = require('../models/Notificacion');
 
 const getFacturas = async (req, res) => {
     try {
@@ -121,8 +122,19 @@ const deleteFactura = async (req, res) => {
         if (!factura) {
             return res.status(404).json({ success: false, message: "Factura no encontrada" });
         }
+
+        // Buscar la notificación asociada a la factura
+        const notificacion = await Notificacion.findOne({ where: { factura_id: id } });
+
+        // Si existe, eliminar la notificación
+        if (notificacion) {
+            await notificacion.destroy();
+        }
+
+        // Eliminar la factura
         await factura.destroy();
-        res.status(200).json({ success: true, message: "Factura eliminada" });
+
+        res.status(200).json({ success: true, message: "Factura y notificación eliminadas correctamente" });
     } catch (error) {
         console.error("Error al eliminar la factura:", error);
         res.status(500).json({ success: false, message: "Error al eliminar la factura" });

@@ -122,7 +122,8 @@ const VerPacientesPage = () => {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {pacientes.map((paciente) => (
+                            {pacientes.length > 0 ? (
+                            pacientes.map((paciente) => (
                                 <Tr key={paciente.id}>
                                     <Td>{paciente.nombre}</Td>
                                     <Td>{paciente.dni}</Td>
@@ -147,7 +148,10 @@ const VerPacientesPage = () => {
                                         </HStack>
                                     </Td>
                                 </Tr>
-                            ))}
+                            )) ) : 
+                            <Tr>
+                              <Td colSpan="5" textAlign="center">No hay pacientes cargados en el sistema</Td>
+                            </Tr> }
                         </Tbody>
                     </Table>
                 </Box>

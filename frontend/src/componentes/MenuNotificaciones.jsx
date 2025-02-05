@@ -70,7 +70,7 @@ const MenuNotificaciones = () => {
         <MenuList>
           { notificationCount > 0 ? (
             notificaciones.map(notificacion => (
-              <MenuItem key={notificacion.id} display="flex" justifyContent="space-between" color={"black"}>
+              <MenuItem key={notificacion.id} display="flex" justifyContent="space-between" color={"black"} isDisabled={notificacion.leida}>
               {notificacion.mensaje}
               <HStack spacing={2}>
                   <IconButton

@@ -102,7 +102,8 @@ const VerOSPage = () => {
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {obrasSociales.map((obraSocial) => (
+                    {obrasSociales.length > 0 ? 
+                    ( obrasSociales.map((obraSocial) => (
                         <Tr key={obraSocial.id}>
                             <Td>{obraSocial.nombre}</Td>
                             <Td>{obraSocial.cuit}</Td>
@@ -125,7 +126,10 @@ const VerOSPage = () => {
                                 </HStack>
                             </Td>
                         </Tr>
-                    ))}
+                    )) ) :
+                    <Tr>
+                      <Td colSpan="6" textAlign="center">No hay obras sociales cargadas en el sistema</Td>
+                    </Tr>}
                 </Tbody>
             </Table>
         </Box>
