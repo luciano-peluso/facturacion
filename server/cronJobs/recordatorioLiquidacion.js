@@ -28,7 +28,7 @@ const enviarRecordatorioLiquidacion = async (ejecutarInmediatamente = false) => 
             return;
         }
 
-        const mensaje = "Es el último día hábil ¿Ya enviaste la liquidación?";
+        const mensaje = "Es el último día hábil ¿Enviaste la liquidación?";
 
         const existeNotificacion = await Notificacion.findOne({
             where: {
