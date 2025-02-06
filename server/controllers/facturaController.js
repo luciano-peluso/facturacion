@@ -143,27 +143,40 @@ const deleteFactura = async (req, res) => {
 
 const obtenerFacturasPorMes = async (req, res) => {
     try {
-        const { mes, anio } = req.params;  
-        // Convertir mes y año en un rango de fechas
+        const { mes, anio } = req.params;
         const inicioMes = new Date(anio, mes - 1, 1);
         const finMes = new Date(anio, mes, 0, 23, 59, 59);
 
-        // Buscar facturas cobradas en ese rango
         const facturas = await Factura.findAll({
-        where: {
-            fecha_cobro: {
-                [Op.between]: [inicioMes, finMes],
+            where: {
+                fecha_cobro: {
+                    [Op.between]: [inicioMes, finMes],
+                },
             },
-        },
-        attributes: ["id", "numero_factura", "fecha_facturada", "monto", "fecha_cobro", "es_consultorio"],
-        paranoid: true
+            attributes: ["id", "numero_factura", "fecha_facturada", "monto", "fecha_cobro", "es_consultorio"],
+            include: [
+                {
+                    model: Paciente,
+                    as: "paciente",
+                    attributes: ["id", "nombre"],
+                    include: [
+                        {
+                            model: ObraSocial,
+                            as: "obra_social",
+                            attributes: ["id", "nombre"],
+                        },
+                    ],
+                },
+            ],
+            paranoid: true,
         });
+
         res.status(200).json({ success: true, data: facturas });
     } catch (error) {
         console.error("Error al traer las facturas:", error);
-        res.status(500).json({ success: false, message: "Error al traer las facturas: "+error})
+        res.status(500).json({ success: false, message: "Error al traer las facturas: " + error });
     }
-}
+};
 
 module.exports = {
     getFacturas,
