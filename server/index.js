@@ -11,7 +11,9 @@ const configuracionRoutes = require('./routes/configuracionRoutes');
 const notificacionesRoute = require('./routes/notificacionRoutes');
 
 const { revisarFacturasVencidas } = require('./cronJobs/facturasVencidas');
+const { enviarRecordatorioLiquidacion } = require('./cronJobs/recordatorioLiquidacion');
 const { inicializarConfiguracion } = require('./config/inicializarConfiguracion');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -29,21 +31,28 @@ app.use('/api/notificaciones', notificacionesRoute);
 // Inicialización
 (async () => {
   try {
-
+    // Inicializa la configuracion si no existe
     await inicializarConfiguracion();
     // Crea la base de datos si no existe
     await createDatabaseIfNotExists();
-
     // Sincroniza los modelos y las tablas
     await syncModels();
 
-    // Inicia el servidor
+    // Se inicia el servidor
     app.listen(port, () => {
       console.log(`Servidor corriendo en http://localhost:${port}`);
     });
 
-    // Ejecuta el cron job
+
+    // Ejecutar manualmente al iniciar el servidor
+    console.log('[INICIO] Ejecutando revisión de facturas vencidas...');
+    await revisarFacturasVencidas(true); // Pasamos true para ejecución inmediata
+    console.log('[INICIO] Ejecutando recordatorio de liquidación...');
+    await enviarRecordatorioLiquidacion(true);
+
+    // Iniciar cronjobs para ejecución periódica
     revisarFacturasVencidas();
+    enviarRecordatorioLiquidacion();
   } catch (error) {
     console.error('Error al iniciar la aplicación:', error);
     process.exit(1);

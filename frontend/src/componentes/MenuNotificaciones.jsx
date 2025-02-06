@@ -1,6 +1,6 @@
 import { BellIcon } from "@chakra-ui/icons";
 import { Badge, Button, HStack, IconButton, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-import { Eye, Check } from "lucide-react";
+import { Eye, Check, ArrowRight } from "lucide-react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -70,16 +70,21 @@ const MenuNotificaciones = () => {
         <MenuList>
           { notificationCount > 0 ? (
             notificaciones.map(notificacion => (
-              <MenuItem key={notificacion.id} display="flex" justifyContent="space-between" color={"black"} isDisabled={notificacion.leida}>
+              <MenuItem key={notificacion.id} display="flex" justifyContent="space-between" color={"black"} opacity={notificacion.leida ? 0.6 : 1}>
               {notificacion.mensaje}
               <HStack spacing={2}>
-                  <IconButton
+                  {notificacion.factura_id? (<IconButton
                       aria-label="Ver factura"
                       icon={<Eye size={16} />}
                       colorScheme="blue"
                       size="sm"
                       onClick={() => navigate(`/factura/${notificacion.factura_id}`)}
-                  />
+                  />) : (<IconButton
+                    aria-label="Ir a liquidacion"
+                    icon={<ArrowRight size={16} />}
+                    colorScheme="blue"
+                    size="sm"
+                    onClick={() => navigate('/calcular-totales')} />)}
                   <IconButton
                       aria-label="Marcar como leída"
                       icon={<Check size={16} />}
