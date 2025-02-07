@@ -103,7 +103,7 @@ const TotalesPage = () => {
             [],
             ["",{ v: "Fecha: "+ format(new Date(mesSeleccionado), "MMMM", { locale: es }) + ` ${anioSeleccionado}`}, 
                 "","",{ v: `{NOMBRE DEL PROFESIONAL}`}], // Encabezado de la fecha
-            ["",{ v: `Honorarios profesionales correspondientes a ${mesSeleccionado} de ${anioSeleccionado}`}], // Título
+            ["",{ v: "Honorarios profesionales correspondientes a "+ format(new Date(mesSeleccionado), "MMMM", { locale: es }) + " de " + anioSeleccionado}], // Título
             [], // Espacio en blanco
             ["",{ v: "Obra Social"}, { v: "Paciente" }, 
                 { v: "Factura" }, { v: "Mes" }, { v: "Total" }], // Encabezados de la tabla
