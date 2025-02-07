@@ -115,7 +115,7 @@ const TotalesPage = () => {
                 `$ ${Number(factura.monto).toFixed(2)}`
             ]),
             [], // Espacio en blanco antes del total
-            ["", "", "", "", "Total", { v: ` $ ${totales.total_bruto.toFixed(2)}`}, { v: ` $ ${totales.total_comision.toFixed(2)}`}]
+            ["", "", "", "", "Total", { v: ` $ ${totales.total_bruto.toFixed(2)}`}]
         ];
     
         // Crear la hoja de cálculo
