@@ -22,7 +22,7 @@ import {
           onClick={onOpen}
           variant="outline"
           bg="white"
-          _hover={{ bg: "pink.200" }}
+          _hover={{ bg: "#09e4b8" }}
           size="md"
         >
           <HamburgerIcon />
@@ -32,7 +32,7 @@ import {
         <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
           <DrawerOverlay />
           <DrawerContent bg="white">
-            <DrawerCloseButton _hover={{ bg: "pink.200" }} />
+            <DrawerCloseButton _hover={{ bg: "#09e4b8" }} />
             <DrawerHeader color="black" fontWeight="bold">
               Menú
             </DrawerHeader>
@@ -45,7 +45,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/");
                     onClose();
@@ -65,7 +65,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/crear-facturas");
                     onClose();
@@ -79,7 +79,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/ver-facturas");
                     onClose();
@@ -93,7 +93,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/calcular-totales");
                     onClose();
@@ -112,7 +112,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/crear-pacientes");
                     onClose();
@@ -126,7 +126,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/ver-pacientes");
                     onClose();
@@ -140,7 +140,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/facturas-accordion");
                     onClose();
@@ -154,7 +154,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/facturas-filtro");
                     onClose();
@@ -174,7 +174,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/crear-obras-sociales");
                     onClose();
@@ -188,7 +188,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/ver-obras-sociales");
                     onClose();
@@ -207,7 +207,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/crear-encargado");
                     onClose();
@@ -221,7 +221,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/ver-encargado");
                     onClose();
@@ -236,7 +236,7 @@ import {
                   color="black"
                   fontWeight="normal"
                   justifyContent="flex-start"
-                  _hover={{ bg: "pink.200" }}
+                  _hover={{ bg: "#09e4b8" }}
                   onClick={() => {
                     onNavigate("/configuracion");
                     onClose();

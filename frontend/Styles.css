@@ -1,0 +1,319 @@
+/* Variables de color */
+:root {
+    --primary-color: #0bbb92;  
+    --secondary-color: #09e4b8; 
+    --background-color: #FFFFFF; 
+    --sidebar-bg: #F5F5F5; 
+    --text-color: #4A4A4A; 
+    --card-bg: #E8F5E9; 
+    --hover-bg: #008E6D;
+}
+
+/* estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Botones de acciones */
+.btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    margin: 0 5px;
+}
+
+/* estilos de los Tooltip*/
+.btn::after {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+/* Mostrar tooltip al pasar el mouse */
+.btn:hover::after {
+    opacity: 1;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    width: 100%;
+    max-width: 1400px;
+    height: 90vh;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--background-color);
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar izquierdo */
+.sidebar {
+    width: 250px;
+    background: var(--sidebar-bg);
+    padding: 20px;
+    display: absolute;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    text-align: center;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 18px;
+    display: absolute;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar nav ul li a:hover {
+    background: var(--secondary-color);
+    color: var(--background-color);
+}
+
+.logout {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: auto;
+    text-align: center;
+    font-size: 16px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.logout:hover {
+    background: var(--text-color);
+    color: var(--background-color);
+}
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    position: relative;
+}
+
+.menu > li > a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.menu > li > a:hover {
+    background: #FFFFFF;
+}
+
+/* Estilo para los submenús */
+.submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none; 
+    position: flex;
+    top: 100%;
+    left: 0;
+    background: #E8F5E9;
+    width: 180px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.submenu li {
+    width: 100%;
+}
+
+.submenu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #fff;
+    transition: background 0.3s;
+}
+
+.submenu a:hover {
+    background: #444;
+}
+
+/* Mostrar submenú al hacer clic */
+.menu li a.active + .submenu {
+    display: block;
+}
+/* Dashboard */
+.dashboard {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Buscador */
+#searchInput {
+    width: 100%;
+    padding: 10px 20px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-size: 12px;
+    outline: none;
+    background-color: #f8f8f8;
+    color: var(--text-color);
+    transition: border-color 0.3s ease-in-out;
+}
+
+#searchInput:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+}
+
+#searchInput::placeholder {
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* Notificaciones */
+.notifications {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 0px solid var(--text-color);
+    padding: 10px;
+    border-radius: 15%; 
+    cursor: pointer;
+    font-size: 24px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.notifications:hover {
+    background-color: transparent   ;
+    filter: drop-shadow(0 0 0.75rem #09e4b8);
+}
+
+.notifications:focus {
+    outline: none; 
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+td .btn-container {
+    display: flex;
+    justify-content: space-around; 
+    gap: 5px; 
+}
+
+th {
+    background: var(--primary-color);
+    color: white;
+}
+
+tbody tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+/* Botones */
+.btn {
+    background: var(--secondary-color);
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 2px;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: var(--hover-bg);
+}
+
+.cobrar { background: #E8F5E9; }
+.editar { background: #E8F5E9; }
+.eliminar { background: #E8F5E9; }
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        text-align: center;
+    }
+
+    .sidebar nav ul li {
+        display: inline-block;
+        margin: 10px;
+    }
+}

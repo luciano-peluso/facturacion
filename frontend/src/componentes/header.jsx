@@ -1,10 +1,10 @@
 import React from "react";
-import { Box, Flex, Spacer, Heading, HStack, Button, Text } from "@chakra-ui/react";
+import { Flex, Spacer, HStack, Text } from "@chakra-ui/react";
 import MenuHamburguesa from "./menuHamburguesa";
-import MenuNotificaciones from "./MenuNotificaciones"
+import MenuNotificaciones from "./MenuNotificaciones";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+const Header = ({ mensaje }) => { // Aquí se cambia `mensaje` a una prop
   const navigate = useNavigate();
 
   return (
@@ -12,28 +12,16 @@ const Header = () => {
       as="header"
       align="center"
       justify="space-between"
-      p={4}
-      bg="pink.300"
+      p={5}
       color="white"
+      maxW={"100%"}
+      mb={5}
     >
-      <Text 
-       ml={5}
-        fontSize="xl"
-        fontWeight="bold"
-        cursor="pointer"
-        _hover={{
-          color: "white",
-          transform: "scale(1.05)",
-          transition: "0.1s ease-in-out"
-        }}
-        onClick={() => navigate("/")}
-      >
-        Factureitor
-      </Text>
+      <Text color={"grey"}>{mensaje}</Text>
       <Spacer />
       <HStack>
-      <MenuNotificaciones />
-      <MenuHamburguesa onNavigate={(path) => navigate(path)} />
+        <MenuNotificaciones />
+        <MenuHamburguesa onNavigate={(path) => navigate(path)} />
       </HStack>
     </Flex>
   );

@@ -50,7 +50,7 @@ const MenuNotificaciones = () => {
           as={Button}
           variant="outline"
           bg="white"
-          _hover={{ bg: "pink.200" }}
+          _hover={{ bg: "#09e4b8" }}
           size="md"
           maxW={50}
           position="relative">
