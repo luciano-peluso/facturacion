@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import Sidebar from "../../componentes/Sidebar";
 
 
 const VerTutoresPage = () => {
@@ -83,54 +84,49 @@ const VerTutoresPage = () => {
     },[]);
 
     return(
-        <>
-        <Header />
-        <Container maxW="container.xl" py={8}>
-                <Heading as="h1" size="lg" mb={6}>
-                    Lista de Encargados
-                </Heading>
-                <Box overflowX="auto" border="1px solid" borderColor="gray.200" borderRadius="md" p={4}>
-                    <Table variant="striped" size="md">
-                        <Thead>
-                            <Tr>
-                                <Th>ID</Th>
-                                <Th>Nombre</Th>
-                                <Th>DNI</Th>
-                                <Th textAlign={"center"}>Acciones</Th>
+        <Box className="container" display="flex" w={"100%"} minW={"1300px"} maxW={"1400px"}>
+        <Sidebar />
+
+        {/* Main Dashboard */}
+        <Box className="dashboard" overflow={"hidden"} flex="1" p={4}>
+            <Header mensaje={"Bienvenido, usuario"}/>
+
+            {/* Buscador */}
+            <Input placeholder="🔍 Buscar por nombre, DNI..." />
+
+            <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
+                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
+                    <Thead >
+                        <Tr>
+                            <Th textAlign={"center"} color={"white"}>ID</Th>
+                            <Th textAlign={"center"} color={"white"}>Nombre</Th>
+                            <Th textAlign={"center"} color={"white"}>DNI</Th>
+                            <Th textAlign={"center"} color={"white"}>Acciones</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        {tutores.length > 0 ? (
+                        tutores.map((tutor) => (
+                            <Tr key={tutor.id}>
+                                <Td>{tutor.id}</Td>
+                                <Td>{tutor.nombre}</Td>
+                                <Td>{tutor.dni}</Td>
+                                <Td maxW="140px">
+                                    <HStack spacing={1} justifyContent={"center"}>
+                                        <Button size="sm" title="Editar" onClick={() => handleEditClick(tutor)}
+                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
+                                        <Button size="sm" title="Borrar" onClick={() => eliminar(tutor.id)}
+                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                    </HStack>
+                                </Td>
                             </Tr>
-                        </Thead>
-                        <Tbody>
-                            {tutores.length > 0 ? (
-                            tutores.map((tutor) => (
-                                <Tr key={tutor.id}>
-                                    <Td>{tutor.id}</Td>
-                                    <Td>{tutor.nombre}</Td>
-                                    <Td>{tutor.dni}</Td>
-                                    <Td>
-                                        <HStack spacing={"2"} justifyContent={"center"}>
-                                            <Button
-                                                size={"md"} 
-                                                colorScheme="red"
-                                                onClick={() => eliminar(tutor.id)}
-                                            >
-                                                X
-                                            </Button>
-                                            <Button
-                                                size={"md"} 
-                                                colorScheme="blue" 
-                                                onClick={() => handleEditClick(tutor)}
-                                            >
-                                                Editar
-                                            </Button>
-                                        </HStack>
-                                    </Td>
-                                </Tr>
-                            )) 
+                        )) 
                         ) : 
                         <Tr>
                             <Td colSpan="4" textAlign="center">No hay encargados cargados en el sistema</Td>
                         </Tr> }
-                        </Tbody>
+                    </Tbody>
                     </Table>
                 </Box>
                 <Modal isOpen={isOpen} onClose={onClose}>
@@ -158,7 +154,7 @@ const VerTutoresPage = () => {
                                         </VStack>
                                     </ModalBody>
                                     <ModalFooter>
-                                        <Button colorScheme="blue" mr={3} 
+                                        <Button colorScheme="green" mr={3} 
                                             onClick={() => handleActualizar(tutorActualizado.id, tutorActualizado)}>
                                             Actualizar
                                         </Button>
@@ -168,8 +164,8 @@ const VerTutoresPage = () => {
                                     </ModalFooter>
                                 </ModalContent>
                             </Modal>
-            </Container>
-        </>
+            </Box>
+        </Box>
     )
 
 }

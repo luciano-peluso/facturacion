@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerOSPage = () => {
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});
@@ -83,24 +84,30 @@ const VerOSPage = () => {
         traerObrasSociales()
     }, []);
 
-    return (<>
-    <Header />
-    <Container maxW="container.xl" py={8}>
-        <Heading as="h1" size="lg" mb={6}>
-            Listado de Obras sociales
-        </Heading>
-        <Box overflowX="auto" border="1px solid" borderColor="gray.200" borderRadius="md" p={4}>
-            <Table variant="striped" size="md">
-                <Thead>
-                    <Tr>
-                        <Th>Nombre o Abreviatura</Th>
-                        <Th>CUIT</Th>
-                        <Th>Clasificacion</Th>
-                        <Th>Mail</Th>
-                        <Th>Telefono</Th>
-                        <Th textAlign={"center"}>Acciones</Th>
-                    </Tr>
-                </Thead>
+    return(
+        <Box className="container" display="flex" w={"100%"} minW={"1300px"} maxW={"1400px"}>
+        <Sidebar />
+
+        {/* Main Dashboard */}
+        <Box className="dashboard" overflow={"hidden"} flex="1" p={4}>
+            <Header mensaje={"Bienvenido, usuario"}/>
+
+            {/* Buscador */}
+            <Input placeholder="🔍 Buscar por nombre, CUIT, mail..." />
+
+            <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
+                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
+                    <Thead >
+                        <Tr>
+                            <Th textAlign={"center"} color={"white"}>Nombre o Abreviatura</Th>
+                            <Th textAlign={"center"} color={"white"}>CUIT</Th>
+                            <Th textAlign={"center"} color={"white"}>Clasificacion</Th>
+                            <Th textAlign={"center"} color={"white"}>Mail</Th>
+                            <Th textAlign={"center"} color={"white"}>Telefono</Th>
+                            <Th textAlign={"center"} color={"white"}>Acciones</Th>
+                        </Tr>
+                    </Thead>
                 <Tbody>
                     {obrasSociales.length > 0 ? 
                     ( obrasSociales.map((obraSocial) => (
@@ -110,19 +117,12 @@ const VerOSPage = () => {
                             <Td>{obraSocial.clasificacion}</Td>
                             <Td>{obraSocial.mail? `${obraSocial.mail}`: `No hay un mail cargado`}</Td>
                             <Td>{obraSocial.telefono? `${obraSocial.telefono}`: `No hay un numero de telefono cargado`}</Td>
-                            <Td>
-                                <HStack spacing={"2"} justifyContent={"center"}>
-                                    <Button
-                                        size={"md"} 
-                                        colorScheme="red"
-                                        onClick={() => eliminar(obraSocial.id)}
-                                    >
-                                        X
-                                    </Button>
-                                    <Button colorScheme="blue" 
-                                        onClick={() => handleEditClick(obraSocial)}>
-                                        Editar
-                                    </Button>
+                            <Td maxW="140px">
+                                <HStack spacing={1} justifyContent={"center"}>
+                                    <Button size="sm" title="Editar" onClick={() => handleEditClick(obraSocial)}
+                                    _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
+                                    <Button size="sm" title="Borrar" onClick={() => eliminar(obraSocial.id)}
+                                    _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
                                 </HStack>
                             </Td>
                         </Tr>
@@ -195,8 +195,8 @@ const VerOSPage = () => {
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
-    </Container>
-    </>
+    </Box>
+    </Box>
 )}
 
 export default VerOSPage

@@ -1,36 +1,50 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Form, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Box, Button, Divider, Flex, FormControl, FormLabel, GridItem, Heading, Spinner, Text, Textarea } from "@chakra-ui/react";
-import { Grid } from "lucide-react";
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Spinner,
+  Text,
+  Textarea,
+  VStack,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerUnaFacturaPage = () => {
-    const { id } = useParams();
-    const [factura, setFactura] = useState({    });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const { id } = useParams();
+  const [factura, setFactura] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const traerFactura = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/api/facturas/'+id);
-                setFactura(response.data.data)
-            } catch (error) {
-                console.error("Error al obtener la factura:", error);
-                setError("No se pudo cargar la factura.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        traerFactura();
-    }, [id]);
+  useEffect(() => {
+    const traerFactura = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/facturas/${id}`);
+        setFactura(response.data.data);
+      } catch (error) {
+        console.error("Error al obtener la factura:", error);
+        setError("No se pudo cargar la factura.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    traerFactura();
+  }, [id]);
 
-    if (loading) return <Spinner />;
-    if (error) return <Text color="red.500">{error}</Text>;
+  if (loading) return <Spinner />;
+  if (error) return <Text color="red.500">{error}</Text>;
 
-    // Cuerpo del email
-    const cuerpoEmail = `Estimados,
+  // Cuerpo del email
+  const cuerpoEmail = `Estimados,
 
 Espero que se encuentren bien.
 
@@ -46,116 +60,119 @@ Saludos cordiales,
 [Tu dirección de correo electrónico]
     `;
 
-    return (<>
-        <Header />
-        <Box p={6}>
-            <Heading as="h2" mb={4}>
-                Factura #{factura.numero_factura}
-            </Heading>
+  // Colores para el fondo y la sombra
+  const bgColor = useColorModeValue("white", "gray.700");
+  const shadow = useColorModeValue("md", "dark-lg");
 
-            {/* Detalles de la factura */}
-            <Flex direction="row" gap={4} mb={6}>
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Paciente:</Text>
-                    <Text>{factura.paciente.nombre}</Text>
-                </Box>
+  return (
+    <Box className="container" display="flex" w="100%">
+      <Sidebar />
 
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Obra social:</Text>
-                    <Text>{factura.paciente.obra_social.nombre}</Text>
-                </Box>
+      {/* Main Dashboard */}
+      <Box className="dashboard" overflow="hidden" flex="1" p={4}>
+        <Header mensaje="" />
 
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Fecha de emisión:</Text>
-                    <Text>{new Date(factura.fecha_facturada).toLocaleDateString("es-AR")}</Text>
-                </Box>
+        <Box
+          maxW="1200px"
+          p={6} // Reducimos el padding
+          bg={bgColor}
+          boxShadow={shadow}
+          borderRadius="lg"
+        >
+          <Heading size="lg" mb={4}> {/* Reducimos el margen inferior */}
+            Factura #{factura.numero_factura}
+          </Heading>
 
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Monto:</Text>
-                    <Text>${factura.monto}</Text>
-                </Box>
+          {/* Detalles de la factura */}
+          <Flex direction="row" gap={2} mb={6} flexWrap="nowrap"> {/* Reducimos el gap y el margen inferior */}
+            {[
+              { label: "Paciente", value: factura.paciente?.nombre },
+              { label: "Obra social", value: factura.paciente?.obra_social?.nombre },
+              { label: "Fecha de emisión", value: new Date(factura.fecha_facturada).toLocaleDateString("es-AR") },
+              { label: "Monto", value: `$${factura.monto}` },
+              { label: "Tipo", value: factura.es_consultorio ? "Consultorio" : "Particular" },
+              { label: "Estado", value: factura.estado ? "Pagada" : "Pendiente" },
+              { label: "Fecha de cobro", value: factura.fecha_cobro ? new Date(factura.fecha_cobro).toLocaleDateString("es-AR") : "No pagada" },
+            ].map((item, index) => (
+              <Box key={index} flex="1" minW="150px"> {/* Reducimos el ancho mínimo */}
+                <Text fontWeight="bold" color="gray.700" fontSize="sm"> {/* Reducimos el tamaño de la fuente */}
+                  {item.label}:
+                </Text>
+                <Text fontSize="sm">{item.value}</Text> {/* Reducimos el tamaño de la fuente */}
+              </Box>
+            ))}
+          </Flex>
+          <Divider mb={4} /> {/* Reducimos el margen inferior */}
 
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Tipo:</Text>
-                    <Text>{factura.es_consultorio ? "Consultorio" : "Particular"}</Text>
-                </Box>
+          {/* Enviar recordatorio de pago */}
+          <Heading as="h3" size="md" mb={4}> {/* Reducimos el margen inferior */}
+            Enviar recordatorio de pago
+          </Heading>
 
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Estado:</Text>
-                    <Text>{factura.estado ? "Pagada" : "Pendiente"}</Text>
-                </Box>
-
-                <Box>
-                    <Text fontWeight="bold" color="gray.700">Fecha de cobro:</Text>
-                    <Text>{factura.fecha_cobro ? new Date(factura.fecha_cobro).toLocaleDateString("es-AR") : "No pagada"}</Text>
-                </Box>
-            </Flex>
-            <Divider mb={6} />
-
-            <Heading as="h3" size="md" mb={4}>
-                Enviar recordatorio de pago
-            </Heading>
-            
-            {factura.paciente.obra_social.mail ? 
-            <FormControl mb={4}>
-                <FormLabel htmlFor="paraEmail" fontWeight="bold" fontSize="lg" color="gray.700">
-                    Para:
+          <VStack spacing={4} align="stretch"> {/* Reducimos el espaciado */}
+            {factura.paciente?.obra_social?.mail && (
+              <FormControl>
+                <FormLabel htmlFor="paraEmail" fontWeight="bold" fontSize="md" color="gray.700"> {/* Reducimos el tamaño de la fuente */}
+                  Para:
                 </FormLabel>
-                <Textarea
-                    id="paraEmail"
-                    readOnly
-                    value={`${factura.paciente.obra_social.mail}`}
-                    maxH="40px"
-                    bg="gray.100"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: 'gray.400' }}
-                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3182ce' }}
-                    fontSize="md"
+                <Input
+                  id="paraEmail"
+                  readOnly
+                  value={factura.paciente.obra_social.mail}
+                  bg="gray.100"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
+                  _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+                  fontSize="sm" // Reducimos el tamaño de la fuente
+                  height="40px" // Reducimos la altura
                 />
-            </FormControl> : ""}
+              </FormControl>
+            )}
 
-            <FormControl mb={4}>
-                <FormLabel htmlFor="asuntoEmail" fontWeight="bold" fontSize="lg" color="gray.700">
-                    Asunto:
-                </FormLabel>
-                <Textarea
-                    id="asuntoEmail"
-                    readOnly
-                    value={`Solicitud de pago pendiente – Factura ${factura.numero_factura}`}
-                    maxH="40px"
-                    bg="gray.100"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: 'gray.400' }}
-                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3182ce' }}
-                    fontSize="md"
-                />
+            <FormControl>
+              <FormLabel htmlFor="asuntoEmail" fontWeight="bold" fontSize="md" color="gray.700"> {/* Reducimos el tamaño de la fuente */}
+                Asunto:
+              </FormLabel>
+              <Input
+                id="asuntoEmail"
+                readOnly
+                value={`Solicitud de pago pendiente – Factura ${factura.numero_factura}`}
+                bg="gray.100"
+                borderColor="gray.300"
+                _hover={{ borderColor: "gray.400" }}
+                _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+                fontSize="sm" // Reducimos el tamaño de la fuente
+                height="40px" // Reducimos la altura
+              />
             </FormControl>
 
-            <FormControl mb={6}>
-                <FormLabel htmlFor="cuerpoEmail" fontWeight="bold" fontSize="lg" color="gray.700">
-                    Cuerpo del mensaje:
-                </FormLabel>
-                <Textarea
-                    id="cuerpoEmail"
-                    value={cuerpoEmail}
-                    readOnly
-                    height="300px"
-                    placeholder="El mensaje se genera automáticamente con los datos de la factura."
-                    bg="gray.100"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: 'gray.400' }}
-                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3182ce' }}
-                    fontSize="md"
-                    resize="none"
-                />
+            <FormControl>
+              <FormLabel htmlFor="cuerpoEmail" fontWeight="bold" fontSize="md" color="gray.700"> {/* Reducimos el tamaño de la fuente */}
+                Cuerpo del mensaje:
+              </FormLabel>
+              <Textarea
+                id="cuerpoEmail"
+                value={cuerpoEmail}
+                readOnly
+                height="200px" // Reducimos la altura
+                placeholder="El mensaje se genera automáticamente con los datos de la factura."
+                bg="gray.100"
+                borderColor="gray.300"
+                _hover={{ borderColor: "gray.400" }}
+                _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px #3182ce" }}
+                fontSize="sm" // Reducimos el tamaño de la fuente
+                resize="none"
+              />
             </FormControl>
 
-            <Button colorScheme="blue" onClick={() => alert("Enviando correo...")}>
-                Enviar recordatorio
+            <Button colorScheme="green" size="md" mt={2}> {/* Reducimos el tamaño y el margen superior */}
+              Enviar recordatorio
             </Button>
+          </VStack>
         </Box>
-        </>
-    );
-}
+      </Box>
+    </Box>
+  );
+};
 
 export default VerUnaFacturaPage;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerPacientesPage = () => {
     const [pacienteActualizado, setPacienteActualizado] = useState({});
@@ -104,21 +105,26 @@ const VerPacientesPage = () => {
         traerTutores();
     },[])
     return(
-        <>
-            <Header></Header>
-            <Container maxW="container.xl" py={8}>
-                <Heading as="h1" size="lg" mb={6}>
-                    Listado de Pacientes
-                </Heading>
-                <Box overflowX="auto" border="1px solid" borderColor="gray.200" borderRadius="md" p={4}>
-                    <Table variant="striped" size="md">
-                        <Thead>
+        <Box className="container" display="flex" w={"100%"} minW={"1300px"} maxW={"1400px"}>
+        <Sidebar />
+
+        {/* Main Dashboard */}
+        <Box className="dashboard" overflow={"hidden"} flex="1" p={4}>
+            <Header mensaje={"Bienvenido, usuario"}/>
+
+            {/* Buscador */}
+            <Input placeholder="🔍 Buscar por nombre, DNI..." />
+
+            <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
+                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
+                    <Thead >
                             <Tr>
-                                <Th>Nombre</Th>
-                                <Th>DNI</Th>
-                                <Th>Obra Social</Th>
-                                <Th>Tutor</Th>
-                                <Th textAlign={"center"}>Acciones</Th>
+                                <Th textAlign={"center"} color={"white"}>Nombre</Th>
+                                <Th textAlign={"center"} color={"white"}>DNI</Th>
+                                <Th textAlign={"center"} color={"white"}>Obra Social</Th>
+                                <Th textAlign={"center"} color={"white"}>Tutor</Th>
+                                <Th textAlign={"center"} color={"white"}>Acciones</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -129,22 +135,12 @@ const VerPacientesPage = () => {
                                     <Td>{paciente.dni}</Td>
                                     <Td>{paciente.obra_social.nombre}</Td>
                                     <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
-                                    <Td>
-                                        <HStack spacing={"2"} justifyContent={"center"}>
-                                            <Button
-                                                size={"md"} 
-                                                colorScheme="red"
-                                                onClick={() => eliminar(paciente.id)}
-                                            >
-                                                X
-                                            </Button>
-                                            <Button
-                                                size={"md"} 
-                                                colorScheme="blue" 
-                                                onClick={() => handleEditClick(paciente)}
-                                            >
-                                                Editar
-                                            </Button>
+                                    <Td maxW="140px">
+                                        <HStack spacing={1} justifyContent={"center"}>
+                                            <Button size="sm" title="Editar" onClick={() => handleEditClick(paciente)}
+                                            _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
+                                            <Button size="sm" title="Borrar" onClick={() => eliminar(paciente.id)}
+                                            _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
                                         </HStack>
                                     </Td>
                                 </Tr>
@@ -222,8 +218,8 @@ const VerPacientesPage = () => {
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
-            </Container>
-        </>
+            </Box>
+        </Box>
     )
 }
 
