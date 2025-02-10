@@ -7,4 +7,8 @@ const afipInstance = new Afip({
     key: fs.readFileSync('./config/afip/key.key', { encoding: 'utf8' })
 })
 
+const getCuit = () => {
+    return this.CUIT;
+}
+
 module.exports = afipInstance;

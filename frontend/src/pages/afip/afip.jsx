@@ -5,8 +5,11 @@ import Sidebar from "../../componentes/sidebar";
 import Header from "../../componentes/header";
 
 export default function AfipLogin() {
-    //  const { punto_de_venta, concepto, docTipo, docNro, impTotal, fechaServicioDesde, fechaServicioHasta, fechaVencimientoPago,
-    // condicionIVAReceptorId } = req.body;
+    const [CAE, setCAE] = useState({
+        CAE: "",
+        CAEFchVto: "",
+    })
+
     const [puntosVenta, setPuntosVenta] = useState([]);
     const [tiposConcepto, setTiposConcepto] = useState([]);
     const [tiposDocumento, setTiposDocumento] = useState([]);
@@ -24,7 +27,7 @@ export default function AfipLogin() {
     const [fechaServicioDesde, setFechaServicioDesde] = useState('');
     const [fechaServicioHasta, setFechaServicioHasta] = useState('');
     const [fechaVencimientoPago, setFechaVencimientoPago] = useState('');
-    const [condicionIVAReceptorId, setCondicionIVAReceptorId] = useState('');
+    const [condicionIVAReceptorId, setCondicionIVAReceptorId] = useState(0);
 
     const getPuntosVenta = async () => {
         try{
@@ -111,10 +114,10 @@ export default function AfipLogin() {
     }, []);
 
     const handleSubmit = async (e) => {
-        
+        console.log("Condicion iva receptor id:",condicionIVAReceptorId);
         // Crear el objeto con los datos del formulario
         const facturaData = {
-            punto_de_venta: 1,
+            punto_de_venta: puntoDeVenta,
             concepto: concepto,
             docTipo: docTipo,
             docNro: docNro,
@@ -129,10 +132,67 @@ export default function AfipLogin() {
             // Enviar los datos al backend para emitir la factura
             const response = await axios.post('http://localhost:3000/api/afip/crear/factura-c', facturaData);
             console.log('Factura emitida:', response.data);
+            setCAE(response.data.data)
+            generarQR();
         } catch (error) {
             console.error("Error al emitir la factura:", error);
         }
     };
+    
+    const generarQR = async () => {
+        try {
+            const qrData = {
+                ptoVta: puntoDeVenta,
+                importe: impTotal,
+                tipoDocRec: docTipo,
+                nroDocRec: docNro,
+                CAE: CAE.CAE 
+            }
+            const response = await axios.post('http://localhost:3000/api/afip/crear/codigo-qr', qrData);
+            generarPDF(response.data.data);
+        } catch(error){ 
+            console.error("Error al generar el QR de la factura:", error);
+        }
+    } 
+
+    const generarPDF = async (urlQR) => {
+        try {
+            console.log(urlQR);
+            const dataFactura = {
+                qrCodeImage: urlQR,
+                razonSocial: "PELUSO LUCIANO DANILO",
+                domicilio: "Av. Siempreviva 742",
+                condicionIva: "Responsable Monotributo" ,
+                puntoDeVenta: puntoDeVenta,
+                ingresosBrutos: '12345432',
+                inicioActividades: '25/10/2023',
+                inicioFechaFacturada: (concepto > 1 ? fechaServicioDesde : new Date(Date.now()).toLocaleString().split(',')[0]),
+                finFechaFacturada: (concepto > 1 ? fechaServicioHasta : new Date(Date.now()).toLocaleString().split(',')[0]),
+                vencimientoPago: (concepto > 1 ? fechaVencimientoPago: new Date(Date.now()).toLocaleString().split(',')[0]),
+                cuitReceptor: (docNro > 0 ? docNro : ""),
+                razonSocialReceptor: (docNro > 0 ? 'Empresa imaginaria S.A.' : ""),
+                condicionIvaReceptor: (docNro > 0 ? condicionIVAReceptorId : "Consumidor final"),
+                domicilioReceptor: (docNro > 0 ? "Calle falsa 123" : ""),
+                condicionVenta: "Cuenta corriente",
+                servicio: "Servicios informaticos",
+                cantidad: 1,
+                precioUnitario: 10000.50,
+                CAE: CAE.CAE,
+                vencimientoCAE: CAE.CAEFchVto.replace(/-/g,'/')
+            }
+                        
+            const response = await axios.post('http://localhost:3000/api/afip/crear/factura-pdf', dataFactura);
+
+            // Obtener la URL del PDF desde la respuesta
+            const pdfUrl = response.data.data;
+
+            // Abrir el PDF en una nueva pestaña
+            window.open(pdfUrl, '_blank');
+
+        } catch (error) {
+            console.error("Error al generar el PDF de la factura:", error);
+        }
+    }
 
   return (
     <Box className="container" display="flex" w="100%" minW="1400px">
@@ -157,11 +217,17 @@ export default function AfipLogin() {
                             value={puntoDeVenta}
                             onChange={(e) => setPuntoDeVenta(e.target.value)}
                         >
-                            {puntosVenta.map((pv) => (
+                            {/* {puntosVenta.map((pv) => (
                                 <option key={pv.Id} value={pv.Id}>
                                     {pv.nombre}
                                 </option>
-                            ))}
+                            ))} */}
+                            <option key={1} value={1}>
+                                00001
+                            </option>
+                            <option key={2} value={2}>
+                                00002
+                            </option>
                         </Select>
                     </FormControl>
 

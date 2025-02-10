@@ -1,5 +1,6 @@
 const afip = require('../config/afipInstance.cjs');
 const QRCode = require('qrcode');
+const fs = require('fs');
 
 const crearYAsignarCAE = async (req, res) => {
     const returnFullResponse = false;
@@ -89,35 +90,105 @@ const crearFacturaC = async (req, res) => {
 }
 
 const generarQR = async (req, res) => {
-    const { fechaComprobante, cuit, ptoVta, tipoCmp, nroCmp, importe, tipoDocRec, nroDocRec, CAE} = req.body;
+    const { ptoVta, importe, tipoDocRec, nroDocRec, CAE} = req.body;
+
+    const cuit = afip.CUIT;
+    const punto_de_venta = parseInt(ptoVta);
+    const tipoCmp = 11 // factura C
+    const last_voucher = await afip.ElectronicBilling.getLastVoucher(punto_de_venta, tipoCmp);
     const date = new Date(Date.now() - ((new Date()).getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
     const QRCodeData = {
         'ver': 1, // Versión del formato de los datos (1 por defecto)
         'fecha': date, // Fecha de emisión del comprobante
-        'cuit': cuit, // Cuit del Emisor del comprobante
-        'ptoVta': ptoVta, // Punto de venta utilizado para emitir el comprobante
+        'cuit': parseInt(cuit), // Cuit del Emisor del comprobante
+        'ptoVta': punto_de_venta, // Punto de venta utilizado para emitir el comprobante
         'tipoCmp': tipoCmp, // Tipo de comprobante
-        'nroCmp': nroCmp, // Tipo de comprobante
-        'importe': importe, // Importe Total del comprobante (en la moneda en la que fue emitido)
+        'nroCmp': last_voucher, // Numero de comprobante
+        'importe': parseInt(importe), // Importe Total del comprobante (en la moneda en la que fue emitido)
         'moneda': 'ARS', // Moneda del comprobante
         'ctz': 1, // Cotización en pesos argentinos de la moneda utilizada
-        'tipoDocRec': tipoDocRec, // Código del Tipo de documento del receptor
-        'nroDocRec': nroDocRec, // Número de documento del receptor
+        'tipoDocRec': parseInt(tipoDocRec), // Código del Tipo de documento del receptor
+        'nroDocRec': parseInt(nroDocRec), // Número de documento del receptor
         'tipoCodAut': 'E', // “A” para comprobante autorizado por CAEA, “E” para comprobante autorizado por CAE
-        'codAut': CAE  // CAE o CAEA, segun corresponda
+        'codAut': parseInt(CAE)  // CAE o CAEA, segun corresponda
     };
 
 
     // Preparamos el texto para el qr en base a https://www.afip.gob.ar/fe/qr/documentos/QRespecificaciones.pdf
     const QRCodeText = 'https://www.afip.gob.ar/fe/qr/?p=' + btoa(JSON.stringify(QRCodeData));
-    
+    console.log("QR:",QRCodeText);
     try {
-        const res = await QRCode.toDataURL(QRCodeText); // Podemos obtenerlo como URL
-        
-        res.status(201).json({success:true, message:"QR generado con exito", data: res});
+        const qrCodeImage = await QRCode.toDataURL(QRCodeText); // Podemos obtenerlo como URL
+        res.status(201).json({success:true, message:"QR generado con exito", data: `<img src="${qrCodeImage}" alt="QR Code"/>`});
     } catch (error) {
         console.error("Error en generar el QR: "+error);
         res.status(501).json({ success: false, message: "Error al generar el QR"});
+    }
+}
+
+const crearFacturaPDF = async (req, res) => {
+    const { qrCodeImage, razonSocial, domicilio, condicionIva, puntoDeVenta, ingresosBrutos, inicioActividades, inicioFechaFacturada, finFechaFacturada,
+        vencimientoPago, cuitReceptor, razonSocialReceptor, condicionIvaReceptor, domicilioReceptor, condicionVenta, servicio,
+        cantidad, precioUnitario, CAE, vencimientoCAE } = req.body;
+    let html = fs.readFileSync('./config/afip/bill.html', 'utf8');
+    try{
+        const regex = new RegExp(`{{qrcode}}`, 'g');
+        html = html.replace(regex, qrCodeImage);
+
+        const numeroDeComprobante = await afip.ElectronicBilling.getLastVoucher(parseInt(puntoDeVenta), 11); // 11 = factura C
+
+        const datosFactura = {
+            tipo_factura: 'C',
+            razon_social: razonSocial,
+            domicilio: domicilio,
+            condicion_iva: condicionIva,
+            punto_venta: puntoDeVenta,
+            numero_comprobante: numeroDeComprobante,
+            fecha_emision: new Date(Date.now()).toLocaleString().split(',')[0],
+            cuit: afip.CUIT,
+            ingresos_brutos: ingresosBrutos,
+            inicio_actividades: inicioActividades,
+            inicio_fecha_facturada: inicioFechaFacturada,
+            fin_fecha_facturada: finFechaFacturada,
+            vencimiento_pago: vencimientoPago,
+            cuit_receptor: cuitReceptor,
+            razon_social_receptor: razonSocialReceptor,
+            condicion_iva_receptor: condicionIvaReceptor,
+            domicilio_receptor: domicilioReceptor,
+            condicion_venta: condicionVenta,
+            servicio: servicio,
+            cantidad: cantidad.toString(),
+            precio_unitario: precioUnitario.toString(),
+            precio_total: precioUnitario * cantidad,
+            CAE: CAE,
+            vencimiento_CAE: vencimientoCAE
+        };
+
+        Object.keys(datosFactura).forEach(key => {
+            const regex = new RegExp(`{{${key}}}`, 'g');
+            html = html.replace(regex, datosFactura[key]);
+        });
+
+        // 3️⃣ Opciones de PDF
+        const options = {
+            width: 8, // Ancho en pulgadas (ajustable)
+            marginLeft: 0.4,
+            marginRight: 0.4,
+            marginTop: 0.4,
+            marginBottom: 0.4
+        };
+
+        // 4️⃣ Generar el PDF usando AFIP SDK
+        const response = await afip.ElectronicBilling.createPDF({
+            html: html,
+            file_name: 'factura_generada',
+            options: options
+        });
+        // Devolver la URL del archivo en la nube
+        res.status(200).json({ success: true, message: "PDF creado con éxito", data: response.file });
+    } catch (error) {
+        console.error("Error al crear el pdf de la factura:", error);
     }
 }
 
@@ -239,6 +310,7 @@ const obtenerTiposDeTributoDisponibles = async (req, res) => {
 module.exports = {
     crearYAsignarCAE,
     crearFacturaC,
+    crearFacturaPDF,
     generarQR,
     obtenerInformacionComprobanteEmitido,
     obtenerNumeroUltimoComprobanteCreado,
