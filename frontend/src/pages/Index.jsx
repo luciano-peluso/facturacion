@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Heading, Text, Button, Input, Menu, Table, Thead, Tbody, Tr, Th, Td, Flex, MenuButton, MenuList, VStack, MenuItem, HStack, useDisclosure, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormLabel, Select, InputGroup, InputLeftElement, ModalFooter } from "@chakra-ui/react";
 import Header from "../componentes/header";
+import Sidebar from "../componentes/sidebar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../componentes/Sidebar";
 
 const Index = () => {
     const [facturas, setFacturas] = useState([]);

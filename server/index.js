@@ -9,6 +9,7 @@ const obrasSocialesRoutes = require('./routes/obrasSocialesRoutes');
 const tutoresRoutes = require('./routes/tutoresRoutes');
 const configuracionRoutes = require('./routes/configuracionRoutes');
 const notificacionesRoute = require('./routes/notificacionRoutes');
+const afipRoutes = require('./routes/afipRoutes.cjs');
 
 const { revisarFacturasVencidas } = require('./cronJobs/facturasVencidas');
 const { enviarRecordatorioLiquidacion } = require('./cronJobs/recordatorioLiquidacion');
@@ -27,6 +28,7 @@ app.use('/api/os', obrasSocialesRoutes);
 app.use('/api/tutores', tutoresRoutes);
 app.use('/api/configuracion', configuracionRoutes);
 app.use('/api/notificaciones', notificacionesRoute);
+app.use('/api/afip', afipRoutes);
 
 // Inicialización
 (async () => {
