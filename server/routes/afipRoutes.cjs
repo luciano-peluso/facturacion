@@ -1,6 +1,6 @@
 const express = require('express');
 const {
-    crearYAsignarCAE, crearFacturaC, generarQR, crearFacturaPDF, obtenerInformacionComprobanteEmitido, obtenerNumeroUltimoComprobanteCreado,
+    crearYAsignarCAE, crearFacturaC, generarQR, obtenerDatosContribuyente, crearFacturaPDF, obtenerInformacionComprobanteEmitido, obtenerNumeroUltimoComprobanteCreado,
     obtenerPuntosDeVentaDisponibles, obtenerTiposDeComprobantesDisponibles, obtenerTiposDeConceptoDisponibles, obtenerTiposDeDocumentoDisponibles,obtenerTiposDeAlicuotaDisponibles,
     obtenerTiposDeMonedaDisponibles, obtenerTiposDeOpcionesDisponibles, obtenerTiposDeTributoDisponibles } = require('../controllers/afipController.cjs');
 
@@ -19,6 +19,7 @@ router.get('/obtener-tipo/moneda', obtenerTiposDeMonedaDisponibles);
 router.get('/obtener-tipo/opciones', obtenerTiposDeOpcionesDisponibles);
 router.get('/obtener-tipo/tributo', obtenerTiposDeTributoDisponibles);
 
+router.get('/obtener-datos-contribuyente/:cuit', obtenerDatosContribuyente);
 router.get('/crear/CAE', crearYAsignarCAE);
 router.post('/crear/factura-c', crearFacturaC);
 router.post('/crear/codigo-qr', generarQR);

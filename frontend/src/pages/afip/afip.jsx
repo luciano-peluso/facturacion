@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Input, Button, VStack, Text, Heading, FormControl, FormLabel, Select } from "@chakra-ui/react";
+import { Box, Input, Button, VStack, Text, Heading, FormControl, FormLabel, Select, HStack } from "@chakra-ui/react";
 import axios from "axios";
 import Sidebar from "../../componentes/sidebar";
 import Header from "../../componentes/header";
@@ -9,16 +9,78 @@ export default function AfipLogin() {
         CAE: "",
         CAEFchVto: "",
     })
+    const unidades = [
+        { id: "00", descripcion: "SIN DESCRIPCION" },
+        { id: "01", descripcion: "KILOGRAMO" },
+        { id: "02", descripcion: "METROS" },
+        { id: "03", descripcion: "METRO CUADRADO" },
+        { id: "04", descripcion: "METRO CUBICO" },
+        { id: "05", descripcion: "LITROS" },
+        { id: "06", descripcion: "1000 KILOWATT HORA" },
+        { id: "07", descripcion: "UNIDAD" },
+        { id: "08", descripcion: "PAR" },
+        { id: "09", descripcion: "DOCENA" },
+        { id: "10", descripcion: "QUILATE" },
+        { id: "11", descripcion: "MILLAR" },
+        { id: "12", descripcion: "MEGA U. INTER. ACT. ANTIB" },
+        { id: "13", descripcion: "UNIDAD INT. ACT. INMUNG" },
+        { id: "14", descripcion: "GRAMO" },
+        { id: "15", descripcion: "MILIMETRO" },
+        { id: "16", descripcion: "MILIMETRO CUBICO" },
+        { id: "17", descripcion: "KILOMETRO" },
+        { id: "18", descripcion: "HECTOLITRO" },
+        { id: "19", descripcion: "MEGA UNIDAD INT. ACT. INMUNG" },
+        { id: "20", descripcion: "CENTIMETRO" },
+        { id: "21", descripcion: "KILOGRAMO ACTIVO" },
+        { id: "22", descripcion: "GRAMO ACTIVO" },
+        { id: "23", descripcion: "GRAMO BASE" },
+        { id: "24", descripcion: "UIACTHOR" },
+        { id: "25", descripcion: "JGO.PQT. MAZO NAIPES" },
+        { id: "26", descripcion: "MUIACTHOR" },
+        { id: "27", descripcion: "CENTIMETRO CUBICO" },
+        { id: "28", descripcion: "UIACTANT" },
+        { id: "29", descripcion: "TONELADA" },
+        { id: "30", descripcion: "DECAMETRO CUBICO" },
+        { id: "31", descripcion: "HECTOMETRO CUBICO" },
+        { id: "32", descripcion: "KILOMETRO CUBICO" },
+        { id: "33", descripcion: "MICROGRAMO" },
+        { id: "34", descripcion: "NANOGRAMO" },
+        { id: "35", descripcion: "PICOGRAMO" },
+        { id: "36", descripcion: "MUIACTANT" },
+        { id: "37", descripcion: "UIACTIG" },
+        { id: "41", descripcion: "MILIGRAMO" },
+        { id: "47", descripcion: "MILILITRO" },
+        { id: "48", descripcion: "CURIE" },
+        { id: "49", descripcion: "MILICURIE" },
+        { id: "50", descripcion: "MICROCURIE" },
+        { id: "51", descripcion: "U.INTER. ACT. HORMONAL" },
+        { id: "52", descripcion: "MEGA U. INTER. ACT. HOR." },
+        { id: "53", descripcion: "KILOGRAMO BASE" },
+        { id: "54", descripcion: "GRUESA" },
+        { id: "55", descripcion: "MUIACTIG" },
+        { id: "61", descripcion: "KILOGRAMO BRUTO" },
+        { id: "62", descripcion: "PACK" },
+        { id: "63", descripcion: "HORMA" },
+        { id: "97", descripcion: "SEÑAS/ANTICIPOS" },
+        { id: "98", descripcion: "OTRAS UNIDADES" },
+        { id: "99", descripcion: "BONIFICACION" }
+    ];
 
     const [puntosVenta, setPuntosVenta] = useState([]);
     const [tiposConcepto, setTiposConcepto] = useState([]);
     const [tiposDocumento, setTiposDocumento] = useState([]);
     const [tiposComprobante, setTiposComprobante] = useState([]);
-    const [tiposAlicuota, setTiposAlicuota] = useState([]);
-    const [tiposMoneda, setTiposMoneda] = useState([]);
-    const [tiposOpciones, setTiposOpciones] = useState([]);
-    const [tiposTributo, setTiposTributo] = useState([]);
-    
+    const [condicionesFrenteIva, setCondicionesFrenteIva] = useState([]);
+    const [pdfUrl, setPdfUrl] = useState(null); // Estado para guardar la URL del PDF
+    const [isGenerarDisabled, setIsGenerarDisabled] = useState(false); // Estado para habilitar/deshabilitar "Generar Factura"
+    const [isVerDisabled, setIsVerDisabled] = useState(true);
+    const [configuracionAfip, setConfiguracionAfip] = useState([]);
+
+    const [cantidad, setCantidad] = useState('')
+    const [unidad, setUnidad] = useState('')
+    const [precioUnitario, setPrecioUnitario] = useState('')
+    const [condicionVenta, setCondicionVenta] = useState('')
+    const [servicio, setServicio] = useState('');
     const [puntoDeVenta, setPuntoDeVenta] = useState('');
     const [concepto, setConcepto] = useState('');
     const [docTipo, setDocTipo] = useState('');
@@ -28,6 +90,8 @@ export default function AfipLogin() {
     const [fechaServicioHasta, setFechaServicioHasta] = useState('');
     const [fechaVencimientoPago, setFechaVencimientoPago] = useState('');
     const [condicionIVAReceptorId, setCondicionIVAReceptorId] = useState(0);
+    const [razonSocialReceptor, setRazonSocialReceptor] = useState('')
+    const [domicilioReceptor, setDomicilioReceptor] = useState('')
 
     const getPuntosVenta = async () => {
         try{
@@ -65,52 +129,32 @@ export default function AfipLogin() {
             console.error("Error al obtener tipos de documento:", error);
         }
     };
-    // Función para obtener los tipos de alícuota
-    const getTiposAlicuota = async () => {
+
+    const getCondicionesFrenteIva = async() => {
         try {
-            const response = await axios.get('http://localhost:3000/api/afip/obtener-tipo/alicuota');
-            setTiposAlicuota(response.data.data);
+            const response = await axios.get('http://localhost:3000/api/condicionIva');
+            setCondicionesFrenteIva(response.data.data);
         } catch (error) {
-            console.error("Error al obtener tipos de alícuota:", error);
+            console.error("Error al obtener tipos de documento:", error);
         }
-    };
-    // Función para obtener los tipos de moneda
-    const getTiposMoneda = async () => {
+    }
+    
+    const getConfiguracionAfip = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/afip/obtener-tipo/moneda');
-            setTiposMoneda(response.data.data);
+            const response = await axios.get('http://localhost:3000/api/configuracion/afip');
+            setConfiguracionAfip(response.data.data);
         } catch (error) {
-            console.error("Error al obtener tipos de moneda:", error);
+            console.error("Error al obtener la configuracion:", error);
         }
-    };
-    // Función para obtener los tipos de opciones
-    const getTiposOpciones = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/api/afip/obtener-tipo/opciones');
-            setTiposOpciones(response.data.data);
-        } catch (error) {
-            console.error("Error al obtener tipos de opciones:", error);
-        }
-    };
-    // Función para obtener los tipos de tributo
-    const getTiposTributo = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/api/afip/obtener-tipo/tributo');
-            setTiposTributo(response.data.data);
-        } catch (error) {
-            console.error("Error al obtener tipos de tributo:", error);
-        }
-    };
+    }
 
     useEffect(() => {
         //getPuntosVenta();
         getTiposComprobante();
         getTiposConcepto();
         getTiposDocumento();
-        getTiposAlicuota();
-        getTiposMoneda();
-        getTiposOpciones();
-        getTiposTributo();
+        getCondicionesFrenteIva();
+        getConfiguracionAfip();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -121,7 +165,7 @@ export default function AfipLogin() {
             concepto: concepto,
             docTipo: docTipo,
             docNro: docNro,
-            impTotal: impTotal,
+            impTotal: precioUnitario * cantidad,
             fechaServicioDesde: fechaServicioDesde,
             fechaServicioHasta: fechaServicioHasta,
             fechaVencimientoPago: fechaVencimientoPago,
@@ -132,18 +176,24 @@ export default function AfipLogin() {
             // Enviar los datos al backend para emitir la factura
             const response = await axios.post('http://localhost:3000/api/afip/crear/factura-c', facturaData);
             console.log('Factura emitida:', response.data);
+            
             setCAE(response.data.data)
-            generarQR();
         } catch (error) {
             console.error("Error al emitir la factura:", error);
         }
     };
     
+    useEffect(() => {
+        if( CAE.CAE && CAE.CAEFchVto){
+            generarQR();
+        }
+    }, [CAE])
+    
     const generarQR = async () => {
         try {
             const qrData = {
                 ptoVta: puntoDeVenta,
-                importe: impTotal,
+                importe: precioUnitario * cantidad,
                 tipoDocRec: docTipo,
                 nroDocRec: docNro,
                 CAE: CAE.CAE 
@@ -156,27 +206,29 @@ export default function AfipLogin() {
     } 
 
     const generarPDF = async (urlQR) => {
+        // Deshabilitar el botón "Generar Factura" mientras se procesa
+        setIsGenerarDisabled(true);
         try {
-            console.log(urlQR);
+            const condicionEncontrada = condicionesFrenteIva.find(condicion => condicion.id === Number(condicionIVAReceptorId));
             const dataFactura = {
                 qrCodeImage: urlQR,
-                razonSocial: "PELUSO LUCIANO DANILO",
-                domicilio: "Av. Siempreviva 742",
-                condicionIva: "Responsable Monotributo" ,
+                razonSocial: configuracionAfip.razon_social,
+                domicilio: configuracionAfip.domicilio,
+                condicionIva: configuracionAfip.CondicionIva.descripcion,
                 puntoDeVenta: puntoDeVenta,
-                ingresosBrutos: '12345432',
-                inicioActividades: '25/10/2023',
+                ingresosBrutos: configuracionAfip.ingresos_brutos,
+                inicioActividades: configuracionAfip.inicio_actividades,
                 inicioFechaFacturada: (concepto > 1 ? fechaServicioDesde : new Date(Date.now()).toLocaleString().split(',')[0]),
                 finFechaFacturada: (concepto > 1 ? fechaServicioHasta : new Date(Date.now()).toLocaleString().split(',')[0]),
                 vencimientoPago: (concepto > 1 ? fechaVencimientoPago: new Date(Date.now()).toLocaleString().split(',')[0]),
                 cuitReceptor: (docNro > 0 ? docNro : ""),
-                razonSocialReceptor: (docNro > 0 ? 'Empresa imaginaria S.A.' : ""),
-                condicionIvaReceptor: (docNro > 0 ? condicionIVAReceptorId : "Consumidor final"),
-                domicilioReceptor: (docNro > 0 ? "Calle falsa 123" : ""),
-                condicionVenta: "Cuenta corriente",
-                servicio: "Servicios informaticos",
-                cantidad: 1,
-                precioUnitario: 10000.50,
+                razonSocialReceptor: (docNro > 0 ? razonSocialReceptor : ""),
+                condicionIvaReceptor: condicionEncontrada?.descripcion,
+                domicilioReceptor: (docNro > 0 ? domicilioReceptor : ""),
+                condicionVenta: condicionVenta,
+                servicio: servicio,
+                cantidad: cantidad,
+                precioUnitario: precioUnitario,
                 CAE: CAE.CAE,
                 vencimientoCAE: CAE.CAEFchVto.replace(/-/g,'/')
             }
@@ -186,13 +238,38 @@ export default function AfipLogin() {
             // Obtener la URL del PDF desde la respuesta
             const pdfUrl = response.data.data;
 
-            // Abrir el PDF en una nueva pestaña
-            window.open(pdfUrl, '_blank');
+            // Guardar la URL en el estado y habilitar el botón "Ver Factura"
+            setPdfUrl(pdfUrl);
+            setIsVerDisabled(false);
 
         } catch (error) {
             console.error("Error al generar el PDF de la factura:", error);
         }
     }
+
+    const obtenerDatosContribuyente = async () => {
+        if (docTipo === "80" && docNro) {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/afip/obtener-datos-contribuyente/${docNro}`);
+                const { razonSocial, domicilio } = response.data.data;
+                console.log(response.data.data)
+                setRazonSocialReceptor(razonSocial);
+                setDomicilioReceptor(domicilio);
+            } catch (error) {
+                console.error("Error fetching contribuyente data:", error);
+            }
+        }
+    };
+
+    const handleVerFactura = () => {
+        // Redirigir al usuario al enlace de la factura
+        window.open(pdfUrl, '_blank');
+    };
+
+    useEffect(() => {
+        if(docNro.length >= 11){
+        obtenerDatosContribuyente();}
+    }, [docTipo, docNro]);
 
   return (
     <Box className="container" display="flex" w="100%" minW="1400px">
@@ -233,156 +310,222 @@ export default function AfipLogin() {
 
                     {/* Campo para seleccionar el concepto */}
                     <FormControl isRequired>
-                    <FormLabel>Concepto</FormLabel>
-                    <Select
-                        placeholder="Seleccione un concepto"
-                        value={concepto}
-                        onChange={(e) => {
-                            setConcepto(e.target.value);
-                            // Si el concepto no es 2 o 3, limpiamos las fechas
-                            if (e.target.value !== "2" && e.target.value !== "3") {
-                                setFechaServicioDesde(null);
-                                setFechaServicioHasta(null);
-                                setFechaVencimientoPago(null);
-                            }
-                        }}
-                    >
-                        {tiposConcepto.map((concepto) => (
-                            <option key={concepto.Id} value={concepto.Id}>
-                                {concepto.Desc}
-                            </option>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                    {/* Campo para seleccionar el tipo de documento */}
-                    <FormControl isRequired>
-                        <FormLabel>Tipo de Documento</FormLabel>
+                        <FormLabel>Concepto</FormLabel>
                         <Select
-                            placeholder="Seleccione un tipo de documento"
-                            value={docTipo}
+                            placeholder="Seleccione un concepto"
+                            value={concepto}
                             onChange={(e) => {
-                                setDocTipo(e.target.value);
-                                // Si el tipo de documento es Consumidor Final (Id = 99), establecer docNro en 0
-                                if (e.target.value === "99") {
-                                    setDocNro("0");
-                                } else {
-                                    setDocNro(""); // Limpiar el campo si no es Consumidor Final
+                                setConcepto(e.target.value);
+                                // Si el concepto no es 2 o 3, limpiamos las fechas
+                                if (e.target.value !== "2" && e.target.value !== "3") {
+                                    setFechaServicioDesde(null);
+                                    setFechaServicioHasta(null);
+                                    setFechaVencimientoPago(null);
                                 }
                             }}
                         >
-                            {tiposDocumento.map((doc) => (
-                                <option key={doc.Id} value={doc.Id}>
-                                    {doc.Desc} {doc.Id === 99 && "(Consumidor Final)"} {/* Agregar texto adicional para Consumidor Final */}
+                            {tiposConcepto.map((concepto) => (
+                                <option key={concepto.Id} value={concepto.Id}>
+                                    {concepto.Desc}
                                 </option>
                             ))}
                         </Select>
                     </FormControl>
 
-                    {/* Campo para ingresar el número de documento */}
-                    <FormControl isRequired>
-                        <FormLabel>Número de Documento (del comprador)</FormLabel>
-                        <Input
-                            type="text"
-                            value={docNro}
-                            onChange={(e) => setDocNro(e.target.value)}
-                            isDisabled={docTipo === "99"} // Deshabilitar el campo si es Consumidor Final
-                        />
-                    </FormControl>
+                        {/* Campo para seleccionar el tipo de documento */}
+                        <FormControl isRequired>
+                            <FormLabel>Tipo de Documento</FormLabel>
+                            <Select
+                                placeholder="Seleccione un tipo de documento"
+                                value={docTipo}
+                                onChange={(e) => {
+                                    setDocTipo(e.target.value);
+                                    // Si el tipo de documento es Consumidor Final (Id = 99), establecer docNro en 0
+                                    if (e.target.value === "99") {
+                                        setDocNro("0");
+                                    } else {
+                                        setDocNro(""); // Limpiar el campo si no es Consumidor Final
+                                    }
+                                }}
+                            >
+                                {tiposDocumento.map((doc) => (
+                                    <option key={doc.Id} value={doc.Id}>
+                                        {doc.Desc} {doc.Id === 99 && "(Consumidor Final)"} {/* Agregar texto adicional para Consumidor Final */}
+                                    </option>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                    {/* Campo para ingresar el importe total */}
-                    <FormControl isRequired>
-                        <FormLabel>Importe Total</FormLabel>
-                        <Input
-                            type="number"
-                            value={impTotal}
-                            onChange={(e) => setImpTotal(e.target.value)}
-                        />
-                    </FormControl>
+                        {/* Campo para ingresar el número de documento */}
+                        <FormControl isRequired>
+                            <FormLabel>Número de Documento del receptor</FormLabel>
+                            <Input
+                                type="text"
+                                placeholder="Ingrese el CUIL/CUIT/DNI/otro del receptor"
+                                value={docNro}
+                                onChange={(e) => setDocNro(e.target.value)}
+                                isDisabled={docTipo === "99"} // Deshabilitar el campo si es Consumidor Final
+                            />
+                        </FormControl>
 
-                    {/* Campo para ingresar la fecha de servicio desde */}
-                    {(concepto === "2" || concepto === "3") && (
-                    <>
+                        <FormControl isRequired>
+                            <FormLabel>Razon Social receptor</FormLabel>
+                            <Input 
+                                placeholder="Ingrese la razon social del receptor"
+                                value={razonSocialReceptor || ""}
+                                onChange={(e) => setRazonSocialReceptor(e.target.value)}
+                                isDisabled={docTipo === "99"} // Deshabilitar el campo si es Consumidor Final
+                            />
+                        </FormControl>
+
+                        <FormControl isRequired>
+                            <FormLabel>Domicilio receptor</FormLabel>
+                            <Input 
+                                placeholder="Ingrese el domicilio del receptor"
+                                value={domicilioReceptor || ""}
+                                onChange={(e) => setDomicilioReceptor(e.target.value)}
+                                isDisabled={docTipo === "99"} // Deshabilitar el campo si es Consumidor Final
+                            />
+                        </FormControl>
+                        <FormControl isRequired>
+                            <FormLabel>Servicio</FormLabel>
+                            <Input 
+                                placeholder="Ingrese la descripcion del servicio prestado"
+                                value={servicio || ""}
+                                onChange={(e) => setServicio(e.target.value)}
+                            />
+                        </FormControl>
+
+                        <FormControl isRequired>
+                            <FormLabel>Cantidad</FormLabel>
+                            <Input 
+                                type="number"
+                                placeholder="Ingrese la cantidad del servicio prestado"
+                                value={cantidad || ""}
+                                onChange={(e) => setCantidad(e.target.value)}
+                            />
+                        </FormControl>
+
+                        <FormControl isRequired>
+                            <FormLabel>Unidades</FormLabel>
+                            <Select 
+                                placeholder="Seleccione la unidad correspondiente del servicio prestado"
+                                value={unidad || ""}
+                                onChange={(e) => setUnidad(e.target.value)}
+                           >
+                            {unidades.map((unidadExtra) => (
+                                <option key={unidadExtra.id} value={unidadExtra.descripcion}>
+                                    {unidadExtra.descripcion}
+                                </option>
+                            ))}
+                           </Select>
+                        </FormControl>
+
+                        <FormControl isRequired>
+                            <FormLabel>Precio Unitario</FormLabel>
+                            <Input 
+                                type="number"
+                                placeholder="Ingrese el precio unitario"
+                                value={precioUnitario || ""}
+                                onChange={(e) => setPrecioUnitario(e.target.value)}
+                            />
+                        </FormControl>
+                        {/* Campo para ingresar el importe total */}
+                        <FormControl isRequired>
+                            <FormLabel>Importe Total</FormLabel>
+                            <Input
+                                type="number"
+                                value={precioUnitario * cantidad}
+                                onChange={(e) => setImpTotal(e.target.value)}
+                                isDisabled={precioUnitario && cantidad}
+                            />
+                        </FormControl>
+
                         {/* Campo para ingresar la fecha de servicio desde */}
+                        {(concepto === "2" || concepto === "3") && (
+                        <>
+                            {/* Campo para ingresar la fecha de servicio desde */}
+                            <FormControl isRequired>
+                                <FormLabel>Fecha de Servicio Desde</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={fechaServicioDesde || ""}
+                                    onChange={(e) => setFechaServicioDesde(e.target.value)}
+                                />
+                            </FormControl>
+
+                            {/* Campo para ingresar la fecha de servicio hasta */}
+                            <FormControl isRequired>
+                                <FormLabel>Fecha de Servicio Hasta</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={fechaServicioHasta || ""}
+                                    onChange={(e) => setFechaServicioHasta(e.target.value)}
+                                />
+                            </FormControl>
+
+                            {/* Campo para ingresar la fecha de vencimiento del pago */}
+                            <FormControl isRequired>
+                                <FormLabel>Fecha de Vencimiento del Pago</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={fechaVencimientoPago || ""}
+                                    onChange={(e) => setFechaVencimientoPago(e.target.value)}
+                                />
+                            </FormControl>
+                        </>)}
+
+                        {/* Campo para seleccionar la condición de IVA del receptor */}
                         <FormControl isRequired>
-                            <FormLabel>Fecha de Servicio Desde</FormLabel>
-                            <Input
-                                type="date"
-                                value={fechaServicioDesde || ""}
-                                onChange={(e) => setFechaServicioDesde(e.target.value)}
-                            />
+                            <FormLabel>Condición de IVA del Receptor</FormLabel>
+                            <Select
+                                placeholder="Seleccione una condición de IVA"
+                                value={condicionIVAReceptorId}
+                                onChange={(e) => setCondicionIVAReceptorId(e.target.value)}
+                            >
+                                {condicionesFrenteIva.map(condicionFrenteIva => (
+                                    <option key={condicionFrenteIva.id} value={condicionFrenteIva.id}>
+                                        {condicionFrenteIva.descripcion}
+                                    </option>
+                                ))}
+                            </Select>
                         </FormControl>
-
-                        {/* Campo para ingresar la fecha de servicio hasta */}
+                        
                         <FormControl isRequired>
-                            <FormLabel>Fecha de Servicio Hasta</FormLabel>
-                            <Input
-                                type="date"
-                                value={fechaServicioHasta || ""}
-                                onChange={(e) => setFechaServicioHasta(e.target.value)}
-                            />
+                            <FormLabel>Condicion venta</FormLabel>
+                            <Select
+                                value={condicionVenta || ""}
+                                placeholder="Seleccione una condicion de venta"
+                                onChange={(e) => setCondicionVenta(e.target.value)}>
+                            <option key={1} value={"Contado"}>
+                                Contado
+                            </option>
+                            <option key={2} value={"Tarjeta de Débito"}>
+                            Tarjeta de Débito
+                            </option>
+                            <option key={3} value={"Tarjeta de Crédito"}>
+                                Tarjeta de Crédito
+                            </option>
+                            <option key={4} value={"Cuenta Corriente"}>
+                                Cuenta Corriente
+                            </option>
+                            <option key={5} value={"Cheque"}>
+                                Cheque
+                            </option>
+                            <option key={6} value={"Otra"}>
+                                Otra
+                            </option></Select>
                         </FormControl>
-
-                        {/* Campo para ingresar la fecha de vencimiento del pago */}
-                        <FormControl isRequired>
-                            <FormLabel>Fecha de Vencimiento del Pago</FormLabel>
-                            <Input
-                                type="date"
-                                value={fechaVencimientoPago || ""}
-                                onChange={(e) => setFechaVencimientoPago(e.target.value)}
-                            />
-                        </FormControl>
-                    </>)}
-
-                    {/* Campo para seleccionar la condición de IVA del receptor */}
-                    <FormControl isRequired>
-                        <FormLabel>Condición de IVA del Receptor</FormLabel>
-                        <Select
-                            placeholder="Seleccione una condición de IVA"
-                            value={condicionIVAReceptorId}
-                            onChange={(e) => setCondicionIVAReceptorId(e.target.value)}
-                        >
-                            <option key={1} value={1}>
-                                IVA Responsable Inscripto
-                            </option>
-                            <option key={6} value={6}>
-                                Responsable Monotributo
-                            </option>
-                            <option key={13} value={13}>
-                                Monotributista Social
-                            </option>
-                            <option key={16} value={16}>
-                                Monotributo Trabajador Independiente Promovido
-                            </option>
-                            <option key={4} value={4}>
-                                IVA Sujeto Exento
-                            </option>
-                            <option key={5} value={5}>
-                                Consumidor Final
-                            </option>
-                            <option key={7} value={7}>
-                                Sujeto No Categorizado  
-                            </option>
-                            <option key={8} value={8}>
-                                Proveedor del Exterior
-                            </option>
-                            <option key={9} value={9}>
-                                Cliente del Exterior
-                            </option>
-                            <option key={10} value={10}>
-                                IVA Liberado – Ley N° 19.640
-                            </option>
-                            <option key={15} value={15}>
-                                IVA No Alcanzado
-                            </option>
-                        </Select>
-                    </FormControl>
-
+                    </VStack>
                     {/* Botón para enviar el formulario */}
-                    <Button type="submit" colorScheme="blue" width="100%" onClick={() => handleSubmit()}>
-                        Emitir Factura
-                    </Button>
-                </VStack>
+                    <HStack mt={5}>
+                        <Button type="submit" colorScheme="blue" width="100%" onClick={() => handleSubmit()} isDisabled={isGenerarDisabled}>
+                            Emitir Factura
+                        </Button>
+                        <Button colorScheme="red" width={"100%"} onClick={() => handleVerFactura()} isDisabled={isVerDisabled}>
+                            Ver factura
+                        </Button>
+                    </HStack>
             </Box>
         </Box>
     </Box>

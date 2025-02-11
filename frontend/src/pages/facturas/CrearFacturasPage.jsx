@@ -17,7 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../../componentes/header";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const CrearFactura = () => {
   const [pacientes, setPacientes] = useState([]);

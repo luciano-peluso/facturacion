@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const {sequelize} = require('../config/db');
+const CondicionIva = require('./CondicionIva');
 
 const Configuracion = sequelize.define('Configuracion', {
   id: {
@@ -17,6 +18,30 @@ const Configuracion = sequelize.define('Configuracion', {
     allowNull: false,
     defaultValue: 15,  // Valor por defecto de 15%
   },
+  razon_social: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  domicilio: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  ingresos_brutos: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  inicio_actividades: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    defaultValue: null,
+  },
+  condicion_iva_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  }
 }, {
   timestamps: true,
   createdAt: 'createdat',
@@ -25,5 +50,7 @@ const Configuracion = sequelize.define('Configuracion', {
   paranoid: true,
   tableName: 'configuracion',  // Nombre de la tabla
 });
+
+Configuracion.belongsTo(CondicionIva, { foreignKey: 'condicion_iva_id' });
 
 module.exports = Configuracion;

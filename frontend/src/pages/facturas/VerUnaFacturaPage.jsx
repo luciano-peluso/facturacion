@@ -17,7 +17,7 @@ import {
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const VerUnaFacturaPage = () => {
   const { id } = useParams();
@@ -88,7 +88,7 @@ Saludos cordiales,
             {[
               { label: "Paciente", value: factura.paciente?.nombre },
               { label: "Obra social", value: factura.paciente?.obra_social?.nombre },
-              { label: "Fecha de emisión", value: new Date(factura.fecha_facturada).toLocaleDateString("es-AR") },
+              { label: "Fecha facturada", value: new Date(factura.fecha_facturada + "T00:00:00").toLocaleDateString("es-AR") },
               { label: "Monto", value: `$${factura.monto}` },
               { label: "Tipo", value: factura.es_consultorio ? "Consultorio" : "Particular" },
               { label: "Estado", value: factura.estado ? "Pagada" : "Pendiente" },

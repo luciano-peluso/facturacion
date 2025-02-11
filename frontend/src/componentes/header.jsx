@@ -21,7 +21,7 @@ const Header = ({ mensaje }) => { // Aquí se cambia `mensaje` a una prop
       <Spacer />
       <HStack>
         <MenuNotificaciones />
-        <MenuHamburguesa onNavigate={(path) => navigate(path)} />
+        {/* <MenuHamburguesa onNavigate={(path) => navigate(path)} /> */}
       </HStack>
     </Flex>
   );

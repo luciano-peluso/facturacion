@@ -1,3 +1,4 @@
+const CondicionIva = require('../models/CondicionIva');
 const Configuracion = require('../models/Configuracion');
 
 const getConfiguracion = async (req, res) => {
@@ -50,9 +51,27 @@ const deleteConfiguracion = async (req, res) => {
     }
 };
 
+const getConfiguracionAfip = async (req, res) => {
+    try {
+        const configuracion = await Configuracion.findOne({
+            attributes: ['razon_social', 'domicilio', 'condicion_iva_id', 'ingresos_brutos', 'inicio_actividades'],
+            include: { model: CondicionIva, attributes:['descripcion']}
+        });
+
+        if (!configuracion) {
+            return res.status(404).json({ success: false, message: "Configuración no encontrada" });
+        }
+
+        res.status(200).json({ success: true, data: configuracion });
+    } catch (error) {
+        console.error("Error al obtener la configuración:", error);
+        res.status(500).json({ success: false, message: "Error al obtener la configuración" });
+    }
+};
 
 module.exports = {
     getConfiguracion,
+    getConfiguracionAfip,
     createConfiguracion,
     updateConfiguracion,
     deleteConfiguracion,

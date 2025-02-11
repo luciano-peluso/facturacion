@@ -117,7 +117,7 @@ const generarQR = async (req, res) => {
 
     // Preparamos el texto para el qr en base a https://www.afip.gob.ar/fe/qr/documentos/QRespecificaciones.pdf
     const QRCodeText = 'https://www.afip.gob.ar/fe/qr/?p=' + btoa(JSON.stringify(QRCodeData));
-    console.log("QR:",QRCodeText);
+    
     try {
         const qrCodeImage = await QRCode.toDataURL(QRCodeText); // Podemos obtenerlo como URL
         res.status(201).json({success:true, message:"QR generado con exito", data: `<img src="${qrCodeImage}" alt="QR Code"/>`});
@@ -189,6 +189,21 @@ const crearFacturaPDF = async (req, res) => {
         res.status(200).json({ success: true, message: "PDF creado con éxito", data: response.file });
     } catch (error) {
         console.error("Error al crear el pdf de la factura:", error);
+    }
+}
+
+const obtenerDatosContribuyente = async (req, res) =>{
+    const { cuit } = req.params;
+    try {
+        const taxpayerDetails = await afip.RegisterInscriptionProof.getTaxpayerDetails(cuit);
+        const response = {
+            'domicilio': taxpayerDetails.datosGenerales.domicilioFiscal.direccion,
+            'razonSocial': taxpayerDetails.datosGenerales.razonSocial
+        }
+        res.status(200).json({success:true, message:"Datos traidos con exito", data: response})
+    } catch (error) {
+        console.error("Error al traer los datos:",error);
+        res.status(500).json({success: false, message:"Error al traer los datos: "+error})
     }
 }
 
@@ -312,6 +327,7 @@ module.exports = {
     crearFacturaC,
     crearFacturaPDF,
     generarQR,
+    obtenerDatosContribuyente,
     obtenerInformacionComprobanteEmitido,
     obtenerNumeroUltimoComprobanteCreado,
     obtenerPuntosDeVentaDisponibles,
