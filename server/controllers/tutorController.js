@@ -1,8 +1,9 @@
+const CondicionIva = require('../models/CondicionIva');
 const Tutor = require('../models/Tutor');
 
 const getTutores = async (req, res) => {
     try {
-        const tutores = await Tutor.findAll({ paranoid:true }); 
+        const tutores = await Tutor.findAll({ paranoid:true, include: { model: CondicionIva, attributes:['descripcion']}}); 
         res.status(200).json({success: true, message:"Tutores traidos con éxito", data: tutores});
     } catch (error) {
         console.error("Error al traer los tutores: ", error);
@@ -13,7 +14,7 @@ const getTutores = async (req, res) => {
 const getTutorById = async (req, res) => {
     const { id } = req.params;
     try {
-        const tutor = await Tutor.findByPk(id);
+        const tutor = await Tutor.findByPk(id, {include: { model: CondicionIva, attributes:['descripcion']}});
         if (!tutor) {
             return res.status(404).json({ success: false, message: "Tutor no encontrado" });
         }
@@ -25,9 +26,9 @@ const getTutorById = async (req, res) => {
 };
 
 const createTutor = async (req, res) => {
-    const { nombre, dni } = req.body;
+    const { nombre, dni, condicion_iva_id } = req.body;
     try {
-        const tutor = await Tutor.create({ nombre, dni });
+        const tutor = await Tutor.create({ nombre, dni, condicion_iva_id });
         res.status(201).json({ success: true, message: "Tutor creado", data: tutor });
     } catch (error) {
         console.error("Error al crear el tutor:", error);
@@ -37,13 +38,13 @@ const createTutor = async (req, res) => {
 
 const updateTutor = async (req, res) => {
     const { id } = req.params;
-    const { nombre, dni } = req.body;
+    const { nombre, dni, condicion_iva_id } = req.body;
     try {
         const tutor = await Tutor.findByPk(id);
         if (!tutor) {
             return res.status(404).json({ success: false, message: "Tutor no encontrado" });
         }
-        await tutor.update({ nombre, dni });
+        await tutor.update({ nombre, dni, condicion_iva_id });
         res.status(200).json({ success: true, message: "Tutor actualizado", data: tutor });
     } catch (error) {
         console.error("Error al actualizar el tutor:", error);

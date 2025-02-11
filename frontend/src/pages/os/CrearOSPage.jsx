@@ -1,20 +1,8 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  Button,
-  useToast,
-  VStack,
-  Grid,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { Box, Heading, FormControl, FormLabel, Input, Select, Button, useToast, VStack, Grid, useColorModeValue } from "@chakra-ui/react";
 import axios from "axios";
 import Header from "../../componentes/header";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const CrearOSPage = () => {
   const [formData, setFormData] = useState({
@@ -22,9 +10,19 @@ const CrearOSPage = () => {
     cuit: "",
     mail: "",
     telefono: "",
-    clasificacion: "",
+    condicion_iva_id: "",
   });
   const toast = useToast();
+  
+  const [condicionesIva, setCondicionesIva] = useState([]);
+  const traerCondicionesIva = async () => {
+      try {
+          const response = await axios.get('http://localhost:3000/api/condicionIva');
+          setCondicionesIva(response.data.data);
+      } catch (error){
+          console.log("Error al traer las obras sociales: ", error);
+      }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +53,9 @@ const CrearOSPage = () => {
       });
     }
   };
-
+  useEffect( () => {
+    traerCondicionesIva();
+  }, []);
   // Colores para el fondo y la sombra
   const bgColor = useColorModeValue("white", "gray.700");
   const shadow = useColorModeValue("md", "dark-lg");
@@ -109,13 +109,15 @@ const CrearOSPage = () => {
                   <FormLabel>Clasificación</FormLabel>
                   <Select
                     placeholder="Seleccione una clasificación de contribuyente"
-                    name="clasificacion"
-                    value={formData.clasificacion}
+                    name="condicion_iva_id"
+                    value={formData.condicion_iva_id}
                     onChange={handleInputChange}
                   >
-                    <option value="Responsable Inscripto">Responsable Inscripto</option>
-                    <option value="Sujeto Exento">Sujeto Exento</option>
-                    <option value="Consumidor Final">Consumidor Final</option>
+                    {condicionesIva.map(condicionIva => (
+                      <option key={condicionIva.id} value={condicionIva.id}>
+                        {condicionIva.descripcion}
+                      </option>
+                    ))}
                   </Select>
                 </FormControl>
 

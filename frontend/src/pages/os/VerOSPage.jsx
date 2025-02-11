@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const VerOSPage = () => {
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});
@@ -14,13 +14,21 @@ const VerOSPage = () => {
         try {
             const response = await axios.get('http://localhost:3000/api/os');
             setObrasSociales(response.data.data);
-            
         } catch (error){
             console.log("Error al traer las obras sociales: ", error);
         }
-
     }
-    
+
+    const [condicionesIva, setCondicionesIva] = useState([]);
+    const traerCondicionesIva = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/condicionIva');
+            setCondicionesIva(response.data.data);
+        } catch (error){
+            console.log("Error al traer las obras sociales: ", error);
+        }
+    }
+
     const eliminar = async (fid) => {
         try {
             const response = await axios.delete('http://localhost:3000/api/os/borrar/'+fid);
@@ -81,7 +89,8 @@ const VerOSPage = () => {
     }
 
     useEffect(() => {
-        traerObrasSociales()
+        traerObrasSociales();
+        traerCondicionesIva();
     }, []);
 
     return(
@@ -114,7 +123,7 @@ const VerOSPage = () => {
                         <Tr key={obraSocial.id}>
                             <Td>{obraSocial.nombre}</Td>
                             <Td>{obraSocial.cuit}</Td>
-                            <Td>{obraSocial.clasificacion}</Td>
+                            <Td>{obraSocial.CondicionIva.descripcion}</Td>
                             <Td>{obraSocial.mail? `${obraSocial.mail}`: `No hay un mail cargado`}</Td>
                             <Td>{obraSocial.telefono? `${obraSocial.telefono}`: `No hay un numero de telefono cargado`}</Td>
                             <Td maxW="140px">
@@ -156,16 +165,18 @@ const VerOSPage = () => {
                                         onChange={handleChange}
                                         minW={"200px"}/></FormLabel>
                               
-                                    <FormLabel>Clasificación</FormLabel>
+                                    <FormLabel>Clasificación
                                     <Select
-                                    value={obraSocialActualizada.clasificacion || ""} // El valor actual seleccionado
-                                    onChange={(e) => setObraSocialActualizada({ ...obraSocialActualizada, clasificacion: e.target.value })} // Actualiza el estado cuando se elige una opción
+                                    value={obraSocialActualizada.condicion_iva_id || ""} // El valor actual seleccionado
+                                    onChange={(e) => setObraSocialActualizada({ ...obraSocialActualizada, condicion_iva_id: e.target.value })} // Actualiza el estado cuando se elige una opción
                                     placeholder="Seleccione una clasificacion de contribuyente"
                                     >
-                                    <option value="Responsable Inscripto">Responsable Inscripto</option>
-                                    <option value="Sujeto Exento">Sujeto Exento</option>
-                                    <option value="Consumidor Final">Consumidor Final</option>
-                                    </Select>
+                                        {condicionesIva.map(condicionIva => (
+                                            <option key={condicionIva.id} value={condicionIva.id}>
+                                                {condicionIva.descripcion}
+                                            </option>
+                                        ))}
+                                    </Select></FormLabel>
 
                                     <FormLabel>Mail
                                     <Input 

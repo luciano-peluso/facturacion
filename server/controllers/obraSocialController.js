@@ -1,8 +1,10 @@
+const CondicionIva = require('../models/CondicionIva');
 const ObraSocial = require('../models/ObraSocial');
 
 const getObrasSociales = async (req, res) => {
     try {
-        const obras_sociales = await ObraSocial.findAll({ paranoid:true }); 
+        const obras_sociales = await ObraSocial.findAll({ paranoid:true, include: {model: CondicionIva, attributes:['descripcion'] }
+         }); 
         res.status(200).json({success: true, message:"Obras Sociales traidas con éxito", data: obras_sociales});
     } catch (error) {
         console.error("Error al traer las Obras Sociales: ", error);
@@ -13,7 +15,9 @@ const getObrasSociales = async (req, res) => {
 const getObraSocialById = async (req, res) => {
     const { id } = req.params;
     try {
-        const obra_social = await ObraSocial.findByPk(id);
+        const obra_social = await ObraSocial.findByPk(id, {
+            include: { model: CondicionIva, attributes:['descripcion']}
+        });
         if (!obra_social) {
             return res.status(404).json({ success: false, message: "Obra Social no encontrada" });
         }
@@ -25,9 +29,9 @@ const getObraSocialById = async (req, res) => {
 };
 
 const createObraSocial = async (req, res) => {
-    const { nombre, cuit, mail, telefono, clasificacion } = req.body;
+    const { nombre, cuit, mail, telefono, condicion_iva_id } = req.body;
     try {
-        const obra_social = await ObraSocial.create({ nombre, cuit, mail, telefono, clasificacion });
+        const obra_social = await ObraSocial.create({ nombre, cuit, mail, telefono, condicion_iva_id });
         res.status(201).json({ success: true, message: "Obra Social creada", data: obra_social });
     } catch (error) {
         console.error("Error al crear la obra social:", error);
@@ -37,13 +41,13 @@ const createObraSocial = async (req, res) => {
 
 const updateObraSocial = async (req, res) => {
     const { id } = req.params;
-    const { nombre, cuit, mail, telefono, clasificacion } = req.body;
+    const { nombre, cuit, mail, telefono, condicion_iva_id } = req.body;
     try {
         const obra_social = await ObraSocial.findByPk(id);
         if (!obra_social) {
             return res.status(404).json({ success: false, message: "Obra Social no encontrada" });
         }
-        await obra_social.update({ nombre, cuit, mail, telefono, clasificacion });
+        await obra_social.update({ nombre, cuit, mail, telefono, condicion_iva_id });
         res.status(200).json({ success: true, message: "Obra Social actualizada", data: obra_social });
     } catch (error) {
         console.error("Error al actualizar la obra social:", error);

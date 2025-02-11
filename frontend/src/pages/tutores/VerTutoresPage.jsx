@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
+import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 
 const VerTutoresPage = () => {
@@ -10,7 +10,15 @@ const VerTutoresPage = () => {
     const [tutores, setTutores] = useState([]);
     const toast = useToast();
     const {isOpen, onOpen, onClose } = useDisclosure();
-
+    const [condicionesIva, setCondicionesIva] = useState([]);
+    const traerCondicionesIva = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/condicionIva');
+            setCondicionesIva(response.data.data);
+        } catch (error){
+            console.log("Error al traer las obras sociales: ", error);
+        }
+    }
     const traerTutores = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/tutores');
@@ -81,6 +89,7 @@ const VerTutoresPage = () => {
 
     useEffect(() =>{
         traerTutores();
+        traerCondicionesIva();
     },[]);
 
     return(
@@ -102,6 +111,7 @@ const VerTutoresPage = () => {
                             <Th textAlign={"center"} color={"white"}>ID</Th>
                             <Th textAlign={"center"} color={"white"}>Nombre</Th>
                             <Th textAlign={"center"} color={"white"}>DNI</Th>
+                            <Th textAlign={"center"} color={"white"}>Clasificación</Th>
                             <Th textAlign={"center"} color={"white"}>Acciones</Th>
                         </Tr>
                     </Thead>
@@ -112,6 +122,7 @@ const VerTutoresPage = () => {
                                 <Td>{tutor.id}</Td>
                                 <Td>{tutor.nombre}</Td>
                                 <Td>{tutor.dni}</Td>
+                                <Td>{tutor.CondicionIva.descripcion}</Td>
                                 <Td maxW="140px">
                                     <HStack spacing={1} justifyContent={"center"}>
                                         <Button size="sm" title="Editar" onClick={() => handleEditClick(tutor)}
@@ -151,6 +162,19 @@ const VerTutoresPage = () => {
                                                 value={tutorActualizado.dni}
                                                 onChange={handleChange}
                                                 minW={"200px"}/></FormLabel>
+
+                                            <FormLabel>Clasificación
+                                            <Select
+                                            value={tutorActualizado.condicion_iva_id || ""} // El valor actual seleccionado
+                                            onChange={(e) => setTutorActualizado({ ...tutorActualizado, condicion_iva_id: e.target.value })} // Actualiza el estado cuando se elige una opción
+                                            placeholder="Seleccione una clasificacion de contribuyente"
+                                            >
+                                                {condicionesIva.map(condicionIva => (
+                                                    <option key={condicionIva.id} value={condicionIva.id}>
+                                                        {condicionIva.descripcion}
+                                                    </option>
+                                                ))}
+                                            </Select></FormLabel>
                                         </VStack>
                                     </ModalBody>
                                     <ModalFooter>

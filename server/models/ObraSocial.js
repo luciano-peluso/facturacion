@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db'); // Asegúrate de que la ruta sea correcta
+const CondicionIva = require('./CondicionIva');
 
 const ObraSocial = sequelize.define('ObraSocial', {
   id: {
@@ -26,11 +27,15 @@ const ObraSocial = sequelize.define('ObraSocial', {
     allowNull: true,
     unique: true,
   },
-  clasificacion: {
-    type: DataTypes.STRING,
-    allowNull: true,
+  condicion_iva_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'condicion_iva', // Nombre de la tabla de los pacientes
+      key: 'id',
+    }
   }
-}, {
+  }, {
   timestamps: true,
   createdAt: 'createdat',
   updatedAt: 'updatedat',
@@ -38,5 +43,7 @@ const ObraSocial = sequelize.define('ObraSocial', {
   paranoid: true,
   tableName: 'obras_sociales',
 });
+
+ObraSocial.belongsTo(CondicionIva, { foreignKey: 'condicion_iva_id' });
 
 module.exports = ObraSocial;
