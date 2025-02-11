@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerOSPage = () => {
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});
@@ -105,7 +105,7 @@ const VerOSPage = () => {
             <Input placeholder="🔍 Buscar por nombre, CUIT, mail..." />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
-                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Heading size="md" mb={2}>Obras sociales cargadas</Heading>
                 <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
                     <Thead >
                         <Tr>

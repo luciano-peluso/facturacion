@@ -116,7 +116,7 @@ const VerPacientesPage = () => {
             <Input placeholder="🔍 Buscar por nombre, DNI..." />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
-                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Heading size="md" mb={2}>Pacientes cargados</Heading>
                 <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
                     <Thead >
                             <Tr>

@@ -81,7 +81,7 @@ const Sidebar = () => {
             <Button justifyContent={"start"} w={"90%"} fontWeight={"normal"} 
             fontSize={18} bg={"transparent"} color={"black"} _hover={{ bg:"#09e4b8", color: "white" }}
             paddingLeft={3} onClick={() => navigate('/configuracion')}>
-                ⚙ Configuracion</Button>
+                🔧 Configuracion</Button>
             <Button justifyContent={"start"} w={"90%"} fontWeight={"normal"} 
             fontSize={18} bg={"transparent"} color={"black"} _hover={{ bg:"#09e4b8", color: "white" }}
             paddingLeft={3}>

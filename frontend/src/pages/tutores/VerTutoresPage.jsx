@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 
 const VerTutoresPage = () => {
@@ -104,7 +104,7 @@ const VerTutoresPage = () => {
             <Input placeholder="🔍 Buscar por nombre, DNI..." />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
-                <Heading size="md" mb={2}>Últimas Facturas</Heading>
+                <Heading size="md" mb={2}>Encargados o asistentes cargados</Heading>
                 <Table variant="simple" size="sm" minW="1000px" borderRadius={"10"}>
                     <Thead >
                         <Tr>
