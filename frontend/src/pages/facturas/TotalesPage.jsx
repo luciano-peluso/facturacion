@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import axios from "axios";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import Sidebar from "../../componentes/sidebar";
 
 const TotalesPage = () => {
     const [mesSeleccionado, setMesSeleccionado] = useState("");
@@ -149,14 +150,14 @@ const TotalesPage = () => {
         getPorcentajeComision();
     }, []);
 
-    return (<>
-        <Header />
-        <Container mt={"10"} minW={"container.xl"}>
-            <Card>
-                <CardHeader>
-                    <Heading textAlign={"center"}>Totales percibidos por mes</Heading>
-                </CardHeader>
-                <CardBody>
+    return (
+        <Box className="container" display="flex" w="100%" minW="1400px">
+            <Sidebar />
+
+            <Box className="dashboard" overflow="scroll" flex="1" p={4}>
+                <Header mensaje={""} />
+                <Box w={"100%"} p={8} paddingTop={0} borderRadius="lg">
+                    <Heading textAlign={"center"} pb={4}>Totales percibidos por mes</Heading>
                     <Flex gap={4} alignItems={"end"}>
                         <FormControl>
                             <FormLabel>Seleccione un mes:</FormLabel>
@@ -255,10 +256,10 @@ const TotalesPage = () => {
                     ) : (
                         <Text mt={4} color="red.500" textAlign="center">No hay facturas para este período.</Text>
                     )}
-                </CardBody>
-            </Card>
-        </Container>
-    </>)
+                </Box>
+            </Box>
+        </Box>
+    )
 }
 
 export default TotalesPage;
