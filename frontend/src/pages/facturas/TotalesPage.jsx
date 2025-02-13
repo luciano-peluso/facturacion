@@ -154,10 +154,9 @@ const TotalesPage = () => {
         <Box className="container" display="flex" w="100%" minW="1400px">
             <Sidebar />
 
-            <Box className="dashboard" overflow="scroll" flex="1" p={4}>
-                <Header mensaje={""} />
+            <Box className="dashboard" overflow="hidden" flex="1" p={4}>
+                <Header titulo={"Totales percibidos por mes"}/>
                 <Box w={"100%"} p={8} paddingTop={0} borderRadius="lg">
-                    <Heading textAlign={"center"} pb={4}>Totales percibidos por mes</Heading>
                     <Flex gap={4} alignItems={"end"}>
                         <FormControl>
                             <FormLabel>Seleccione un mes:</FormLabel>
@@ -185,7 +184,7 @@ const TotalesPage = () => {
                                 })}
                             </Select>
                         </FormControl>
-                        <Button colorScheme="blue" onClick={() => calcularFacturasPorMes()} minW={"70"}>
+                        <Button colorScheme="green" onClick={() => calcularFacturasPorMes()} minW={"70"}>
                             Buscar
                         </Button>
                     </Flex>

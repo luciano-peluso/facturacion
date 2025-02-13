@@ -1,10 +1,10 @@
 import React from "react";
-import { Flex, Spacer, HStack, Text } from "@chakra-ui/react";
+import { Flex, Spacer, HStack, Text, Heading } from "@chakra-ui/react";
 import MenuHamburguesa from "./menuHamburguesa";
 import MenuNotificaciones from "./MenuNotificaciones";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ mensaje }) => { // Aquí se cambia `mensaje` a una prop
+const Header = ({ mensaje, titulo }) => {
   const navigate = useNavigate();
 
   return (
@@ -18,6 +18,7 @@ const Header = ({ mensaje }) => { // Aquí se cambia `mensaje` a una prop
       mb={5}
     >
       <Text color={"grey"}>{mensaje}</Text>
+      <Heading size={"lg"} color={"black"}>{titulo}</Heading>
       <Spacer />
       <HStack>
         <MenuNotificaciones />
