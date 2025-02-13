@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Index from './pages/Index'
-import FacturasAccordionPage from './pages/facturas/FacturasAccordionPage'
-import FacturasFiltroPage from './pages/facturas/FacturasFiltroPage'
 
-import VerFacturasPage from './pages/facturas/VerFacturasPage';
 import CrearFacturasPage from './pages/facturas/CrearFacturasPage';
 import TotalesPage from './pages/facturas/TotalesPage';
 import VerUnaFacturaPage from './pages/facturas/VerUnaFacturaPage';
