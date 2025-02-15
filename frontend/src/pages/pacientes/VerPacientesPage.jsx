@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const VerPacientesPage = () => {
     const [pacienteActualizado, setPacienteActualizado] = useState({});
@@ -12,6 +12,14 @@ const VerPacientesPage = () => {
     
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [busqueda, setBusqueda] = useState("");
+
+    const pacientesFiltrados = pacientes.filter((paciente) =>
+        paciente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        paciente.dni.toString().includes(busqueda) ||
+        paciente.obra_social.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        (paciente.tutor?.nombre || "").toLowerCase().includes(busqueda.toLowerCase())
+    );
 
     const traerPacientes = async () => {
         try {
@@ -113,7 +121,11 @@ const VerPacientesPage = () => {
             <Header mensaje={"Bienvenido, usuario"}/>
 
             {/* Buscador */}
-            <Input placeholder="🔍 Buscar por nombre, DNI..." />
+            <Input 
+                placeholder="🔍 Buscar por nombre, DNI..." 
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+            />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
                 <Heading size="md" mb={2}>Pacientes cargados</Heading>
@@ -128,25 +140,26 @@ const VerPacientesPage = () => {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {pacientes.length > 0 ? (
-                            pacientes.map((paciente) => (
-                                <Tr key={paciente.id}>
-                                    <Td>{paciente.nombre}</Td>
-                                    <Td>{paciente.dni}</Td>
-                                    <Td>{paciente.obra_social.nombre}</Td>
-                                    <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
-                                    <Td maxW="140px">
-                                        <HStack spacing={1} justifyContent={"center"}>
-                                            <Button size="sm" title="Editar" onClick={() => handleEditClick(paciente)}
-                                            _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                            <Button size="sm" title="Borrar" onClick={() => eliminar(paciente.id)}
-                                            _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
-                                        </HStack>
-                                    </Td>
-                                </Tr>
-                            )) ) : 
+                            {pacientesFiltrados.length > 0 ? (
+                                pacientesFiltrados.map((paciente) => (
+                                    <Tr key={paciente.id}>
+                                        <Td>{paciente.nombre}</Td>
+                                        <Td>{paciente.dni}</Td>
+                                        <Td>{paciente.obra_social.nombre}</Td>
+                                        <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
+                                        <Td maxW="140px">
+                                            <HStack spacing={1} justifyContent={"center"}>
+                                                <Button size="sm" title="Editar" onClick={() => handleEditClick(paciente)}
+                                                _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
+                                                <Button size="sm" title="Borrar" onClick={() => eliminar(paciente.id)}
+                                                _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                            </HStack>
+                                        </Td>
+                                    </Tr>
+                                ))
+                            ) : 
                             <Tr>
-                              <Td colSpan="5" textAlign="center">No hay pacientes cargados en el sistema</Td>
+                                <Td colSpan="5" textAlign="center">No hay pacientes que coincidan con la búsqueda</Td>
                             </Tr> }
                         </Tbody>
                     </Table>

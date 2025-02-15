@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 
 const VerTutoresPage = () => {
@@ -10,6 +10,8 @@ const VerTutoresPage = () => {
     const [tutores, setTutores] = useState([]);
     const toast = useToast();
     const {isOpen, onOpen, onClose } = useDisclosure();
+    const [filteredTutores, setFilteredTutores] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(""); // Estado para el buscador
     const [condicionesIva, setCondicionesIva] = useState([]);
     const traerCondicionesIva = async () => {
         try {
@@ -19,10 +21,12 @@ const VerTutoresPage = () => {
             console.log("Error al traer las obras sociales: ", error);
         }
     }
+
     const traerTutores = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/tutores');
             setTutores(response.data.data);
+            setFilteredTutores(response.data.data);
         } catch (error) {
             console.log("Hubo un error al traer los tutores: ", error);
         }
@@ -54,6 +58,19 @@ const VerTutoresPage = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setTutorActualizado((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSearch = (e) => {
+        const value = e.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        const filtered = tutores.filter((tutor) => 
+            tutor.nombre.toLowerCase().includes(value) ||
+            tutor.dni.toString().includes(value) ||
+            tutor.CondicionIva.descripcion.toLowerCase().includes(value)
+        );
+
+        setFilteredTutores(filtered);
     };
 
     const handleEditClick = (tutor) => {
@@ -101,7 +118,11 @@ const VerTutoresPage = () => {
             <Header mensaje={"Bienvenido, usuario"}/>
 
             {/* Buscador */}
-            <Input placeholder="🔍 Buscar por nombre, DNI..." />
+            <Input 
+                    placeholder="🔍 Buscar por nombre, DNI o clasificación..." 
+                    value={searchTerm}
+                    onChange={handleSearch} 
+                />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
                 <Heading size="md" mb={2}>Encargados o asistentes cargados</Heading>
@@ -116,28 +137,43 @@ const VerTutoresPage = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {tutores.length > 0 ? (
-                        tutores.map((tutor) => (
-                            <Tr key={tutor.id}>
-                                <Td>{tutor.id}</Td>
-                                <Td>{tutor.nombre}</Td>
-                                <Td>{tutor.dni}</Td>
-                                <Td>{tutor.CondicionIva.descripcion}</Td>
-                                <Td maxW="140px">
-                                    <HStack spacing={1} justifyContent={"center"}>
-                                        <Button size="sm" title="Editar" onClick={() => handleEditClick(tutor)}
-                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                        <Button size="sm" title="Borrar" onClick={() => eliminar(tutor.id)}
-                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
-                                    </HStack>
-                                </Td>
-                            </Tr>
-                        )) 
-                        ) : 
-                        <Tr>
-                            <Td colSpan="4" textAlign="center">No hay encargados cargados en el sistema</Td>
-                        </Tr> }
-                    </Tbody>
+                            {filteredTutores.length > 0 ? (
+                                filteredTutores.map((tutor) => (
+                                    <Tr key={tutor.id}>
+                                        <Td>{tutor.id}</Td>
+                                        <Td>{tutor.nombre}</Td>
+                                        <Td>{tutor.dni}</Td>
+                                        <Td>{tutor.CondicionIva.descripcion}</Td>
+                                        <Td maxW="140px">
+                                            <HStack spacing={1} justifyContent={"center"}>
+                                                <Button 
+                                                    size="sm" 
+                                                    title="Editar" 
+                                                    onClick={() => handleEditClick(tutor)}
+                                                    _hover={{ bg:"#008E6D" }} 
+                                                    bg={"green.100"}
+                                                >
+                                                    ✏️
+                                                </Button>
+                                                <Button 
+                                                    size="sm" 
+                                                    title="Borrar" 
+                                                    onClick={() => eliminar(tutor.id)}
+                                                    _hover={{ bg:"#008E6D" }} 
+                                                    bg={"green.100"}
+                                                >
+                                                    🗑️
+                                                </Button>
+                                            </HStack>
+                                        </Td>
+                                    </Tr>
+                                )) 
+                            ) : (
+                                <Tr>
+                                    <Td colSpan="5" textAlign="center">No hay encargados cargados en el sistema</Td>
+                                </Tr>
+                            )}
+                        </Tbody>
                     </Table>
                 </Box>
                 <Modal isOpen={isOpen} onClose={onClose}>

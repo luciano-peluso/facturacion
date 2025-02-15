@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const Index = () => {
     const [facturas, setFacturas] = useState([]);
+    const [busqueda, setBusqueda] = useState(""); // Estado para el texto del buscador
     const toast = useToast();
     const navigate = useNavigate();
     const [pacientes, setPacientes] = useState([]);
@@ -25,6 +26,51 @@ const Index = () => {
         es_consultorio: "false",
         fecha_cobro: "",
     });
+    const [facturasFiltradas, setFacturasFiltradas] = useState([]);
+
+    
+    const buscarPares = () => {
+        const rangoMinimo = parseFloat(busqueda) * (1 - rangoPrecision / 100);
+        const rangoMaximo = parseFloat(busqueda) * (1 + rangoPrecision / 100);
+
+        // Ahora llamamos a la función buscarPares para buscar las facturas que sean pares dentro del rango
+        const facturasPendientes = facturas.filter(f => !f.estado);
+        const facturasPorPaciente = facturasPendientes.reduce((acc, factura) => {
+          if (!acc[factura.paciente_id]) {
+            acc[factura.paciente_id] = [];
+          }
+          acc[factura.paciente_id].push(factura);
+          return acc;
+        }, {});
+      
+        let facturasResultado = [];
+      
+        Object.entries(facturasPorPaciente).forEach(([paciente_id, facturasDelPaciente]) => {
+          if (facturasDelPaciente.length >= 2) {
+            for (let i = 0; i < facturasDelPaciente.length - 1; i++) {
+              for (let j = i + 1; j < facturasDelPaciente.length; j++) {
+                const valor1 = parseFloat(facturasDelPaciente[i].monto);
+                const valor2 = parseFloat(facturasDelPaciente[j].monto);
+                const suma = valor1 + valor2;
+                if (suma >= rangoMinimo && suma <= rangoMaximo) {
+                  facturasResultado.push(facturasDelPaciente[i], facturasDelPaciente[j]);
+                }
+              }
+            }
+          }
+        });
+        // Combinar las facturas filtradas con las de los pares encontrados
+        const resultadoFinal = [...facturasResultado];
+        // Ordenar el resultado final
+        resultadoFinal.sort((a, b) => {
+          if (a.paciente_id < b.paciente_id) return -1;
+          if (a.paciente_id > b.paciente_id) return 1;
+          return 0;
+        });
+        
+        setFacturasFiltradas(resultadoFinal);
+
+      };    
 
     const eliminar = async (id) => {
         try {
@@ -55,6 +101,7 @@ const Index = () => {
             const response = await axios.get("http://localhost:3000/api/facturas");
             const facturasSorted = response.data.data.sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision));
             setFacturas(facturasSorted);
+            setFacturasFiltradas(facturasSorted);
         } catch (error) {
             console.log("Error al traer las facturas: ", error);
         }
@@ -75,7 +122,7 @@ const Index = () => {
             console.error("Error al marcar la factura como cobrada:", error);
         }
     }
-    
+
     const obtenerRangoPrecision = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/configuracion');
@@ -85,6 +132,7 @@ const Index = () => {
             setRangoPrecision(10);
         }
     }
+
     const handleActualizar = async (fid, facturaActualizada) => { 
         try {
             const response = await axios.put('http://localhost:3000/api/facturas/actualizar/'+fid, facturaActualizada);
@@ -155,11 +203,25 @@ const Index = () => {
             console.error("Error al traer los pacientes:", error);
         }
     }
-    
+
     useEffect(() => {
         traerFacturas();
         traerPacientes();
+        obtenerRangoPrecision();
     }, []);
+
+    useEffect(() => {
+        const facturasFiltradas = facturas.filter((factura) =>
+            (factura.numero_factura || "").includes(busqueda) ||
+            factura.paciente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+            factura.paciente.obra_social.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+            (factura.paciente.obra_social.cuit || "").includes(busqueda) ||
+            (factura.monto || "").includes(busqueda) ||
+            (factura.paciente.tutor?.nombre || "").includes(busqueda) ||
+            (factura.paciente.tutor?.dni || "").includes(busqueda)
+        );
+        setFacturasFiltradas(facturasFiltradas);
+    }, [busqueda, facturas]);
 
 
   return (
@@ -169,9 +231,17 @@ const Index = () => {
         {/* Main Dashboard */}
         <Box className="dashboard" overflow={"hidden"} flex="1" p={4}>
             <Header mensaje={"Bienvenido, usuario"}/>
-
-            {/* Buscador */}
-            <Input placeholder="🔍 Buscar factura, paciente, obra social..." />
+            
+            <HStack>
+                {/* Buscador */}
+                <Input placeholder="🔍 Buscar factura, paciente, obra social..." 
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                />
+                <Button size={"md"} colorScheme="green" onClick={() => buscarPares()}>
+                    Buscar pares
+                </Button>
+            </HStack>
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
                 <Heading size="md" mb={2}>Últimas Facturas</Heading>
@@ -190,13 +260,13 @@ const Index = () => {
                     </Tr>
                     </Thead>
                     <Tbody>
-                    {facturas.length > 0 ? (
-                            facturas.map((factura) => {
-                                const { paciente, numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
-                                const obraSocial = paciente?.obra_social;
-                                const tutor = paciente?.tutor;
+                    {facturasFiltradas.length > 0 ? (
+                                facturasFiltradas.map((factura) => {
+                                    const { paciente, numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
+                                    const obraSocial = paciente?.obra_social;
+                                    const tutor = paciente?.tutor;
 
-                                return (
+                                    return (
                                     <Tr key={id}>
                                         <Td>{numero_factura}</Td>
                                         <Td>{paciente ? paciente.nombre : "Eliminado"}</Td>

@@ -31,7 +31,7 @@ const CrearFactura = () => {
     fecha_emision: "",
     fecha_facturada: "",
     es_consultorio: "false",
-    fecha_cobro: "",
+    fecha_cobro: null,
   });
 
   const traerPacientes = async () => {
@@ -229,7 +229,7 @@ const CrearFactura = () => {
                   <Input
                     type="date"
                     name="fecha_cobro"
-                    value={formData.fecha_cobro}
+                    value={formData.fecha_cobro || null}
                     onChange={handleChange}
                   />
                 </FormControl>

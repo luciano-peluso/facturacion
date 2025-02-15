@@ -2,14 +2,23 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/Sidebar";
+import Sidebar from "../../componentes/sidebar";
 
 const VerOSPage = () => {
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});
     const [obrasSociales, setObrasSociales] = useState([]);
     const toast = useToast();
     const {isOpen, onOpen, onClose } = useDisclosure();
+    const [busqueda, setBusqueda] = useState("");
 
+    const obrasSocialesFiltradas = obrasSociales.filter((obraSocial) =>
+        obraSocial.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        obraSocial.cuit.toString().includes(busqueda) ||
+        (obraSocial.mail || "").toLowerCase().includes(busqueda.toLowerCase()) ||
+        (obraSocial.telefono || "").includes(busqueda) || 
+        obraSocial.CondicionIva.descripcion.toLowerCase().includes(busqueda.toLowerCase()) 
+    );
+    
     const traerObrasSociales = async () => {
         try {
             const response = await axios.get('http://localhost:3000/api/os');
@@ -94,7 +103,7 @@ const VerOSPage = () => {
     }, []);
 
     return(
-        <Box className="container" display="flex" w={"100%"} minW={"1300px"} maxW={"1400px"}>
+        <Box className="container" display="flex" w={"100%"} minW={"1400px"}>
         <Sidebar />
 
         {/* Main Dashboard */}
@@ -102,7 +111,11 @@ const VerOSPage = () => {
             <Header mensaje={"Bienvenido, usuario"}/>
 
             {/* Buscador */}
-            <Input placeholder="🔍 Buscar por nombre, CUIT, mail..." />
+            <Input 
+                placeholder="🔍 Buscar por nombre, CUIT o mail..." 
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+            />
 
             <Box className="latest-invoices" w="100%" overflowX="auto" marginTop={"15px"}>
                 <Heading size="md" mb={2}>Obras sociales cargadas</Heading>
@@ -118,26 +131,26 @@ const VerOSPage = () => {
                         </Tr>
                     </Thead>
                 <Tbody>
-                    {obrasSociales.length > 0 ? 
-                    ( obrasSociales.map((obraSocial) => (
-                        <Tr key={obraSocial.id}>
-                            <Td>{obraSocial.nombre}</Td>
-                            <Td>{obraSocial.cuit}</Td>
-                            <Td>{obraSocial.CondicionIva.descripcion}</Td>
-                            <Td>{obraSocial.mail? `${obraSocial.mail}`: `No hay un mail cargado`}</Td>
-                            <Td>{obraSocial.telefono? `${obraSocial.telefono}`: `No hay un numero de telefono cargado`}</Td>
-                            <Td maxW="140px">
-                                <HStack spacing={1} justifyContent={"center"}>
-                                    <Button size="sm" title="Editar" onClick={() => handleEditClick(obraSocial)}
-                                    _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                    <Button size="sm" title="Borrar" onClick={() => eliminar(obraSocial.id)}
-                                    _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
-                                </HStack>
-                            </Td>
-                        </Tr>
-                    )) ) :
-                    <Tr>
-                      <Td colSpan="6" textAlign="center">No hay obras sociales cargadas en el sistema</Td>
+                    {obrasSocialesFiltradas.length > 0 ? 
+                        obrasSocialesFiltradas.map((obraSocial) => (
+                            <Tr key={obraSocial.id}>
+                                <Td>{obraSocial.nombre}</Td>
+                                <Td>{obraSocial.cuit}</Td>
+                                <Td>{obraSocial.CondicionIva.descripcion}</Td>
+                                <Td>{obraSocial.mail ? obraSocial.mail : "No hay un mail cargado"}</Td>
+                                <Td>{obraSocial.telefono ? obraSocial.telefono : "No hay un número cargado"}</Td>
+                                <Td>
+                                    <HStack spacing={1} justifyContent={"center"}>
+                                        <Button size="sm" title="Editar" onClick={() => handleEditClick(obraSocial)}
+                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
+                                        <Button size="sm" title="Borrar" onClick={() => eliminar(obraSocial.id)}
+                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                    </HStack>
+                                </Td>
+                            </Tr>
+                        ))
+                    : <Tr>
+                        <Td colSpan="6" textAlign="center">No hay obras sociales que coincidan con la búsqueda</Td>
                     </Tr>}
                 </Tbody>
             </Table>
