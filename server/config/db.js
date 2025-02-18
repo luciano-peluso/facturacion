@@ -49,4 +49,6 @@ const syncModels = async () => {
   }
 };
 
+
+
 module.exports = { sequelize, createDatabaseIfNotExists, syncModels };
