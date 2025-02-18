@@ -1,8 +1,12 @@
-const afip = require('../config/afipInstance.cjs');
+const { crearInstanciaAfip, generarCertificados, isAfipConfigured, getInstanciaAfip } = require('../config/afipInstance.cjs');
 const QRCode = require('qrcode');
 const fs = require('fs');
 
 const crearYAsignarCAE = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     const returnFullResponse = false;
     const date = new Date(Date.now() - ((new Date()).getTimezoneOffset() * 60000)).toISOString().split('T')[0];
     const { cantReg, ptoVta, cbteTipo, concepto, docTipo, docNro, cbteDesde, cbteHasta, cbteFch, 
@@ -40,6 +44,10 @@ const crearYAsignarCAE = async (req, res) => {
 }
 
 const crearFacturaC = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     const { punto_de_venta, concepto, docTipo, docNro, impTotal, fechaServicioDesde, fechaServicioHasta, fechaVencimientoPago,
         condicionIVAReceptorId } = req.body;
     const impNeto = impTotal / 1.21;
@@ -91,7 +99,10 @@ const crearFacturaC = async (req, res) => {
 
 const generarQR = async (req, res) => {
     const { ptoVta, importe, tipoDocRec, nroDocRec, CAE} = req.body;
-
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     const cuit = afip.CUIT;
     const punto_de_venta = parseInt(ptoVta);
     const tipoCmp = 11 // factura C
@@ -132,6 +143,10 @@ const crearFacturaPDF = async (req, res) => {
         vencimientoPago, cuitReceptor, razonSocialReceptor, condicionIvaReceptor, domicilioReceptor, condicionVenta, servicio,
         cantidad, precioUnitario, CAE, vencimientoCAE } = req.body;
     let html = fs.readFileSync('./config/afip/bill.html', 'utf8');
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try{
         const regex = new RegExp(`{{qrcode}}`, 'g');
         html = html.replace(regex, qrCodeImage);
@@ -194,11 +209,18 @@ const crearFacturaPDF = async (req, res) => {
 
 const obtenerDatosContribuyente = async (req, res) =>{
     const { cuit } = req.params;
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const taxpayerDetails = await afip.RegisterInscriptionProof.getTaxpayerDetails(cuit);
+        if(!taxpayerDetails){
+            res.status(400).json({ success: false, message:"Error al traer los datos del contribuyente."});
+        }
         const response = {
-            'domicilio': taxpayerDetails.datosGenerales.domicilioFiscal.direccion,
-            'razonSocial': taxpayerDetails.datosGenerales.razonSocial
+            'domicilio': taxpayerDetails.datosGenerales.domicilioFiscal.direccion || "",
+            'razonSocial': taxpayerDetails.datosGenerales.razonSocial || ""
         }
         res.status(200).json({success:true, message:"Datos traidos con exito", data: response})
     } catch (error) {
@@ -208,6 +230,10 @@ const obtenerDatosContribuyente = async (req, res) =>{
 }
 
 const obtenerInformacionComprobanteEmitido = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     const { puntoDeVenta, numeroDeComprobante, tipoDeComprobante } = req.body;
     try {
         const voucherInfo = await afip.ElectronicBilling.getVoucherInfo(numeroDeComprobante, puntoDeVenta, tipoDeComprobante);
@@ -223,6 +249,10 @@ const obtenerInformacionComprobanteEmitido = async (req, res) => {
 }
 
 const obtenerNumeroUltimoComprobanteCreado = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     const {puntoDeVenta, tipoDeComprobante} = req.body;
     try {
         const lastVoucher = await afip.ElectronicBilling.getLastVoucher(puntoDeVenta, tipoDeComprobante);
@@ -238,6 +268,10 @@ const obtenerNumeroUltimoComprobanteCreado = async (req, res) => {
 }
 
 const obtenerPuntosDeVentaDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const salesPoints = await afip.ElectronicBilling.getSalesPoints();
 
@@ -252,6 +286,10 @@ const obtenerPuntosDeVentaDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeComprobantesDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
     const voucherTypes = await afip.ElectronicBilling.getVoucherTypes();
     
@@ -263,6 +301,10 @@ const obtenerTiposDeComprobantesDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeConceptoDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const conceptTypes = await afip.ElectronicBilling.getConceptTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de concepto", data: conceptTypes});
@@ -273,6 +315,10 @@ const obtenerTiposDeConceptoDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeDocumentoDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const documentTypes = await afip.ElectronicBilling.getDocumentTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de documento", data: documentTypes});
@@ -283,6 +329,10 @@ const obtenerTiposDeDocumentoDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeAlicuotaDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const aliquotTypes = await afip.ElectronicBilling.getAliquotTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de alicuotas", data: aliquotTypes});
@@ -293,6 +343,10 @@ const obtenerTiposDeAlicuotaDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeMonedaDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const currenciesTypes = await afip.ElectronicBilling.getCurrenciesTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de moneda", data: currenciesTypes});
@@ -303,6 +357,10 @@ const obtenerTiposDeMonedaDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeOpcionesDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const optionTypes = await afip.ElectronicBilling.getOptionsTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de opciones", data: optionTypes});
@@ -313,6 +371,10 @@ const obtenerTiposDeOpcionesDisponibles = async (req, res) => {
 }
 
 const obtenerTiposDeTributoDisponibles = async (req, res) => {
+    const afip = getInstanciaAfip();
+    if (!afip) {
+        return res.status(400).json({ success: false, message: "AFIP no está configurado." });
+    }
     try {
         const taxTypes = await afip.ElectronicBilling.getTaxTypes();
         res.status(200).json({success:true, message:"Exito al traer los tipos de tributo", data: taxTypes});
@@ -322,10 +384,43 @@ const obtenerTiposDeTributoDisponibles = async (req, res) => {
     }
 }
 
+const crearInstancia = async (req, res) => {
+    try {
+        const { username, password, cuit } = req.body;
+        if (!username || !password || !cuit) {
+            return res.status(400).json({ message: 'Faltan datos obligatorios' });
+        }
+
+        if (isAfipConfigured()) {
+            return res.status(400).json({ message: 'AFIP ya está configurado' });
+        }
+
+        const success = await generarCertificados(username, password, cuit);
+
+        if (success) {
+            res.status(201).json({success: true, message: 'AFIP configurado correctamente' });
+        } else {
+            res.status(500).json({ message: 'Error generando certificados' });
+        } 
+    } catch (error) {
+        res.status(500).json({message: "Error al crear la instancia."});
+    }
+}
+
+const estaConfigurado = (req, res) => {
+    if(isAfipConfigured()){
+        res.status(200).json({success: true, message: "AFIP ya está configurado"});
+    } else{
+        res.status(200).json({success: false, message:"AFIP no está configurado"});
+    }
+}
+
 module.exports = {
+    crearInstancia,
     crearYAsignarCAE,
     crearFacturaC,
     crearFacturaPDF,
+    estaConfigurado,
     generarQR,
     obtenerDatosContribuyente,
     obtenerInformacionComprobanteEmitido,

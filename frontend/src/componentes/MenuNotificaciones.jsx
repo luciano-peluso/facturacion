@@ -2,12 +2,12 @@ import {
   Badge,
   Button,
   HStack,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Box,
+  Icon,
 } from "@chakra-ui/react";
 import { Eye, Check, ArrowRight, Megaphone } from "lucide-react";
 import axios from "axios";
@@ -97,29 +97,32 @@ const MenuNotificaciones = () => {
               {notificacion.mensaje}
               <HStack spacing={2}>
                 {notificacion.factura_id ? (
-                  <IconButton
+                  <Box
+                    as="button"
                     aria-label="Ver factura"
-                    icon={<Eye size={16} />}
-                    colorScheme="blue"
-                    size="sm"
                     onClick={() => navigate(`/factura/${notificacion.factura_id}`)}
-                  />
+                    _hover={{ color: "blue.500" }}
+                  >
+                    <Icon as={Eye} boxSize={4} />
+                  </Box>
                 ) : (
-                  <IconButton
+                  <Box
+                    as="button"
                     aria-label="Ir a liquidacion"
-                    icon={<ArrowRight size={16} />}
-                    colorScheme="blue"
-                    size="sm"
                     onClick={() => navigate("/calcular-totales")}
-                  />
+                    _hover={{ color: "blue.500" }}
+                  >
+                    <Icon as={ArrowRight} boxSize={4} />
+                  </Box>
                 )}
-                <IconButton
+                <Box
+                  as="button"
                   aria-label="Marcar como leída"
-                  icon={<Check size={16} />}
-                  colorScheme="green"
-                  size="sm"
                   onClick={() => marcarComoLeida(notificacion.id)}
-                />
+                  _hover={{ color: "green.500" }}
+                >
+                  <Icon as={Check} boxSize={4} />
+                </Box>
               </HStack>
             </MenuItem>
           ))

@@ -2,7 +2,9 @@ const express = require('express');
 const {
     crearYAsignarCAE, crearFacturaC, generarQR, obtenerDatosContribuyente, crearFacturaPDF, obtenerInformacionComprobanteEmitido, obtenerNumeroUltimoComprobanteCreado,
     obtenerPuntosDeVentaDisponibles, obtenerTiposDeComprobantesDisponibles, obtenerTiposDeConceptoDisponibles, obtenerTiposDeDocumentoDisponibles,obtenerTiposDeAlicuotaDisponibles,
-    obtenerTiposDeMonedaDisponibles, obtenerTiposDeOpcionesDisponibles, obtenerTiposDeTributoDisponibles } = require('../controllers/afipController.cjs');
+    obtenerTiposDeMonedaDisponibles, obtenerTiposDeOpcionesDisponibles, obtenerTiposDeTributoDisponibles, 
+    crearInstancia,
+    estaConfigurado} = require('../controllers/afipController.cjs');
 
 const router = express.Router();
 
@@ -18,12 +20,15 @@ router.get('/obtener-tipo/alicuota', obtenerTiposDeAlicuotaDisponibles);
 router.get('/obtener-tipo/moneda', obtenerTiposDeMonedaDisponibles);
 router.get('/obtener-tipo/opciones', obtenerTiposDeOpcionesDisponibles);
 router.get('/obtener-tipo/tributo', obtenerTiposDeTributoDisponibles);
+router.get('/verificar', estaConfigurado);
 
 router.get('/obtener-datos-contribuyente/:cuit', obtenerDatosContribuyente);
 router.get('/crear/CAE', crearYAsignarCAE);
 router.post('/crear/factura-c', crearFacturaC);
 router.post('/crear/codigo-qr', generarQR);
 router.post('/crear/factura-pdf', crearFacturaPDF);
+router.post('/crear/instancia', crearInstancia);
+
 
 
 module.exports = router;

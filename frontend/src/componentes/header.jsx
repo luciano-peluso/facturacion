@@ -20,10 +20,8 @@ const Header = ({ mensaje, titulo }) => {
       <Text color={"grey"}>{mensaje}</Text>
       <Heading size={"lg"} color={"black"}>{titulo}</Heading>
       <Spacer />
-      <HStack>
-        <MenuNotificaciones />
+      <MenuNotificaciones />
         {/* <MenuHamburguesa onNavigate={(path) => navigate(path)} /> */}
-      </HStack>
     </Flex>
   );
 };

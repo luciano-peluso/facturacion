@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
-import { Box, Input, Button, VStack, Text, Heading, FormControl, FormLabel, Select, HStack } from "@chakra-ui/react";
+import { Box, Input, Button, VStack, Text, Heading, FormControl, FormLabel, Select, HStack, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import Sidebar from "../../componentes/sidebar";
 import Header from "../../componentes/header";
+import { useNavigate } from "react-router-dom";
 
 export default function AfipLogin() {
+    const navigate = useNavigate();
+    const toast = useToast();
+    const [isLoading, setIsLoading] = useState(false);
     const [CAE, setCAE] = useState({
         CAE: "",
         CAEFchVto: "",
@@ -93,6 +97,25 @@ export default function AfipLogin() {
     const [razonSocialReceptor, setRazonSocialReceptor] = useState('')
     const [domicilioReceptor, setDomicilioReceptor] = useState('')
 
+    const [estaConfigurado, setEstaConfigurado] = useState(false);
+    const getVerificacionInstancia = async () => {
+        try {
+            const response = await axios.get("http://localhost:3000/api/afip/verificar");
+            setEstaConfigurado(response.data.success);
+    
+            // Si la verificación es exitosa, llama a las funciones adicionales
+            if (response.data.success) {
+                getTiposComprobante();
+                getTiposConcepto();
+                getTiposDocumento();
+                getCondicionesFrenteIva();
+                getConfiguracionAfip();
+            }
+        } catch (error) {
+            console.error("Error al traer la verificacion de la instancia:", error);
+            setEstaConfigurado(false); // Asegúrate de establecer el estado en false en caso de error
+        }
+    };
     const getPuntosVenta = async () => {
         try{
             const response = await axios.get('http://localhost:3000/api/afip/obtener-puntos-venta');
@@ -149,15 +172,12 @@ export default function AfipLogin() {
     }
 
     useEffect(() => {
-        //getPuntosVenta();
-        getTiposComprobante();
-        getTiposConcepto();
-        getTiposDocumento();
-        getCondicionesFrenteIva();
-        getConfiguracionAfip();
+        getVerificacionInstancia();
+        
     }, []);
 
     const handleSubmit = async (e) => {
+        setIsLoading(true);
         console.log("Condicion iva receptor id:",condicionIVAReceptorId);
         // Crear el objeto con los datos del formulario
         const facturaData = {
@@ -241,9 +261,23 @@ export default function AfipLogin() {
             // Guardar la URL en el estado y habilitar el botón "Ver Factura"
             setPdfUrl(pdfUrl);
             setIsVerDisabled(false);
-
+            setIsLoading(false);
+            toast({
+                title: "Factura emitida con éxito",
+                status: "success",
+                description: "Ya está disponible el pdf",
+                duration: 5000,
+                isClosable: true
+            })
         } catch (error) {
             console.error("Error al generar el PDF de la factura:", error);
+            toast({
+                title: "Error al generar la factura",
+                status: "error",
+                description: "Error al generar el PDF de la factura",
+                duration: 5000,
+                isClosable: true
+            })
         }
     }
 
@@ -282,9 +316,12 @@ export default function AfipLogin() {
                 maxW="800px"
                 mx="auto"
                 p={8}
+                pt={0}
                 borderRadius="lg"
             >
-                <Heading>Crear factura C</Heading>
+                {estaConfigurado? (
+                <>
+                <Heading pb={3}>Crear factura C</Heading>
                 <VStack spacing={4}>
                     {/* Campo para seleccionar el punto de venta */}
                     <FormControl isRequired>
@@ -519,13 +556,25 @@ export default function AfipLogin() {
                     </VStack>
                     {/* Botón para enviar el formulario */}
                     <HStack mt={5}>
-                        <Button type="submit" colorScheme="blue" width="100%" onClick={() => handleSubmit()} isDisabled={isGenerarDisabled}>
+                        <Button type="submit" colorScheme="blue" width="100%" onClick={() => handleSubmit()} isDisabled={isGenerarDisabled} isLoading={isLoading}
+                            loadingText="Emitiendo factura...">
                             Emitir Factura
                         </Button>
                         <Button colorScheme="red" width={"100%"} onClick={() => handleVerFactura()} isDisabled={isVerDisabled}>
                             Ver factura
                         </Button>
                     </HStack>
+                </>) 
+                :(
+                    <>  
+                        <VStack>
+                            <Text>La configuración de AFIP/ARCA no está completa!</Text>
+                            <Text>Por favor, dirigase a la configuración para poder emitir comprobantes</Text>
+                            <Button onClick={() => navigate('/configuracion')}>Ir a configuracion</Button>
+                        </VStack>
+                    </>
+                )}
+                
             </Box>
         </Box>
     </Box>
