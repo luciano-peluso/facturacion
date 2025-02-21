@@ -20,12 +20,12 @@ const ObraSocial = sequelize.define('ObraSocial', {
   mail: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
+    unique: false,
   },
   telefono: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
+    unique: false,
   },
   condicion_iva_id: {
     type: DataTypes.INTEGER,

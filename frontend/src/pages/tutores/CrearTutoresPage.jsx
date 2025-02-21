@@ -132,7 +132,7 @@ const CrearTutoresPage = () => {
                 type="submit"
                 size="lg"
                 w="100%"
-                isDisabled={!formData.nombre || !formData.dni}
+                isDisabled={!formData.nombre || !formData.dni || !formData.condicion_iva_id}
               >
                 Crear Tutor
               </Button>

@@ -65,7 +65,7 @@ const Sidebar = () => {
                 </MenuButton>
                 <MenuList>
                     <VStack>
-                        <MenuItem onClick={() => navigate('/crear-encargado')}>
+                        <MenuItem onClick={() => navigate('/crear-encargados')}>
                         ➕ Crear encargado
                         </MenuItem>
                         <MenuItem onClick={() => navigate('/ver-encargados')}   >

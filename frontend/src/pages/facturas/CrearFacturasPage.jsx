@@ -92,7 +92,7 @@ const CrearFactura = () => {
       fecha_emision: "",
       fecha_facturada: "",
       es_consultorio: "false",
-      fecha_cobro: "",
+      fecha_cobro: null,      
     });
   };
 
