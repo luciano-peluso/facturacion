@@ -23,13 +23,13 @@ const createConfiguracion = async (req, res) => {
 };
 
 const updateConfiguracion = async (req, res) => {
-    const { rango_precision, comision_consultorio } = req.body;
+    const { rango_precision, comision_consultorio, razon_social, domicilio, ingresos_brutos, inicio_actividades, condicion_iva_id } = req.body;
     try {
         const configuracion = await Configuracion.findOne();
         if (!configuracion) {
             return res.status(404).json({ success: false, message: "Configuracion no encontrada" });
         }
-        await configuracion.update({ rango_precision, comision_consultorio });
+        await configuracion.update({ rango_precision, comision_consultorio, razon_social, domicilio, ingresos_brutos, inicio_actividades, condicion_iva_id });
         res.status(200).json({ success: true, message: "Configuracion actualizada", data: configuracion });
     } catch (error) {
         console.error("Error al actualizar la configuracion:", error);

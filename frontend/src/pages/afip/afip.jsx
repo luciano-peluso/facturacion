@@ -300,10 +300,6 @@ export default function AfipLogin() {
         window.open(pdfUrl, '_blank');
     };
 
-    useEffect(() => {
-        if(docNro.length >= 11){
-        obtenerDatosContribuyente();}
-    }, [docTipo, docNro]);
 
   return (
     <Box className="container" display="flex" w="100%" minW="1400px">
