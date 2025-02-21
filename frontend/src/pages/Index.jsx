@@ -281,7 +281,7 @@ const Index = () => {
                                         </Td>
                                         <Td>
                                             {fecha_emision
-                                                ? format(new Date(fecha_emision), "dd/MM/yyyy")
+                                                ? format(new Date(fecha_emision + "T12:00:00Z"), "dd/MM/yyyy", { locale: es })
                                                 : "Fecha no disponible"}
                                         </Td>
                                         <Td>{estado ? "Sí" : "No"}</Td>
