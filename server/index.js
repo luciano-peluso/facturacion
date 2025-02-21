@@ -36,12 +36,12 @@ app.use('/api/condicionIva', condicionIvaRoutes);
 // Inicialización
 (async () => {
   try {
-    // Inicializa la configuracion si no existe
-    await inicializarConfiguracion();
     // Crea la base de datos si no existe
     await createDatabaseIfNotExists();
     // Sincroniza los modelos y las tablas
     await syncModels();
+    // Inicializa la configuracion si no existe
+    await inicializarConfiguracion();
     await seedCondicionIVA();
     // Se inicia el servidor
     app.listen(port, () => {

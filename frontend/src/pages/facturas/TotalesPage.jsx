@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import axios from "axios";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const TotalesPage = () => {
     const [mesSeleccionado, setMesSeleccionado] = useState("");

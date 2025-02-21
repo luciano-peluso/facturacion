@@ -2,7 +2,7 @@ import { Box, Button, Card, CardBody, CardHeader, Divider, Flex, Heading, Input,
 import React, { useEffect, useState } from "react";
 import Header from "../componentes/header";
 import axios from "axios";
-import Sidebar from "../componentes/sidebar";
+import Sidebar from "../componentes/Sidebar";
 
 const ConfiguracionPage = () => {
     const toast = useToast();

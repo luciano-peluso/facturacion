@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import Header from "../../componentes/header";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const CrearTutoresPage = () => {
   const [formData, setFormData] = useState({

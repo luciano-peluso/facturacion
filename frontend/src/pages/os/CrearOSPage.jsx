@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Heading, FormControl, FormLabel, Input, Select, Button, useToast, VStack, Grid, useColorModeValue } from "@chakra-ui/react";
 import axios from "axios";
 import Header from "../../componentes/header";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const CrearOSPage = () => {
   const [formData, setFormData] = useState({
@@ -150,7 +150,7 @@ const CrearOSPage = () => {
                 type="submit"
                 size="lg"
                 w="100%"
-                isDisabled={!formData.nombre || !formData.cuit || !formData.clasificacion}
+                isDisabled={!formData.nombre || !formData.cuit || !formData.condicion_iva_id}
               >
                 Crear Obra Social
               </Button>

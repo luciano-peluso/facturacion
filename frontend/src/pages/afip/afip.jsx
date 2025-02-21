@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Box, Input, Button, VStack, Text, Heading, FormControl, FormLabel, Select, HStack, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 import Header from "../../componentes/header";
 import { useNavigate } from "react-router-dom";
 

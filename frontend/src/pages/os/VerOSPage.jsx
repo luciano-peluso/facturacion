@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
 import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerOSPage = () => {
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});

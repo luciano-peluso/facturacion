@@ -17,7 +17,7 @@ import {
   VStack,
   useColorModeValue,
 } from "@chakra-ui/react";
-import Sidebar from "../../componentes/sidebar";
+import Sidebar from "../../componentes/Sidebar";
 
 const VerUnaFacturaPage = () => {
   const { id } = useParams();
