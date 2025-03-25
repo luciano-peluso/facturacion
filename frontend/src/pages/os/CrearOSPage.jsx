@@ -41,7 +41,7 @@ const CrearOSPage = () => {
         duration: 3000,
         isClosable: true,
       });
-      setFormData({ nombre: "", cuit: "", mail: "", telefono: "", clasificacion: "" }); // Reinicia el formulario
+      setFormData({ nombre: "", cuit: "", mail: "", telefono: "", condicion_iva_id: "" }); // Reinicia el formulario
     } catch (error) {
       console.error("Error al crear la obra social:", error);
       toast({
@@ -61,10 +61,10 @@ const CrearOSPage = () => {
   const shadow = useColorModeValue("md", "dark-lg");
 
   return (
-    <Box className="container" display="flex" w="100%" minW="1400px">
+    <Box className="container" display="flex" w="100%">
       <Sidebar />
 
-      <Box className="dashboard" overflow="hidden" flex="1" p={4}>
+      <Box className="dashboard" overflow="auto" flex="1" p={4}>
         <Header />
 
         <Box

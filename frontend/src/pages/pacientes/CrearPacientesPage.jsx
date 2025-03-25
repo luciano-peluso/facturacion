@@ -84,10 +84,10 @@ const CrearPacientePage = () => {
   const shadow = useColorModeValue("md", "dark-lg");
 
   return (
-    <Box className="container" display="flex" w="100%" minW="1400px">
+    <Box className="container" display="flex" w="100%">
       <Sidebar />
 
-      <Box className="dashboard" overflow="hidden" flex="1" p={4}>
+      <Box className="dashboard" overflow="auto" flex="1" p={4}>
         <Header />
 
         <Box
@@ -131,7 +131,7 @@ const CrearPacientePage = () => {
                 <FormControl isRequired>
                   <FormLabel>Obra Social</FormLabel>
                   <Select
-                    placeholder="Selecciona una obra social"
+                    placeholder="Selecciona una obra social para asignar"
                     name="obra_social_id"
                     value={formData.obra_social_id}
                     onChange={handleInputChange}

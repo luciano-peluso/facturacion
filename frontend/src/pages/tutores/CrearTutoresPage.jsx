@@ -10,6 +10,7 @@ import {
   VStack,
   useColorModeValue,
   Select,
+  Grid,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Header from "../../componentes/header";
@@ -67,10 +68,10 @@ const CrearTutoresPage = () => {
   const shadow = useColorModeValue("md", "dark-lg");
 
   return (
-    <Box className="container" display="flex" w="100%" minW="1400px">
+    <Box className="container" display="flex" w="100%">
       <Sidebar />
 
-      <Box className="dashboard" overflow="hidden" flex="1" p={4}>
+      <Box className="dashboard" overflow="auto" flex="1" p={4}>
         <Header />
 
         <Box
@@ -83,59 +84,60 @@ const CrearTutoresPage = () => {
           borderRadius="lg"
         >
           <Heading size="lg" mb={6} textAlign="center">
-            Crear un Encargado
+            Crear un Tutor
           </Heading>
 
           <form onSubmit={handleSubmit}>
             <VStack spacing={6}>
-              <FormControl isRequired>
-                <FormLabel>Nombre</FormLabel>
-                <Input
-                  type="text"
-                  name="nombre"
-                  placeholder="Ej. Fernando Burlando"
-                  value={formData.nombre}
+              <Grid templateColumns="repeat(2, 1fr)" gap={6} w="100%">
+                <FormControl isRequired>
+                  <FormLabel>Nombre</FormLabel>
+                  <Input
+                    type="text"
+                    name="nombre"
+                    placeholder="Ej. Fernando Burlando"
+                    value={formData.nombre}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>DNI</FormLabel>
+                  <Input
+                    type="text"
+                    name="dni"
+                    placeholder="Sin puntos. Ej. 45678901"
+                    value={formData.dni}
+                    onChange={handleInputChange}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                <FormLabel>Clasificación</FormLabel>
+                <Select
+                  placeholder="Seleccione una clasificación de contribuyente"
+                  name="condicion_iva_id"
+                  value={formData.condicion_iva_id}
                   onChange={handleInputChange}
-                />
+                >
+                  {condicionesIva.map(condicionIva => (
+                    <option key={condicionIva.id} value={condicionIva.id}>
+                      {condicionIva.descripcion}
+                    </option>
+                  ))}
+                </Select>
               </FormControl>
-
-              <FormControl isRequired>
-                <FormLabel>DNI</FormLabel>
-                <Input
-                  type="text"
-                  name="dni"
-                  placeholder="Sin puntos. Ej. 45678901"
-                  value={formData.dni}
-                  onChange={handleInputChange}
-                />
-              </FormControl>
-
-              <FormControl isRequired>
-              <FormLabel>Clasificación</FormLabel>
-              <Select
-                placeholder="Seleccione una clasificación de contribuyente"
-                name="condicion_iva_id"
-                value={formData.condicion_iva_id}
-                onChange={handleInputChange}
-              >
-                {condicionesIva.map(condicionIva => (
-                  <option key={condicionIva.id} value={condicionIva.id}>
-                    {condicionIva.descripcion}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
-
-              <Button
-                mt={6}
-                colorScheme="green"
-                type="submit"
-                size="lg"
-                w="100%"
-                isDisabled={!formData.nombre || !formData.dni || !formData.condicion_iva_id}
-              >
-                Crear Tutor
-              </Button>
+              </Grid>
+                <Button
+                  mt={6}
+                  colorScheme="green"
+                  type="submit"
+                  size="lg"
+                  w="100%"
+                  isDisabled={!formData.nombre || !formData.dni || !formData.condicion_iva_id}
+                >
+                  Crear Tutor
+                </Button>
             </VStack>
           </form>
         </Box>
