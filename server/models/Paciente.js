@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const {sequelize} = require('../config/db');
-const ObraSocial = require('./ObraSocial');
 const Tutor = require('./Tutor');
 
 // Definición del modelo Paciente
@@ -18,7 +17,7 @@ const Paciente = sequelize.define('Paciente', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-    },
+    },/* La comentamos porque ya no vamos a usar más este campo, sino que ahora usamos una tabla intermedia.
     obra_social_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,7 +27,7 @@ const Paciente = sequelize.define('Paciente', {
         },
         onUpdate: 'CASCADE', // Actualiza la clave foránea si cambia el ID
         onDelete: 'SET NULL',
-    },
+    },*/
     tutor_id: {
         type: DataTypes.INTEGER,
         allowNull: true, // Puede ser null si no tiene tutor
@@ -48,8 +47,10 @@ const Paciente = sequelize.define('Paciente', {
     tableName: 'pacientes', // Especifica el nombre de la tabla
 });
 
-// Establecimiento de asociaciones
-Paciente.belongsTo(ObraSocial, { as: 'obra_social', foreignKey: 'obra_social_id' });
+// Paciente.belongsToMany(ObraSocial, {
+//     through: PacienteObraSocial,
+//     foreignKey: 'paciente_id'
+// })
 Paciente.belongsTo(Tutor, { as: 'tutor', foreignKey: 'tutor_id' });
 
 module.exports = Paciente;

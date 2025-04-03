@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db'); // Asegúrate de que la ruta sea correcta
+const { sequelize } = require('../config/db');
 const CondicionIva = require('./CondicionIva');
 
 const ObraSocial = sequelize.define('ObraSocial', {
@@ -44,6 +44,11 @@ const ObraSocial = sequelize.define('ObraSocial', {
   tableName: 'obras_sociales',
 });
 
+// ObraSocial.belongsToMany(Paciente, {
+//   through: PacienteObraSocial,
+//   as: 'obras_sociales', // Nombre para acceder a los pacientes de la obra social
+//   foreignKey: 'obra_social_id'
+// });
 ObraSocial.belongsTo(CondicionIva, { foreignKey: 'condicion_iva_id' });
 
 module.exports = ObraSocial;

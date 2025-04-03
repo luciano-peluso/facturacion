@@ -11,6 +11,7 @@ const configuracionRoutes = require('./routes/configuracionRoutes');
 const notificacionesRoute = require('./routes/notificacionRoutes');
 const afipRoutes = require('./routes/afipRoutes.cjs');
 const condicionIvaRoutes = require('./routes/condicionIvaRoutes');
+const pacienteObraSocialRoutes = require('./routes/pacienteObraSocialRoutes');
 
 const { revisarFacturasVencidas } = require('./cronJobs/facturasVencidas');
 const { enviarRecordatorioLiquidacion } = require('./cronJobs/recordatorioLiquidacion');
@@ -26,6 +27,7 @@ app.use(express.json()); // Parsear JSON
 // Rutas
 app.use('/api/facturas', facturasRoutes);
 app.use('/api/pacientes', pacientesRoutes);
+app.use('/api/pacienteObraSocial', pacienteObraSocialRoutes);
 app.use('/api/os', obrasSocialesRoutes);
 app.use('/api/tutores', tutoresRoutes);
 app.use('/api/configuracion', configuracionRoutes);
