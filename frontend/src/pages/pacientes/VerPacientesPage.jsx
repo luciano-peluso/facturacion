@@ -8,6 +8,7 @@ const VerPacientesPage = () => {
     const [pacienteActualizado, setPacienteActualizado] = useState({});
     const [pacientes, setPacientes] = useState([]);
     const [obrasSociales, setObrasSociales] = useState([]);
+    const [obrasSocialesPaciente, setObrasSocialesPaciente] = useState([]);
     const [tutores, setTutores] = useState([]);
     
     const toast = useToast();
@@ -59,6 +60,7 @@ const VerPacientesPage = () => {
     };
 
     const handleEditClick = (paciente) => {
+        
         setPacienteActualizado(paciente);
         console.log(paciente);
         onOpen();  // Abrir la modal
@@ -89,6 +91,16 @@ const VerPacientesPage = () => {
         }
     }
 
+    const traerObrasSocialesPaciente = async () => {
+        try {
+            const response = await axios.get("http://localhost:3000/api/pacienteobrasocial/")
+            console.log(response.data.data);
+            setObrasSocialesPaciente(response.data.data);
+        } catch (error) {
+            console.error("Error al traer las obras sociales del paciente", error);
+        }
+    }
+
     const traerObrasSociales = async () => {
         try {
           const response = await axios.get('http://localhost:3000/api/os');
@@ -109,6 +121,7 @@ const VerPacientesPage = () => {
 
     useEffect(() => {
         traerPacientes();
+        traerObrasSocialesPaciente();
         traerObrasSociales();
         traerTutores();
     },[])
@@ -145,7 +158,9 @@ const VerPacientesPage = () => {
                                     <Tr key={paciente.id}>
                                         <Td>{paciente.nombre}</Td>
                                         <Td>{paciente.dni}</Td>
-                                        <Td>{paciente.obra_social.nombre}</Td>
+                                        <Td>{obrasSocialesPaciente.filter(unaObraSocial => unaObraSocial.paciente_id === paciente.id)
+                                                .map(unaObraSocial => unaObraSocial.ObraSocial.nombre)
+                                                .join(", ") || "Sin Obra Social"}</Td> 
                                         <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
                                         <Td maxW="140px">
                                             <HStack spacing={1} justifyContent={"center"}>
@@ -187,18 +202,46 @@ const VerPacientesPage = () => {
                                     onChange={handleChange}
                                     minW={"200px"}/></FormLabel>
                                     
-                                    <FormLabel>Obra Social</FormLabel>
-                                    <Select
-                                    name="obra_social_id"
-                                    value={pacienteActualizado.obra_social_id}
-                                    onChange={handleChange}
-                                    >
-                                    {obrasSociales.map((os) => (
-                                        <option key={os.id} value={os.id}>
-                                        {os.nombre}
-                                        </option>
-                                    ))}
-                                    </Select>
+                                    <FormLabel>Obras Sociales</FormLabel>
+                                        {pacienteActualizado.obrasSociales?.map((obraSocialId, index) => (
+                                            <HStack key={index} spacing={2} w="100%">
+                                                <Select
+                                                    value={obraSocialId}
+                                                    onChange={(e) => {
+                                                        const nuevasObras = [...pacienteActualizado.obrasSociales];
+                                                        nuevasObras[index] = parseInt(e.target.value, 10);
+                                                        setPacienteActualizado((prev) => ({
+                                                            ...prev,
+                                                            obrasSociales: nuevasObras,
+                                                        }));
+                                                    }}
+                                                >
+                                                    <option value="">Seleccione una obra social</option>
+                                                    {obrasSociales.map((os) => (
+                                                        <option key={os.id} value={os.id}>
+                                                            {os.nombre}
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                                <Button size="sm" colorScheme="red" onClick={() => {
+                                                    const nuevasObras = pacienteActualizado.obrasSociales.filter((_, i) => i !== index);
+                                                    setPacienteActualizado((prev) => ({
+                                                        ...prev,
+                                                        obrasSociales: nuevasObras,
+                                                    }));
+                                                }}>
+                                                    ❌
+                                                </Button>
+                                            </HStack>
+                                        ))}
+                                        <Button size="sm" colorScheme="green" onClick={() => {
+                                            setPacienteActualizado((prev) => ({
+                                                ...prev,
+                                                obrasSociales: [...(prev.obrasSociales || []), ""], // Agrega un nuevo select vacío
+                                            }));
+                                        }}>
+                                            ➕ Agregar obra social
+                                        </Button>
                                     
                                     <FormLabel>Tutor</FormLabel>
                                     <Select

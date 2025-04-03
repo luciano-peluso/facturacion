@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const {sequelize} = require('../config/db');
 const ObraSocial = require('./ObraSocial');
 const Paciente = require('./Paciente');
+const Factura = require('./Factura');
 
 // Definición del modelo de la relacion Paciente_ObraSocial
 const PacienteObraSocial = sequelize.define('PacienteObraSocial', {

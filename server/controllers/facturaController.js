@@ -14,11 +14,7 @@ const getFacturas = async (req, res) => {
                     model: Paciente, 
                     as: 'paciente', // Alias definido en las asociaciones
                     attributes: ['id', 'nombre'],
-                    include: [{
-                            model: ObraSocial, // Relación con ObraSocial
-                            as: 'obra_social', // Alias definido en la asociación
-                            attributes: ['id', 'nombre', 'cuit'], // Selecciona solo los campos relevantes de la obra social
-                        },
+                    include: [
                         {
                             model: Tutor, // Relación con Tutor
                             as: 'tutor', // Alias definido en la asociación
@@ -43,13 +39,6 @@ const getFacturaById = async (req, res) => {
                     model: Paciente,
                     as: 'paciente', // Alias definido en las asociaciones
                     attributes: ['id', 'nombre'],
-                    include: [
-                        {
-                            model: ObraSocial, // Relación con ObraSocial
-                            as: 'obra_social', // Alias definido en la asociación
-                            attributes: ['id', 'nombre', 'cuit', 'mail'], // Selecciona solo los campos relevantes de la obra social
-                        },
-                    ],
                 },
             ],
         });
@@ -159,13 +148,6 @@ const obtenerFacturasPorMes = async (req, res) => {
                     model: Paciente,
                     as: "paciente",
                     attributes: ["id", "nombre"],
-                    include: [
-                        {
-                            model: ObraSocial,
-                            as: "obra_social",
-                            attributes: ["id", "nombre"],
-                        },
-                    ],
                 },
             ],
             paranoid: true,

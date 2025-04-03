@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const {sequelize} = require('../config/db');
 const Paciente = require('./Paciente');
+const PacienteObraSocial = require('./PacienteObraSocial');
 
 // Definimos el modelo de Factura
 const Factura = sequelize.define('Factura', {
@@ -9,11 +10,11 @@ const Factura = sequelize.define('Factura', {
       primaryKey: true,
       autoIncrement: true,
     },
-    paciente_id: {
+    paciente_obra_social_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'pacientes', // Nombre de la tabla de los pacientes
+        model: 'paciente_obrasocial', 
         key: 'id',
     },
     onUpdate: 'CASCADE',
@@ -60,6 +61,6 @@ const Factura = sequelize.define('Factura', {
     tableName: 'facturas', // Especifica el nombre de la tabla
   });
   // Factura pertenece a un Paciente
-Factura.belongsTo(Paciente, { as: 'paciente', foreignKey: 'paciente_id' });
+Factura.hasOne(PacienteObraSocial, { as: 'paciente_obra_social', foreignKey: 'paciente_obra_social_id' });
 
 module.exports = Factura;

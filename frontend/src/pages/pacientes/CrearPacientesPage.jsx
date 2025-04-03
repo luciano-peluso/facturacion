@@ -1,17 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Heading,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  Button,
-  useToast,
-  VStack,
-  Grid,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, Heading, FormControl, FormLabel, Input, Select, Button, useToast, VStack, Grid, Tag, TagLabel, TagCloseButton, useColorModeValue } from "@chakra-ui/react";
 import axios from "axios";
 import Header from "../../componentes/header";
 import Sidebar from "../../componentes/Sidebar";
@@ -20,8 +8,8 @@ const CrearPacientePage = () => {
   const [formData, setFormData] = useState({
     nombre: "",
     dni: "",
-    obra_social_id: "",
     tutor_id: "",
+    obrasSocialesSeleccionadas: [],
   });
   const [obrasSociales, setObrasSociales] = useState([]);
   const [tutores, setTutores] = useState([]);
@@ -50,10 +38,39 @@ const CrearPacientePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAddObraSocial = (e) => {
+    const obraSocialId = e.target.value;
+    if (obraSocialId && !formData.obrasSocialesSeleccionadas.includes(obraSocialId)) {
+      setFormData((prev) => ({
+        ...prev,
+        obrasSocialesSeleccionadas: [...prev.obrasSocialesSeleccionadas, obraSocialId],
+      }));
+    }
+  };
+
+  const handleRemoveObraSocial = (obraSocialId) => {
+    setFormData((prev) => ({
+      ...prev,
+      obrasSocialesSeleccionadas: prev.obrasSocialesSeleccionadas.filter(id => id !== obraSocialId),
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/pacientes", formData);
+      const response = await axios.post("http://localhost:3000/api/pacientes", {
+        nombre: formData.nombre,
+        dni: formData.dni,
+        tutor_id: formData.tutor_id || null,
+      });
+      
+      const paciente_id = response.data.data.id;
+      await Promise.all(
+        formData.obrasSocialesSeleccionadas.map(obra_social_id =>
+          axios.post("http://localhost:3000/api/pacienteObraSocial", { paciente_id, obra_social_id })
+        )
+      );
+      
       toast({
         title: "Éxito",
         description: "Paciente creado correctamente.",
@@ -61,7 +78,8 @@ const CrearPacientePage = () => {
         duration: 3000,
         isClosable: true,
       });
-      setFormData({ nombre: "", dni: "", obra_social_id: "", tutor_id: "" }); // Limpiar el formulario después de crear
+
+      setFormData({ nombre: "", dni: "", tutor_id: "", obrasSocialesSeleccionadas: [] });
     } catch (error) {
       console.error("Error al crear el paciente:", error);
       toast({
@@ -79,7 +97,6 @@ const CrearPacientePage = () => {
     traerTutores();
   }, []);
 
-  // Colores para el fondo y la sombra
   const bgColor = useColorModeValue("white", "gray.700");
   const shadow = useColorModeValue("md", "dark-lg");
 
@@ -90,85 +107,48 @@ const CrearPacientePage = () => {
       <Box className="dashboard" overflow="auto" flex="1" p={4}>
         <Header />
 
-        <Box
-          maxW="800px"
-          mx="auto"
-          mt={8}
-          p={8}
-          bg={bgColor}
-          boxShadow={shadow}
-          borderRadius="lg"
-        >
-          <Heading size="lg" mb={6} textAlign="center">
-            Crear un Paciente
-          </Heading>
+        <Box maxW="800px" mx="auto" mt={8} p={8} bg={bgColor} boxShadow={shadow} borderRadius="lg">
+          <Heading size="lg" mb={6} textAlign="center">Crear un Paciente</Heading>
 
           <form onSubmit={handleSubmit}>
             <VStack spacing={6}>
               <Grid templateColumns="repeat(2, 1fr)" gap={6} w="100%">
                 <FormControl isRequired>
                   <FormLabel>Nombre</FormLabel>
-                  <Input
-                    type="text"
-                    name="nombre"
-                    placeholder="Ej. Juan Pérez"
-                    value={formData.nombre}
-                    onChange={handleInputChange}
-                  />
+                  <Input type="text" name="nombre" placeholder="Ej. Juan Pérez" value={formData.nombre} onChange={handleInputChange} />
                 </FormControl>
 
                 <FormControl isRequired>
                   <FormLabel>DNI</FormLabel>
-                  <Input
-                    type="text"
-                    name="dni"
-                    placeholder="Sin puntos. Ej. 45678901"
-                    value={formData.dni}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Obra Social</FormLabel>
-                  <Select
-                    placeholder="Selecciona una obra social para asignar"
-                    name="obra_social_id"
-                    value={formData.obra_social_id}
-                    onChange={handleInputChange}
-                  >
-                    {obrasSociales.map((obra) => (
-                      <option key={obra.id} value={obra.id}>
-                        {obra.nombre}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Tutor</FormLabel>
-                  <Select
-                    placeholder="Sin tutor"
-                    name="tutor_id"
-                    value={formData.tutor_id}
-                    onChange={handleInputChange}
-                  >
-                    {tutores.map((tutor) => (
-                      <option key={tutor.id} value={tutor.id}>
-                        {tutor.nombre}
-                      </option>
-                    ))}
-                  </Select>
+                  <Input type="text" name="dni" placeholder="Sin puntos. Ej. 45678901" value={formData.dni} onChange={handleInputChange} />
                 </FormControl>
               </Grid>
 
-              <Button
-                mt={6}
-                colorScheme="green"
-                type="submit"
-                size="lg"
-                w="100%"
-                isDisabled={!formData.nombre || !formData.dni || !formData.obra_social_id}
-              >
+              <FormControl isRequired>
+                <FormLabel>Obras Sociales</FormLabel>
+                {formData.obrasSocialesSeleccionadas.map((obraSocialId, index) => (
+                  <Tag key={index} size="lg" variant="solid" colorScheme="green" m={1}>
+                    <TagLabel>{obrasSociales.find(obra => String(obra.id) === String(obraSocialId))?.nombre || "Desconocido"}</TagLabel>
+                    <TagCloseButton onClick={() => handleRemoveObraSocial(obraSocialId)} />
+                  </Tag>
+                ))}
+                <Select placeholder="Agregar obra social" onChange={handleAddObraSocial} mt={2}>
+                  {obrasSociales.map((obra) => (
+                    <option key={obra.id} value={obra.id}>{obra.nombre}</option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Tutor</FormLabel>
+                <Select placeholder="Sin tutor" name="tutor_id" value={formData.tutor_id} onChange={handleInputChange}>
+                  {tutores.map((tutor) => (
+                    <option key={tutor.id} value={tutor.id}>{tutor.nombre}</option>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Button mt={6} colorScheme="green" type="submit" size="lg" w="100%" isDisabled={!formData.nombre || !formData.dni || formData.obrasSocialesSeleccionadas.length === 0}>
                 Crear Paciente
               </Button>
             </VStack>
