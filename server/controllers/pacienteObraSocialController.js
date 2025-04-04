@@ -42,7 +42,7 @@ const getObraSocialByPacienteId = async (req, res) => {
             include: [{
                 model: ObraSocial,
                 foreignKey: 'obra_social_id',
-                attributes: ['nombre']
+                attributes: ['id','nombre']
             }]
         })
         res.status(200).json({

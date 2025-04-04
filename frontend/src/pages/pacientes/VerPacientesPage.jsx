@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tag, TagCloseButton, TagLabel, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import Sidebar from "../../componentes/Sidebar";
+import { useRef } from "react";
 
 const VerPacientesPage = () => {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [pacienteAEliminar, setPacienteAEliminar] = useState(null);
+    const cancelRef = useRef();
+
     const [pacienteActualizado, setPacienteActualizado] = useState({});
     const [pacientes, setPacientes] = useState([]);
     const [obrasSociales, setObrasSociales] = useState([]);
-    const [obrasSocialesPaciente, setObrasSocialesPaciente] = useState([]);
+    const [obrasSocialesPacientes, setObrasSocialesPacientes] = useState([]);
+    const [obrasSocialesUnPaciente, setObrasSocialesUnPaciente] = useState([]);
+    const [obrasSocialesEditadas, setObrasSocialesEditadas] = useState([]);
+    
     const [tutores, setTutores] = useState([]);
     
     const toast = useToast();
@@ -62,7 +70,7 @@ const VerPacientesPage = () => {
     const handleEditClick = (paciente) => {
         
         setPacienteActualizado(paciente);
-        console.log(paciente);
+        traerObrasSocialesUnPaciente(paciente.id);
         onOpen();  // Abrir la modal
     };
 
@@ -70,8 +78,24 @@ const VerPacientesPage = () => {
         try {
             const response = await axios.put('http://localhost:3000/api/pacientes/actualizar/'+pid, pacienteActualizado);
             console.log("Paciente con ID: ", pid, " actualizado con exito: ", response.data);
+            // Obtener IDs de obras sociales ya existentes
+            const idsExistentes = obrasSocialesUnPaciente.map(os => os.ObraSocial.id);
+            
+            // Filtrar solo las nuevas obras sociales
+            const nuevasObrasSociales = obrasSocialesEditadas.filter(os => !idsExistentes.includes(os.id));
+
+            // Enviar POST por cada obra social nueva
+            for (const obraSocial of nuevasObrasSociales) {
+                await axios.post("http://localhost:3000/api/pacienteobrasocial/", {
+                    paciente_id: pid,
+                    obra_social_id: obraSocial.id,
+                });
+            }
+
+            // Cerrar modal si todo fue bien
             onClose();
             traerPacientes();
+            traerObrasSocialesPacientes();
             toast({
                 title: "Éxito",
                 description: "El paciente ha sido actualizado exitosamente.",
@@ -91,11 +115,22 @@ const VerPacientesPage = () => {
         }
     }
 
-    const traerObrasSocialesPaciente = async () => {
+    const traerObrasSocialesPacientes = async () => {
         try {
             const response = await axios.get("http://localhost:3000/api/pacienteobrasocial/")
-            console.log(response.data.data);
-            setObrasSocialesPaciente(response.data.data);
+            setObrasSocialesPacientes(response.data.data);
+        } catch (error) {
+            console.error("Error al traer las obras sociales del paciente", error);
+        }
+    }
+
+    const traerObrasSocialesUnPaciente = async (id) => {
+        try {
+            const response = await axios.get("http://localhost:3000/api/pacienteobrasocial/"+id)
+            const relaciones = response.data.data;
+
+            setObrasSocialesUnPaciente(relaciones);
+            setObrasSocialesEditadas(relaciones.map(r => r.ObraSocial));
         } catch (error) {
             console.error("Error al traer las obras sociales del paciente", error);
         }
@@ -121,7 +156,7 @@ const VerPacientesPage = () => {
 
     useEffect(() => {
         traerPacientes();
-        traerObrasSocialesPaciente();
+        traerObrasSocialesPacientes();
         traerObrasSociales();
         traerTutores();
     },[])
@@ -158,7 +193,7 @@ const VerPacientesPage = () => {
                                     <Tr key={paciente.id}>
                                         <Td>{paciente.nombre}</Td>
                                         <Td>{paciente.dni}</Td>
-                                        <Td>{obrasSocialesPaciente.filter(unaObraSocial => unaObraSocial.paciente_id === paciente.id)
+                                        <Td>{obrasSocialesPacientes.filter(unaObraSocial => unaObraSocial.paciente_id === paciente.id)
                                                 .map(unaObraSocial => unaObraSocial.ObraSocial.nombre)
                                                 .join(", ") || "Sin Obra Social"}</Td> 
                                         <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
@@ -166,8 +201,10 @@ const VerPacientesPage = () => {
                                             <HStack spacing={1} justifyContent={"center"}>
                                                 <Button size="sm" title="Editar" onClick={() => handleEditClick(paciente)}
                                                 _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                                <Button size="sm" title="Borrar" onClick={() => eliminar(paciente.id)}
-                                                _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                                <Button size="sm" title="Borrar" _hover={{ bg: "#008E6D" }} bg={"green.100"} onClick={() => { 
+                                                    setPacienteAEliminar(paciente);
+                                                    setIsAlertOpen(true);
+                                                }} >🗑️</Button>
                                             </HStack>
                                         </Td>
                                     </Tr>
@@ -203,45 +240,46 @@ const VerPacientesPage = () => {
                                     minW={"200px"}/></FormLabel>
                                     
                                     <FormLabel>Obras Sociales</FormLabel>
-                                        {pacienteActualizado.obrasSociales?.map((obraSocialId, index) => (
-                                            <HStack key={index} spacing={2} w="100%">
-                                                <Select
-                                                    value={obraSocialId}
-                                                    onChange={(e) => {
-                                                        const nuevasObras = [...pacienteActualizado.obrasSociales];
-                                                        nuevasObras[index] = parseInt(e.target.value, 10);
-                                                        setPacienteActualizado((prev) => ({
-                                                            ...prev,
-                                                            obrasSociales: nuevasObras,
-                                                        }));
-                                                    }}
-                                                >
-                                                    <option value="">Seleccione una obra social</option>
-                                                    {obrasSociales.map((os) => (
-                                                        <option key={os.id} value={os.id}>
-                                                            {os.nombre}
-                                                        </option>
-                                                    ))}
-                                                </Select>
-                                                <Button size="sm" colorScheme="red" onClick={() => {
-                                                    const nuevasObras = pacienteActualizado.obrasSociales.filter((_, i) => i !== index);
-                                                    setPacienteActualizado((prev) => ({
-                                                        ...prev,
-                                                        obrasSociales: nuevasObras,
-                                                    }));
-                                                }}>
-                                                    ❌
-                                                </Button>
-                                            </HStack>
+                                    {obrasSocialesEditadas.map((obraSocial, index) => (
+                                        <Tag key={index} size="lg" variant="solid" colorScheme="green" m={1}>
+                                            <TagLabel>{obraSocial.nombre}</TagLabel>
+                                            <TagCloseButton
+                                                onClick={async () => {
+                                                    const obraSocial = obrasSocialesEditadas[index];
+                                                    try {
+                                                        await axios.delete("http://localhost:3000/api/pacienteobrasocial/borrar/", {
+                                                             data: {
+                                                                paciente_id: pacienteActualizado.id,
+                                                                obra_social_id: obraSocial.id,
+                                                            },
+                                                        });
+                                                        setObrasSocialesEditadas(prev => prev.filter((_, i) => i !== index));
+                                                    } catch (error) {
+                                                        console.error("Error al eliminar obra social del paciente", error);
+                                                    }
+                                                }}
+                                            />
+                                        </Tag>
+                                    ))}
+
+                                    {/* SELECT para agregar nuevas obras sociales */}
+                                    <Select
+                                        placeholder="Seleccionar obra social"
+                                        onChange={(e) => {
+                                            const idSeleccionado = parseInt(e.target.value);
+                                            const yaExiste = obrasSocialesEditadas.some(os => os.id === idSeleccionado);
+                                            if (!yaExiste) {
+                                                const seleccionada = obrasSociales.find(os => os.id === idSeleccionado);
+                                                if (seleccionada) {
+                                                    setObrasSocialesEditadas(prev => [...prev, seleccionada]);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        {obrasSociales.map(os => (
+                                            <option key={os.id} value={os.id}>{os.nombre}</option>
                                         ))}
-                                        <Button size="sm" colorScheme="green" onClick={() => {
-                                            setPacienteActualizado((prev) => ({
-                                                ...prev,
-                                                obrasSociales: [...(prev.obrasSociales || []), ""], // Agrega un nuevo select vacío
-                                            }));
-                                        }}>
-                                            ➕ Agregar obra social
-                                        </Button>
+                                    </Select>
                                     
                                     <FormLabel>Tutor</FormLabel>
                                     <Select
@@ -275,8 +313,42 @@ const VerPacientesPage = () => {
                     </ModalContent>
                 </Modal>
             </Box>
+            <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertOpen(false)}
+        >
+        <AlertDialogOverlay>
+        <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Confirmar eliminación
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+            ¿Estás seguro que querés eliminar al paciente{" "}
+            <strong>{pacienteAEliminar?.nombre}</strong>? Esta acción no se puede deshacer.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                Cancelar
+            </Button>
+            <Button
+                colorScheme="red"
+                onClick={() => {
+                eliminar(pacienteAEliminar.id);
+                setIsAlertOpen(false);
+                }}
+                ml={3}
+            >
+                Eliminar
+            </Button>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+        </AlertDialogOverlay>
+        </AlertDialog>
         </Box>
-    )
+        )
 }
 
 export default VerPacientesPage
