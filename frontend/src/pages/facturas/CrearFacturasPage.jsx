@@ -7,9 +7,11 @@ import React from "react";
 
 const CrearFactura = () => {
   const [pacientes, setPacientes] = useState([]);
+  const [obrasSocialesUnPaciente, setObrasSocialesUnPaciente] = useState([]);
   const toast = useToast();
   const [formData, setFormData] = useState({
     paciente_id: "",
+    paciente_obra_social_id: "",
     punto_de_venta: "",
     numero_factura: "",
     monto: "",
@@ -32,6 +34,15 @@ const CrearFactura = () => {
     }
   };
 
+  const traerObrasSocialesUnPaciente = async (pid) => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/pacienteobrasocial/'+pid);
+      setObrasSocialesUnPaciente(response.data.data);
+    } catch (error) {
+      console.error("Error al traer las obras sociales del paciente: ", error);
+    }
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -52,7 +63,9 @@ const CrearFactura = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3000/api/facturas", formData);
+      const { paciente_id, ...facturaSinPacienteId } = formData;
+      
+      const response = await axios.post("http://localhost:3000/api/facturas", facturaSinPacienteId);
       toast({
         title: "Factura creada",
         description: "La factura se ha creado correctamente.",
@@ -88,6 +101,13 @@ const CrearFactura = () => {
     traerPacientes();
   }, []);
 
+  useEffect(() => {
+    if(formData.paciente_id){
+      traerObrasSocialesUnPaciente(formData.paciente_id);
+      console.log("Form data:",formData);
+    }
+  }, [formData]);
+
   // Colores para el fondo y la sombra
   const bgColor = useColorModeValue("white", "gray.700");
   const shadow = useColorModeValue("md", "dark-lg");
@@ -118,7 +138,7 @@ const CrearFactura = () => {
                 <FormControl isRequired>
                   <FormLabel>Paciente</FormLabel>
                   <Select
-                    placeholder="Selecciona un paciente para asignar facturas "
+                    placeholder="Selecciona un paciente"
                     name="paciente_id"
                     value={formData.paciente_id}
                     onChange={handleChange}
@@ -127,6 +147,24 @@ const CrearFactura = () => {
                       <option key={paciente.id} value={paciente.id}>
                         {paciente.nombre}
                       </option>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Obra Social</FormLabel>
+                  <Select
+                    placeholder="Selecciona una obra social del paciente"
+                    name="paciente_obra_social_id"
+                    value={formData.paciente_obra_social_id}
+                    isDisabled={!formData.paciente_id}
+                    onChange={(e) =>
+                      setFormData(prev => ({
+                        ...prev,
+                        paciente_obra_social_id: e.target.value,
+                      }))}>
+                    {obrasSocialesUnPaciente.map(unaObraSocial =>(
+                      <option key={unaObraSocial.id} value={unaObraSocial.id}>{unaObraSocial.obra_social.nombre}</option>
                     ))}
                   </Select>
                 </FormControl>

@@ -39,11 +39,11 @@ const CrearPacientePage = () => {
   };
 
   const handleAddObraSocial = (e) => {
-    const obraSocialId = e.target.value;
-    if (obraSocialId && !formData.obrasSocialesSeleccionadas.includes(obraSocialId)) {
-      setFormData((prev) => ({
+    const value = e.target.value === "null" ? null : parseInt(e.target.value);
+    if (!formData.obrasSocialesSeleccionadas.includes(value)) {
+      setFormData(prev => ({
         ...prev,
-        obrasSocialesSeleccionadas: [...prev.obrasSocialesSeleccionadas, obraSocialId],
+        obrasSocialesSeleccionadas: [...prev.obrasSocialesSeleccionadas, value]
       }));
     }
   };
@@ -65,11 +65,16 @@ const CrearPacientePage = () => {
       });
       
       const paciente_id = response.data.data.id;
-      await Promise.all(
-        formData.obrasSocialesSeleccionadas.map(obra_social_id =>
-          axios.post("http://localhost:3000/api/pacienteObraSocial", { paciente_id, obra_social_id })
-        )
-      );
+      if (formData.obrasSocialesSeleccionadas.length === 0) {
+        console.log("No se crea nada, si no existe relación Paciente-ObraSocial, el paciente no tiene obra social.")
+      } else {
+        // Crea los registros normalmente
+        await Promise.all(
+          formData.obrasSocialesSeleccionadas.map((obra_social_id) =>
+            axios.post("http://localhost:3000/api/pacienteObraSocial", { paciente_id, obra_social_id })
+          )
+        );
+      }
       
       toast({
         title: "Éxito",
@@ -124,15 +129,22 @@ const CrearPacientePage = () => {
                 </FormControl>
               </Grid>
 
-              <FormControl isRequired>
+              <FormControl>
                 <FormLabel>Obras Sociales</FormLabel>
                 {formData.obrasSocialesSeleccionadas.map((obraSocialId, index) => (
                   <Tag key={index} size="lg" variant="solid" colorScheme="green" m={1}>
-                    <TagLabel>{obrasSociales.find(obra => String(obra.id) === String(obraSocialId))?.nombre || "Desconocido"}</TagLabel>
+                    <TagLabel>
+                      {
+                        obraSocialId === null
+                          ? "Sin obra social"
+                          : obrasSociales.find(obra => String(obra.id) === String(obraSocialId))?.nombre || "Desconocido"
+                      }
+                    </TagLabel>
                     <TagCloseButton onClick={() => handleRemoveObraSocial(obraSocialId)} />
                   </Tag>
                 ))}
                 <Select placeholder="Agregar obra social" onChange={handleAddObraSocial} mt={2}>
+                  <option value="null">Sin obra social</option>
                   {obrasSociales.map((obra) => (
                     <option key={obra.id} value={obra.id}>{obra.nombre}</option>
                   ))}
@@ -148,7 +160,7 @@ const CrearPacientePage = () => {
                 </Select>
               </FormControl>
 
-              <Button mt={6} colorScheme="green" type="submit" size="lg" w="100%" isDisabled={!formData.nombre || !formData.dni || formData.obrasSocialesSeleccionadas.length === 0}>
+              <Button mt={6} colorScheme="green" type="submit" size="lg" w="100%" isDisabled={!formData.nombre || !formData.dni}>
                 Crear Paciente
               </Button>
             </VStack>

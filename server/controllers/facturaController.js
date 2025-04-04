@@ -68,9 +68,10 @@ const getFacturaById = async (req, res) => {
 };
 
 const createFactura = async (req, res) => {
-    const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+    const { paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+    console.log(req.body)
     try {
-        const factura = await Factura.create({ paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio });
+        const factura = await Factura.create({ paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio });
         res.status(201).json({ success: true, message: "Factura creada", data: factura });
     } catch (error) {
         console.error("Error al crear la factura:", error);
@@ -80,7 +81,7 @@ const createFactura = async (req, res) => {
 
 const updateFactura = async (req, res) => {
     const { id } = req.params;
-    const { paciente_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+    const { paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
 
     try {
         const factura = await Factura.findByPk(id);
@@ -93,7 +94,7 @@ const updateFactura = async (req, res) => {
 
         const nuevoMonto = parseFloat(monto.replace(",","."));
 
-        await factura.update({ paciente_id, punto_de_venta, numero_factura, monto: nuevoMonto, estado, fecha_emision, fecha_facturada, fecha_cobro: nuevaFechaCobro, es_consultorio });
+        await factura.update({ paciente_obra_social_id, punto_de_venta, numero_factura, monto: nuevoMonto, estado, fecha_emision, fecha_facturada, fecha_cobro: nuevaFechaCobro, es_consultorio });
 
         res.status(200).json({ success: true, message: "Factura actualizada", data: factura });
     } catch (error) {

@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Box, Heading, Text, Button, Input, Menu, Table, Thead, Tbody, Tr, Th, Td, Flex, MenuButton, MenuList, VStack, MenuItem, HStack, useDisclosure, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormLabel, Select, InputGroup, InputLeftElement, ModalFooter } from "@chakra-ui/react";
+import React, { useEffect, useRef, useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Heading, 
+    Text, Button, Input, Menu, Table, Thead, Tbody, Tr, Th, Td, Flex, MenuButton, MenuList, VStack, MenuItem, HStack, useDisclosure, 
+    useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormLabel, Select, InputGroup, InputLeftElement, ModalFooter } from "@chakra-ui/react";
 import Header from "../componentes/header";
 import Sidebar from "../componentes/Sidebar";
 import { format } from "date-fns";
@@ -8,6 +10,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [facturaAEliminar, setFacturaAEliminar] = useState(null);
+    const cancelRef = useRef();
+
     const [facturas, setFacturas] = useState([]);
     const [busqueda, setBusqueda] = useState(""); // Estado para el texto del buscador
     const toast = useToast();
@@ -292,8 +298,10 @@ const Index = () => {
                                                 _hover={{ bg:"#008E6D" }} bg={"green.100"} isDisabled={factura.estado}>💰</Button>
                                                 <Button size="sm" title="Editar" onClick={() => handleEditClick(factura)}
                                                 _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                                <Button size="sm" title="Borrar" onClick={() => eliminar(factura.id)}
-                                                _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                                <Button size="sm" title="Borrar" _hover={{ bg: "#008E6D" }} bg={"green.100"} onClick={() => { 
+                                                    setFacturaAEliminar(factura);
+                                                    setIsAlertOpen(true);
+                                                }} >🗑️</Button>
                                             </HStack>
                                         </Td>
                                     </Tr>
@@ -423,6 +431,40 @@ const Index = () => {
                       </ModalContent>
             </Modal>
         </Box>
+        <AlertDialog
+            isOpen={isAlertOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setIsAlertOpen(false)}
+            >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Confirmar eliminación
+                </AlertDialogHeader>
+
+                <AlertDialogBody>
+                    ¿Estás seguro que querés eliminar la factura numero:{" "}
+                    <strong>{facturaAEliminar?.numero_factura}</strong>? Esta acción no se puede deshacer.
+                </AlertDialogBody>
+
+                <AlertDialogFooter>
+                    <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                    Cancelar
+                    </Button>
+                    <Button
+                    colorScheme="red"
+                    onClick={() => {
+                        eliminar(facturaAEliminar.id);
+                        setIsAlertOpen(false);
+                    }}
+                    ml={3}
+                    >
+                    Eliminar
+                    </Button>
+                </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+            </AlertDialog>
     </Box>
   );
 };
