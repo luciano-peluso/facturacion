@@ -47,10 +47,7 @@ const Paciente = sequelize.define('Paciente', {
     tableName: 'pacientes', // Especifica el nombre de la tabla
 });
 
-// Paciente.belongsToMany(ObraSocial, {
-//     through: PacienteObraSocial,
-//     foreignKey: 'paciente_id'
-// })
+
 Paciente.belongsTo(Tutor, { as: 'tutor', foreignKey: 'tutor_id' });
 
 module.exports = Paciente;

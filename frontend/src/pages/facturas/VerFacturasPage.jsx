@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputLeftElement, Input, VStack, Modal, useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast, Select, FormLabel } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Container, 
+    Heading, HStack, Box, Button, Table, Thead, Tbody, Tr, Th, Td, InputGroup, InputLeftAddon, InputLeftElement, Input, VStack, Modal, 
+    useDisclosure, ModalOverlay, ModalContent, ModalCloseButton, ModalBody, ModalHeader, NumberInput, NumberInputField, ModalFooter, useToast, Select, FormLabel } from "@chakra-ui/react";
 import { RepeatIcon } from '@chakra-ui/icons';
 import Header from "../../componentes/header";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useRef } from "react";
 
 const FacturasPage = () => {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [facturaAEliminar, setFacturaAEliminar] = useState(null);
+    const cancelRef = useRef();
     const [facturas, setFacturas] = useState([]);
     const [monto, setMonto] = useState([]);
     const [pacientes, setPacientes] = useState([]);
@@ -469,6 +475,40 @@ const FacturasPage = () => {
                 </ModalContent>
             </Modal>
         </Container>
+        <AlertDialog
+            isOpen={isAlertOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setIsAlertOpen(false)}
+            >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Confirmar eliminación
+                </AlertDialogHeader>
+
+                <AlertDialogBody>
+                    ¿Estás seguro que querés eliminar la factura numero:{" "}
+                    <strong>{facturaAEliminar?.numero_factura}</strong>? Esta acción no se puede deshacer.
+                </AlertDialogBody>
+
+                <AlertDialogFooter>
+                    <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                    Cancelar
+                    </Button>
+                    <Button
+                    colorScheme="red"
+                    onClick={() => {
+                        eliminar(facturaAEliminar.id);
+                        setIsAlertOpen(false);
+                    }}
+                    ml={3}
+                    >
+                    Eliminar
+                    </Button>
+                </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+            </AlertDialog>
         </>
     );
 };

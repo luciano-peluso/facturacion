@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Box, Button, Container, FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, 
+    FormLabel, Heading, HStack, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, 
+    Select, Table, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import Sidebar from "../../componentes/Sidebar";
+import { useRef } from "react";
 
 
 const VerTutoresPage = () => {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [tutorAEliminar, setTutorAEliminar] = useState(null);
+    const cancelRef = useRef();
+
     const [tutorActualizado, setTutorActualizado] = useState({});
     const [tutores, setTutores] = useState([]);
     const toast = useToast();
@@ -155,15 +162,18 @@ const VerTutoresPage = () => {
                                                 >
                                                     ✏️
                                                 </Button>
-                                                <Button 
-                                                    size="sm" 
-                                                    title="Borrar" 
-                                                    onClick={() => eliminar(tutor.id)}
-                                                    _hover={{ bg:"#008E6D" }} 
+                                                <Button
+                                                    size="sm"
+                                                    title="Borrar"
+                                                    onClick={() => {
+                                                        setTutorAEliminar(tutor);
+                                                        setIsAlertOpen(true);
+                                                    }}
+                                                    _hover={{ bg: "#008E6D" }}
                                                     bg={"green.100"}
-                                                >
+                                                    >
                                                     🗑️
-                                                </Button>
+                                                    </Button>
                                             </HStack>
                                         </Td>
                                     </Tr>
@@ -225,6 +235,40 @@ const VerTutoresPage = () => {
                                 </ModalContent>
                             </Modal>
             </Box>
+            <AlertDialog
+            isOpen={isAlertOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setIsAlertOpen(false)}
+            >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                    Confirmar eliminación
+                </AlertDialogHeader>
+
+                <AlertDialogBody>
+                    ¿Estás seguro que querés eliminar al encargado{" "}
+                    <strong>{tutorAEliminar?.nombre}</strong>? Esta acción no se puede deshacer.
+                </AlertDialogBody>
+
+                <AlertDialogFooter>
+                    <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                    Cancelar
+                    </Button>
+                    <Button
+                    colorScheme="red"
+                    onClick={() => {
+                        eliminar(tutorAEliminar.id);
+                        setIsAlertOpen(false);
+                    }}
+                    ml={3}
+                    >
+                    Eliminar
+                    </Button>
+                </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+            </AlertDialog>
         </Box>
     )
 

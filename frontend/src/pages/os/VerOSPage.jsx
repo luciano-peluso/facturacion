@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../componentes/header";
-import { Box, Button, Card, Container, Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Card, Container, 
+    Heading, HStack, Table, Tbody, Td, Th, Thead, Tr, VStack, useToast, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, 
+    ModalBody, Input, ModalFooter, FormLabel, Select } from "@chakra-ui/react";
 import axios from "axios";
 import Sidebar from "../../componentes/Sidebar";
+import { useRef } from "react";
 
 const VerOSPage = () => {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [osAEliminar, setOsAEliminar] = useState(null);
+    const cancelRef = useRef();
+
     const [obraSocialActualizada, setObraSocialActualizada] = useState({});
     const [obrasSociales, setObrasSociales] = useState([]);
     const toast = useToast();
@@ -143,8 +150,15 @@ const VerOSPage = () => {
                                     <HStack spacing={1} justifyContent={"center"}>
                                         <Button size="sm" title="Editar" onClick={() => handleEditClick(obraSocial)}
                                         _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                        <Button size="sm" title="Borrar" onClick={() => eliminar(obraSocial.id)}
-                                        _hover={{ bg:"#008E6D" }} bg={"green.100"}>🗑️</Button>
+                                        <Button size="sm" title="Borrar" onClick={() => {
+                                            setOsAEliminar(obraSocial);
+                                            setIsAlertOpen(true);
+                                        }}
+                                        _hover={{ bg: "#008E6D" }}
+                                        bg={"green.100"}
+                                        >
+                                        🗑️
+                                        </Button>
                                     </HStack>
                                 </Td>
                             </Tr>
@@ -220,6 +234,40 @@ const VerOSPage = () => {
                         </ModalContent>
                     </Modal>
     </Box>
+    <AlertDialog
+  isOpen={isAlertOpen}
+  leastDestructiveRef={cancelRef}
+  onClose={() => setIsAlertOpen(false)}
+>
+  <AlertDialogOverlay>
+    <AlertDialogContent>
+      <AlertDialogHeader fontSize="lg" fontWeight="bold">
+        Confirmar eliminación
+      </AlertDialogHeader>
+
+      <AlertDialogBody>
+        ¿Estás seguro que querés eliminar la obra social{" "}
+        <strong>{osAEliminar?.nombre}</strong>? Esta acción no se puede deshacer.
+      </AlertDialogBody>
+
+      <AlertDialogFooter>
+        <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+          Cancelar
+        </Button>
+        <Button
+          colorScheme="red"
+          onClick={() => {
+            eliminar(osAEliminar.id);
+            setIsAlertOpen(false);
+          }}
+          ml={3}
+        >
+          Eliminar
+        </Button>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialogOverlay>
+</AlertDialog>
     </Box>
 )}
 
