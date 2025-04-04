@@ -11,11 +11,13 @@ const getPacienteObraSocial = async (req, res) => {
                 {
                     model: Paciente,
                     foreignKey: 'paciente_id',
+                    as: "paciente",
                     attributes: ['id', 'nombre']
                 },
                 {
                     model: ObraSocial,
                     foreignKey: "obra_social_id",
+                    as: "obra_social",
                     attributes: ['nombre']
                 }
             ]
@@ -41,6 +43,7 @@ const getObraSocialByPacienteId = async (req, res) => {
             paranoid: true,
             include: [{
                 model: ObraSocial,
+                as: "obra_social",
                 foreignKey: 'obra_social_id',
                 attributes: ['id','nombre']
             }]

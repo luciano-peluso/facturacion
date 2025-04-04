@@ -208,7 +208,6 @@ const FacturasPage = () => {
         }));
     };
     
-    
     const handleMontoChange = (event) => {
         const inputValue = event.target.value;
 
@@ -306,14 +305,15 @@ const FacturasPage = () => {
                     <Tbody>
                     {facturas.length > 0 ? (
                         facturas.map((factura) => {
-                            const { paciente, numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
-                            const obraSocial = paciente?.obra_social;
+                            const { numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
+                            const paciente = factura.paciente_obra_social.paciente;
+                            const obraSocial = factura.paciente_obra_social?.obra_social;
                             const tutor = paciente?.tutor;
-
+                            
                             return (
                                 <Tr key={id}>
                                     <Td>{paciente ? paciente.nombre : "Eliminado"}</Td>
-                                    <Td>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Eliminada"}</Td>
+                                    <Td>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Sin Obra Social"}</Td>
                                     <Td>{tutor ? `${tutor.nombre} (DNI: ${tutor.dni})` : "Sin cuidador o encargado"}</Td>
                                     <Td>{numero_factura}</Td>
                                     <Td>${monto}</Td>

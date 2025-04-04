@@ -41,7 +41,9 @@ const PacienteObraSocial = sequelize.define('PacienteObraSocial', {
 });
 
 // Establecimiento de asociaciones
-PacienteObraSocial.belongsTo(ObraSocial, { foreignKey: 'obra_social_id' });
-PacienteObraSocial.belongsTo(Paciente, { foreignKey: 'paciente_id' });
+PacienteObraSocial.belongsTo(Paciente, { foreignKey: 'paciente_id', as: "paciente"});
+Paciente.hasMany(PacienteObraSocial, { foreignKey: 'paciente_id' });
 
+PacienteObraSocial.belongsTo(ObraSocial, { foreignKey: 'obra_social_id', as: "obra_social" });
+ObraSocial.hasMany(PacienteObraSocial, { foreignKey: 'obra_social_id' });
 module.exports = PacienteObraSocial;

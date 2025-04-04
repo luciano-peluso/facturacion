@@ -4,25 +4,39 @@ const ObraSocial = require('../models/ObraSocial');
 const Tutor = require('../models/Tutor');
 const { Op } = require('sequelize');
 const Notificacion = require('../models/Notificacion');
+const PacienteObraSocial = require('../models/PacienteObraSocial');
 
 const getFacturas = async (req, res) => {
     try {
         const facturas = await Factura.findAll({ 
-            paranoid:true,
+            paranoid: true,
             include: [
                 {
-                    model: Paciente, 
-                    as: 'paciente', // Alias definido en las asociaciones
-                    attributes: ['id', 'nombre'],
+                    model: PacienteObraSocial, 
+                    as: 'paciente_obra_social',
+                    attributes: ['id', 'paciente_id', 'obra_social_id'],
                     include: [
                         {
-                            model: Tutor, // Relación con Tutor
-                            as: 'tutor', // Alias definido en la asociación
-                            attributes: ['id', 'nombre', 'dni'], // Selecciona solo los campos relevantes del tutor
+                            model: Paciente,
+                            as: "paciente",
+                            attributes: ['id', 'nombre', 'dni', 'tutor_id'],
+                            include: [
+                                {
+                                    model: Tutor,
+                                    attributes: ['nombre', 'dni'],
+                                    as: "tutor"
+                                }
+                            ]
                         },
-                    ] 
+                        {
+                            model: ObraSocial,
+                            as: "obra_social",
+                            attributes: ['id', 'nombre', 'cuit']
+                        }
+                    ]
                 }
-            ], }); 
+            ]
+        }); 
         res.status(200).json({success: true, message:"Facturas traidas con éxito", data: facturas});
     } catch (error) {
         console.error("Error al traer las facturas: ", error);

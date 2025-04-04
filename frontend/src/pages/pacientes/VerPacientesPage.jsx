@@ -79,7 +79,7 @@ const VerPacientesPage = () => {
             const response = await axios.put('http://localhost:3000/api/pacientes/actualizar/'+pid, pacienteActualizado);
             console.log("Paciente con ID: ", pid, " actualizado con exito: ", response.data);
             // Obtener IDs de obras sociales ya existentes
-            const idsExistentes = obrasSocialesUnPaciente.map(os => os.ObraSocial.id);
+            const idsExistentes = obrasSocialesUnPaciente.map(os => os.obra_social.id);
             
             // Filtrar solo las nuevas obras sociales
             const nuevasObrasSociales = obrasSocialesEditadas.filter(os => !idsExistentes.includes(os.id));
@@ -128,9 +128,9 @@ const VerPacientesPage = () => {
         try {
             const response = await axios.get("http://localhost:3000/api/pacienteobrasocial/"+id)
             const relaciones = response.data.data;
-
+            
             setObrasSocialesUnPaciente(relaciones);
-            setObrasSocialesEditadas(relaciones.map(r => r.ObraSocial));
+            setObrasSocialesEditadas(relaciones.map(r => r.obra_social));
         } catch (error) {
             console.error("Error al traer las obras sociales del paciente", error);
         }
@@ -193,9 +193,12 @@ const VerPacientesPage = () => {
                                     <Tr key={paciente.id}>
                                         <Td>{paciente.nombre}</Td>
                                         <Td>{paciente.dni}</Td>
-                                        <Td>{obrasSocialesPacientes.filter(unaObraSocial => unaObraSocial.paciente_id === paciente.id)
-                                                .map(unaObraSocial => unaObraSocial.ObraSocial.nombre)
-                                                .join(", ") || "Sin Obra Social"}</Td> 
+                                        <Td>
+                                            {obrasSocialesPacientes
+                                                .filter(unaObraSocial => unaObraSocial.paciente_id === paciente.id)
+                                                .map(unaObraSocial => unaObraSocial.obra_social?.nombre || "Sin Obra Social") // Usa ?. para evitar errores
+                                                .join(", ") || "Sin Obra Social"}
+                                        </Td>
                                         <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
                                         <Td maxW="140px">
                                             <HStack spacing={1} justifyContent={"center"}>

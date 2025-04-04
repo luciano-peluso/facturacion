@@ -61,6 +61,9 @@ const Factura = sequelize.define('Factura', {
     tableName: 'facturas', // Especifica el nombre de la tabla
   });
   // Factura pertenece a un Paciente
-Factura.hasOne(PacienteObraSocial, { as: 'paciente_obra_social', foreignKey: 'paciente_obra_social_id' });
+  Factura.belongsTo(PacienteObraSocial, {
+    foreignKey: 'paciente_obra_social_id',
+    as: 'paciente_obra_social'
+  });
 
 module.exports = Factura;
