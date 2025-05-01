@@ -79,11 +79,15 @@ const VerPacientesPage = () => {
             const response = await axios.put('http://localhost:3000/api/pacientes/actualizar/'+pid, pacienteActualizado);
             console.log("Paciente con ID: ", pid, " actualizado con exito: ", response.data);
             // Obtener IDs de obras sociales ya existentes
-            const idsExistentes = obrasSocialesUnPaciente.map(os => os.obra_social.id);
+            
+            const idsExistentes = obrasSocialesUnPaciente.map(os => os.obra_social_id);
             
             // Filtrar solo las nuevas obras sociales
             const nuevasObrasSociales = obrasSocialesEditadas.filter(os => !idsExistentes.includes(os.id));
-
+            
+            console.log("ids",idsExistentes)
+            console.log("filtradas",obrasSocialesEditadas.filter(os => !idsExistentes.includes(os.id)))
+            console.log("nuevas",nuevasObrasSociales);
             // Enviar POST por cada obra social nueva
             for (const obraSocial of nuevasObrasSociales) {
                 await axios.post("http://localhost:3000/api/pacienteobrasocial/", {
@@ -130,7 +134,11 @@ const VerPacientesPage = () => {
             const relaciones = response.data.data;
             
             setObrasSocialesUnPaciente(relaciones);
-            setObrasSocialesEditadas(relaciones.map(r => r.obra_social));
+            setObrasSocialesEditadas(
+                relaciones
+                    .map(r => r.obra_social)
+                    .filter(os => os !== null)
+            );
         } catch (error) {
             console.error("Error al traer las obras sociales del paciente", error);
         }
@@ -155,11 +163,20 @@ const VerPacientesPage = () => {
     };
 
     useEffect(() => {
-        traerPacientes();
-        traerObrasSocialesPacientes();
-        traerObrasSociales();
-        traerTutores();
-    },[])
+        const fetchAll = async () => {
+          try {
+            await Promise.all([
+              traerPacientes(),
+              traerObrasSocialesPacientes(),
+              traerObrasSociales(),
+              traerTutores()
+            ]);
+          } catch (err) {
+            console.error("Error trayendo datos iniciales", err);
+          }
+        };
+        fetchAll();
+      }, []);
     return(
         <Box className="container" display="flex" w={"100%"} minW={"1300px"} maxW={"1400px"}>
         <Sidebar />
@@ -202,9 +219,9 @@ const VerPacientesPage = () => {
                                         <Td>{paciente.tutor?.nombre || "Sin Tutor"}</Td>
                                         <Td maxW="140px">
                                             <HStack spacing={1} justifyContent={"center"}>
-                                                <Button size="sm" title="Editar" onClick={() => handleEditClick(paciente)}
+                                                <Button size="sm" aria-label="Editar paciente" title="Editar" onClick={() => handleEditClick(paciente)}
                                                 _hover={{ bg:"#008E6D" }} bg={"green.100"}>✏️</Button>
-                                                <Button size="sm" title="Borrar" _hover={{ bg: "#008E6D" }} bg={"green.100"} onClick={() => { 
+                                                <Button size="sm" aria-label="Eliminar paciente" title="Borrar" _hover={{ bg: "#008E6D" }} bg={"green.100"} onClick={() => { 
                                                     setPacienteAEliminar(paciente);
                                                     setIsAlertOpen(true);
                                                 }} >🗑️</Button>
@@ -279,9 +296,12 @@ const VerPacientesPage = () => {
                                             }
                                         }}
                                     >
-                                        {obrasSociales.map(os => (
-                                            <option key={os.id} value={os.id}>{os.nombre}</option>
-                                        ))}
+                                       {obrasSociales
+                                            .filter(os => os && !obrasSocialesEditadas.some(editada => editada.id === os.id)
+                                            ).map(os => (
+                                                <option key={os.id} value={os.id}>{os.nombre}</option>
+                                            ))
+                                        }
                                     </Select>
                                     
                                     <FormLabel>Tutor</FormLabel>
@@ -295,7 +315,7 @@ const VerPacientesPage = () => {
                                         }))
                                     }
                                 >
-                                    <option value="null">Sin Tutor</option>
+                                    <option value="">Sin Tutor</option>
                                     {tutores.map((tutor) => (
                                         <option key={tutor.id} value={tutor.id}>
                                         {tutor.nombre}
