@@ -11,32 +11,32 @@ const getFacturas = async (req, res) => {
         const facturas = await Factura.findAll({ 
             paranoid: true,
             include: [
-                {
-                    model: PacienteObraSocial, 
-                    as: 'paciente_obra_social',
-                    attributes: ['id', 'paciente_id', 'obra_social_id'],
-                    include: [
-                        {
-                            model: Paciente,
-                            as: "paciente",
-                            attributes: ['id', 'nombre', 'dni', 'tutor_id'],
-                            include: [
-                                {
-                                    model: Tutor,
-                                    attributes: ['nombre', 'dni'],
-                                    as: "tutor"
-                                }
-                            ]
-                        },
-                        {
-                            model: ObraSocial,
-                            as: "obra_social",
-                            attributes: ['id', 'nombre', 'cuit']
-                        }
-                    ]
-                }
+              {
+                model: PacienteObraSocial,
+                as: 'paciente_obra_social',
+                attributes: ['id', 'paciente_id', 'obra_social_id'],
+                include: [
+                  {
+                    model: ObraSocial,
+                    as: 'obra_social',
+                    attributes: ['id', 'nombre', 'cuit']
+                  }
+                ]
+              },
+              {
+                model: Paciente,
+                as: 'paciente',
+                attributes: ['id', 'nombre', 'dni', 'tutor_id'],
+                include: [
+                  {
+                    model: Tutor,
+                    as: 'tutor',
+                    attributes: ['nombre', 'dni']
+                  }
+                ]
+              }
             ]
-        }); 
+          });
         res.status(200).json({success: true, message:"Facturas traidas con éxito", data: facturas});
     } catch (error) {
         console.error("Error al traer las facturas: ", error);
@@ -50,10 +50,27 @@ const getFacturaById = async (req, res) => {
         const factura = await Factura.findByPk(id, {  // Pasar id directamente
             include: [
                 {
+                    model: PacienteObraSocial, 
+                    as: 'paciente_obra_social',
+                    attributes: ['id', 'paciente_id', 'obra_social_id'],
+                    include: [
+                        {
+                            model: ObraSocial,
+                            as: "obra_social",
+                            attributes: ['id', 'nombre', 'cuit']
+                        }
+                    ],
                     model: Paciente,
-                    as: 'paciente', // Alias definido en las asociaciones
-                    attributes: ['id', 'nombre'],
-                },
+                    as: "paciente",
+                    attributes: ['id', 'nombre', 'dni', 'tutor_id'],
+                    include: [
+                        {
+                            model: Tutor,
+                            attributes: ['nombre', 'dni'],
+                            as: "tutor"
+                        }
+                    ]
+                }
             ],
         });
 
@@ -68,10 +85,10 @@ const getFacturaById = async (req, res) => {
 };
 
 const createFactura = async (req, res) => {
-    const { paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+    const { paciente_id, paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
     console.log(req.body)
     try {
-        const factura = await Factura.create({ paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio });
+        const factura = await Factura.create({ paciente_id, paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio });
         res.status(201).json({ success: true, message: "Factura creada", data: factura });
     } catch (error) {
         console.error("Error al crear la factura:", error);
@@ -81,7 +98,7 @@ const createFactura = async (req, res) => {
 
 const updateFactura = async (req, res) => {
     const { id } = req.params;
-    const { paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
+    const { paciente_id, paciente_obra_social_id, punto_de_venta, numero_factura, monto, estado, fecha_emision, fecha_facturada, fecha_cobro, es_consultorio } = req.body;
 
     try {
         const factura = await Factura.findByPk(id);
@@ -94,7 +111,7 @@ const updateFactura = async (req, res) => {
 
         const nuevoMonto = parseFloat(monto.replace(",","."));
 
-        await factura.update({ paciente_obra_social_id, punto_de_venta, numero_factura, monto: nuevoMonto, estado, fecha_emision, fecha_facturada, fecha_cobro: nuevaFechaCobro, es_consultorio });
+        await factura.update({ paciente_id, paciente_obra_social_id, punto_de_venta, numero_factura, monto: nuevoMonto, estado, fecha_emision, fecha_facturada, fecha_cobro: nuevaFechaCobro, es_consultorio });
 
         res.status(200).json({ success: true, message: "Factura actualizada", data: factura });
     } catch (error) {
@@ -160,10 +177,27 @@ const obtenerFacturasPorMes = async (req, res) => {
             attributes: ["id", "numero_factura", "fecha_facturada", "monto", "fecha_cobro", "es_consultorio"],
             include: [
                 {
+                    model: PacienteObraSocial, 
+                    as: 'paciente_obra_social',
+                    attributes: ['id', 'paciente_id', 'obra_social_id'],
+                    include: [
+                        {
+                            model: ObraSocial,
+                            as: "obra_social",
+                            attributes: ['id', 'nombre', 'cuit']
+                        }
+                    ],
                     model: Paciente,
                     as: "paciente",
-                    attributes: ["id", "nombre"],
-                },
+                    attributes: ['id', 'nombre', 'dni', 'tutor_id'],
+                    include: [
+                        {
+                            model: Tutor,
+                            attributes: ['nombre', 'dni'],
+                            as: "tutor"
+                        }
+                    ]
+                }
             ],
             paranoid: true,
         });

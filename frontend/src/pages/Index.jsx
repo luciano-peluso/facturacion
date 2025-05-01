@@ -21,18 +21,20 @@ const Index = () => {
     const [pacientes, setPacientes] = useState([]);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [rangoPrecision, setRangoPrecision] = useState([]);
+    const [facturasFiltradas, setFacturasFiltradas] = useState([]);
+    const [obrasSocialesUnPaciente, setObrasSocialesUnPaciente] = useState([]);
     const [facturaActualizada, setFacturaActualizada] = useState({
         paciente_id: "",
+        paciente_obra_social_id: null,
         punto_de_venta: "",
         numero_factura: "",
-        monto: '',
+        monto: "",
         estado: "false",
         fecha_emision: "",
         fecha_facturada: "",
         es_consultorio: "false",
-        fecha_cobro: "",
+        fecha_cobro: null,
     });
-    const [facturasFiltradas, setFacturasFiltradas] = useState([]);
 
     
     const buscarPares = () => {
@@ -105,7 +107,15 @@ const Index = () => {
     const traerFacturas = async () => {
         try {
             const response = await axios.get("http://localhost:3000/api/facturas");
-            const facturasSorted = response.data.data.sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision));
+            const facturasSorted = response.data.data.sort((a, b) => {
+                // Primero, ordenamos por estado (true o false)
+                if (a.estado !== b.estado) {
+                  return a.estado ? 1 : -1; // Las cobradas (true) van primero
+                }
+              
+                // Si ambos tienen el mismo estado, se ordenan por fecha de emisión
+                return new Date(b.fecha_emision) - new Date(a.fecha_emision);
+              });
             setFacturas(facturasSorted);
             setFacturasFiltradas(facturasSorted);
         } catch (error) {
@@ -140,6 +150,7 @@ const Index = () => {
     }
 
     const handleActualizar = async (fid, facturaActualizada) => { 
+        console.log(facturaActualizada)
         try {
             const response = await axios.put('http://localhost:3000/api/facturas/actualizar/'+fid, facturaActualizada);
             console.log("Factura con ID: ", fid, " actualizada con exito: ", response.data);
@@ -194,11 +205,20 @@ const Index = () => {
             monto: filteredValue,
         });
     };
-
+    
     const handleEditClick = (factura) => {
-        setFacturaActualizada(factura);
-        console.log(factura);
-        onOpen();  // Abrir la modal
+        const pacienteId = factura.paciente_id || "";
+        const obraSocialId = factura.paciente_obra_social?.id || null;
+    
+        setFacturaActualizada({
+            ...factura,
+            paciente_id: pacienteId,
+            paciente_obra_social_id: obraSocialId,
+            // estado: factura.estado ? "true" : "false", // aseguramos string
+            // es_consultorio: factura.es_consultorio ? "true" : "false", // aseguramos string
+            // fecha_cobro: factura.fecha_cobro || "", // para evitar null en input
+        });
+        onOpen();
     };
 
     const traerPacientes = async () => {
@@ -207,6 +227,15 @@ const Index = () => {
             setPacientes(response.data.data);
         } catch (error) {
             console.error("Error al traer los pacientes:", error);
+        }
+    }
+
+    const traerObrasSocialesUnPaciente = async (pid) => {
+        try {
+          const response = await axios.get('http://localhost:3000/api/pacienteobrasocial/'+pid);
+          setObrasSocialesUnPaciente(response.data.data);
+        } catch (error) {
+          console.error("Error al traer las obras sociales del paciente: ", error);
         }
     }
 
@@ -220,8 +249,8 @@ const Index = () => {
         const facturasFiltradas = facturas.filter((factura) =>
             (factura.numero_factura || "").includes(busqueda) ||
             factura.paciente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-            factura.paciente.obra_social.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-            (factura.paciente.obra_social.cuit || "").includes(busqueda) ||
+            factura.paciente_obra_social?.obra_social.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+            (factura.paciente_obra_social?.obra_social.cuit || "").includes(busqueda) ||
             (factura.monto || "").includes(busqueda) ||
             (factura.paciente.tutor?.nombre || "").includes(busqueda) ||
             (factura.paciente.tutor?.dni || "").includes(busqueda)
@@ -229,6 +258,12 @@ const Index = () => {
         setFacturasFiltradas(facturasFiltradas);
     }, [busqueda, facturas]);
 
+    
+    useEffect(() => {
+        if(facturaActualizada.paciente_id){
+            traerObrasSocialesUnPaciente(facturaActualizada.paciente_id);
+        }
+    }, [facturaActualizada]);
 
   return (
     <Box className="container" display="flex" w={"100%"}>
@@ -269,7 +304,7 @@ const Index = () => {
                     {facturasFiltradas.length > 0 ? (
                                 facturasFiltradas.map((factura) => {
                                     const { numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
-                                    const paciente = factura.paciente_obra_social.paciente;
+                                    const paciente = factura.paciente;
                                     const obraSocial = factura.paciente_obra_social?.obra_social;
                                     const tutor = paciente?.tutor;
 
@@ -277,7 +312,7 @@ const Index = () => {
                                     <Tr key={id}>
                                         <Td>{numero_factura}</Td>
                                         <Td>{paciente ? paciente.nombre : "Eliminado"}</Td>
-                                        <Td maxW={"200px"}>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Eliminada"}</Td>
+                                        <Td maxW={"200px"}>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Sin obra social o eliminada"}</Td>
                                         <Td>{tutor ? `${tutor.nombre} (DNI: ${tutor.dni})` : "Sin cuidador o encargado"}</Td>
                                         <Td>${monto}</Td>
                                         <Td>
@@ -325,10 +360,10 @@ const Index = () => {
                               {/* Select de Pacientes */}
                               <FormLabel htmlFor="paciente_id">Paciente</FormLabel>
                               <Select
-                              name="paciente_id"
-                              value={facturaActualizada.paciente_id}
-                              onChange={handleChange}
-                              placeholder="Selecciona un paciente"
+                                placeholder="Selecciona un paciente"
+                                name="paciente_id"
+                                value={facturaActualizada.paciente_id}
+                                onChange={handleChange}
                               >
                               {pacientes.map((paciente) => (
                                   <option key={paciente.id} value={paciente.id}>
@@ -336,16 +371,36 @@ const Index = () => {
                                   </option>
                               ))}
                               </Select>
+
+                              {/* Select obras sociales del mismo */}
+                              <FormLabel htmlFor="paciente_obra_social_id">Obra Social</FormLabel>
+                                <Select
+                                placeholder="Selecciona una obra social del paciente"
+                                name="paciente_obra_social_id"
+                                value={facturaActualizada.paciente_obra_social_id || ""}
+                                isDisabled={!facturaActualizada.paciente_id}
+                                onChange={(e) =>
+                                    setFacturaActualizada(prev => ({
+                                    ...prev,
+                                    paciente_obra_social_id: e.target.value === "" ? null : parseInt(e.target.value),
+                                    }))
+                                }
+                                >
+                                <option value="">Sin obra social</option>
+                                {obrasSocialesUnPaciente.map(unaObraSocial => (
+                                    <option key={unaObraSocial.id} value={unaObraSocial.id}>
+                                    {unaObraSocial.obra_social.nombre}
+                                    </option>
+                                ))}
+                                </Select>
       
+                              {/* Punto de venta */}
+                              <FormLabel>Punto de venta</FormLabel>
+                              <Input type="text" name="punto_de_venta" placeholder="Ej. 0000007" value={facturaActualizada.punto_de_venta} onChange={handleChange}/>
+                              
                               {/* Número de factura */}
                               <FormLabel>Número de factura</FormLabel>
-                              <Input
-                              type="text"
-                              name="numero_factura"
-                              placeholder="Ej. 0000007"
-                              value={facturaActualizada.numero_factura}
-                              onChange={handleChange}
-                              />
+                              <Input type="text" name="numero_factura" placeholder="Ej. 0000007" value={facturaActualizada.numero_factura} onChange={handleChange}/>
       
                               <FormLabel>Monto</FormLabel>
                               <InputGroup>
@@ -438,33 +493,33 @@ const Index = () => {
             >
             <AlertDialogOverlay>
                 <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                    Confirmar eliminación
-                </AlertDialogHeader>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                        Confirmar eliminación
+                    </AlertDialogHeader>
 
-                <AlertDialogBody>
-                    ¿Estás seguro que querés eliminar la factura numero:{" "}
-                    <strong>{facturaAEliminar?.numero_factura}</strong>? Esta acción no se puede deshacer.
-                </AlertDialogBody>
+                    <AlertDialogBody>
+                        ¿Estás seguro que querés eliminar la factura numero:{" "}
+                        <strong>{facturaAEliminar?.numero_factura}</strong>? Esta acción no se puede deshacer.
+                    </AlertDialogBody>
 
-                <AlertDialogFooter>
-                    <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
-                    Cancelar
-                    </Button>
-                    <Button
-                    colorScheme="red"
-                    onClick={() => {
-                        eliminar(facturaAEliminar.id);
-                        setIsAlertOpen(false);
-                    }}
-                    ml={3}
-                    >
-                    Eliminar
-                    </Button>
-                </AlertDialogFooter>
+                    <AlertDialogFooter>
+                        <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                        Cancelar
+                        </Button>
+                        <Button
+                        colorScheme="red"
+                        onClick={() => {
+                            eliminar(facturaAEliminar.id);
+                            setIsAlertOpen(false);
+                        }}
+                        ml={3}
+                        >
+                        Eliminar
+                        </Button>
+                    </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialogOverlay>
-            </AlertDialog>
+        </AlertDialog>
     </Box>
   );
 };

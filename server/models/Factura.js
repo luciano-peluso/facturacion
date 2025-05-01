@@ -10,9 +10,19 @@ const Factura = sequelize.define('Factura', {
       primaryKey: true,
       autoIncrement: true,
     },
-    paciente_obra_social_id: {
+    paciente_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'pacientes',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL'
+    },
+    paciente_obra_social_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
       references: {
         model: 'paciente_obrasocial', 
         key: 'id',
@@ -64,6 +74,11 @@ const Factura = sequelize.define('Factura', {
   Factura.belongsTo(PacienteObraSocial, {
     foreignKey: 'paciente_obra_social_id',
     as: 'paciente_obra_social'
+  });
+  
+  Factura.belongsTo(Paciente, {
+    foreignKey: 'paciente_id',
+    as: 'paciente'
   });
 
 module.exports = Factura;

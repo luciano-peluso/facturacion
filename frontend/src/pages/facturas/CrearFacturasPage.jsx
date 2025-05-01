@@ -11,7 +11,7 @@ const CrearFactura = () => {
   const toast = useToast();
   const [formData, setFormData] = useState({
     paciente_id: "",
-    paciente_obra_social_id: "",
+    paciente_obra_social_id: null,
     punto_de_venta: "",
     numero_factura: "",
     monto: "",
@@ -63,9 +63,7 @@ const CrearFactura = () => {
     e.preventDefault();
 
     try {
-      const { paciente_id, ...facturaSinPacienteId } = formData;
-      
-      const response = await axios.post("http://localhost:3000/api/facturas", facturaSinPacienteId);
+      const response = await axios.post("http://localhost:3000/api/facturas", formData);
       toast({
         title: "Factura creada",
         description: "La factura se ha creado correctamente.",
@@ -104,7 +102,6 @@ const CrearFactura = () => {
   useEffect(() => {
     if(formData.paciente_id){
       traerObrasSocialesUnPaciente(formData.paciente_id);
-      console.log("Form data:",formData);
     }
   }, [formData]);
 
