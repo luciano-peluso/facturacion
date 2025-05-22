@@ -312,7 +312,7 @@ const Index = () => {
                                     <Tr key={id}>
                                         <Td>{numero_factura}</Td>
                                         <Td>{paciente ? paciente.nombre : "Eliminado"}</Td>
-                                        <Td maxW={"200px"}>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Sin obra social o eliminada"}</Td>
+                                        <Td maxW={"200px"}>{obraSocial ? `${obraSocial.nombre} (CUIT: ${obraSocial.cuit})` : "Particular o eliminada"}</Td>
                                         <Td>{tutor ? `${tutor.nombre} (DNI: ${tutor.dni})` : "Sin cuidador o encargado"}</Td>
                                         <Td>${monto}</Td>
                                         <Td>
@@ -386,10 +386,9 @@ const Index = () => {
                                     }))
                                 }
                                 >
-                                <option value="">Sin obra social</option>
                                 {obrasSocialesUnPaciente.map(unaObraSocial => (
                                     <option key={unaObraSocial.id} value={unaObraSocial.id}>
-                                    {unaObraSocial.obra_social.nombre}
+                                    {unaObraSocial.obra_social ? unaObraSocial.obra_social.nombre : "Particular"}
                                     </option>
                                 ))}
                                 </Select>

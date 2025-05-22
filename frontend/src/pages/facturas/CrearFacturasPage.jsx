@@ -160,8 +160,11 @@ const CrearFactura = () => {
                         ...prev,
                         paciente_obra_social_id: e.target.value,
                       }))}>
-                    {obrasSocialesUnPaciente.map(unaObraSocial =>(
-                      <option key={unaObraSocial.id} value={unaObraSocial.id}>{unaObraSocial.obra_social.nombre}</option>
+                    {obrasSocialesUnPaciente
+                      .map(unaObraSocial => (
+                        <option key={unaObraSocial.id} value={unaObraSocial.id}>
+                          {unaObraSocial.obra_social ? unaObraSocial.obra_social.nombre : "Particular"}
+                        </option>
                     ))}
                   </Select>
                 </FormControl>
@@ -224,14 +227,14 @@ const CrearFactura = () => {
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel>¿Consultorio o particular?</FormLabel>
+                  <FormLabel>¿Consultorio o a domicilio?</FormLabel>
                   <Select
                     name="es_consultorio"
                     value={formData.es_consultorio}
                     onChange={handleChange}
                   >
                     <option value="true">Consultorio</option>
-                    <option value="false">Particular</option>
+                    <option value="false">A domicilio</option>
                   </Select>
                 </FormControl>
 
