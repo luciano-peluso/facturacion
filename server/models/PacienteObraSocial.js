@@ -46,4 +46,5 @@ Paciente.hasMany(PacienteObraSocial, { foreignKey: 'paciente_id' });
 
 PacienteObraSocial.belongsTo(ObraSocial, { foreignKey: 'obra_social_id', as: "obra_social" });
 ObraSocial.hasMany(PacienteObraSocial, { foreignKey: 'obra_social_id' });
+
 module.exports = PacienteObraSocial;

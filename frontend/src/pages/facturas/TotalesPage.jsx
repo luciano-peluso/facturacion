@@ -100,6 +100,7 @@ const TotalesPage = () => {
     };
 
     const exportar = () => {
+        console.log("Facturas:", facturas);
         const wsData = [
             [],
             ["",{ v: "Fecha: "+ format(new Date(mesSeleccionado), "MMMM", { locale: es }) + ` ${anioSeleccionado}`}, 
@@ -109,8 +110,8 @@ const TotalesPage = () => {
             ["",{ v: "Obra Social"}, { v: "Paciente" }, 
                 { v: "Factura" }, { v: "Mes" }, { v: "Total" }], // Encabezados de la tabla
             ...sortedFacturas.map(factura => [
-                "",factura.paciente.obra_social.nombre,
-                factura.paciente.nombre,
+                "",factura.paciente_obra_social.obra_social ? factura.paciente_obra_social.obra_social.nombre : "Sin obra social",
+                factura.paciente_obra_social.paciente.nombre,
                 {v: `${factura.numero_factura}`},
                 {v: format(new Date(factura.fecha_facturada), "MMMM", { locale: es })},
                 `$ ${Number(factura.monto).toFixed(2)}`

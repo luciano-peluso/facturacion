@@ -186,7 +186,7 @@ const obtenerFacturasPorMes = async (req, res) => {
                             as: "obra_social",
                             attributes: ['id', 'nombre', 'cuit']
                         }
-                    ],
+                    , {
                     model: Paciente,
                     as: "paciente",
                     attributes: ['id', 'nombre', 'dni', 'tutor_id'],
@@ -195,8 +195,8 @@ const obtenerFacturasPorMes = async (req, res) => {
                             model: Tutor,
                             attributes: ['nombre', 'dni'],
                             as: "tutor"
-                        }
-                    ]
+                        }]
+                    } ]
                 }
             ],
             paranoid: true,
