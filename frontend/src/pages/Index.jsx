@@ -304,7 +304,7 @@ const Index = () => {
                     {facturasFiltradas.length > 0 ? (
                                 facturasFiltradas.map((factura) => {
                                     const { numero_factura, monto, fecha_facturada, fecha_emision, estado, id } = factura;
-                                    const paciente = factura.paciente;
+                                    const paciente = factura.paciente_obra_social?.paciente;
                                     const obraSocial = factura.paciente_obra_social?.obra_social;
                                     const tutor = paciente?.tutor;
 

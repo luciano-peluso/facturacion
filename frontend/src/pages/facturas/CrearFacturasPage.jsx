@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../../componentes/header";
 import Sidebar from "../../componentes/Sidebar";
-import React from "react";
+import { usePacientes } from "../../hooks/usePacientes";
+import PacienteSelect from "../../componentes/pacienteSelect";
+import FechaComponent from "../../componentes/fechaInputComponent";
+import NumeroInputComponent from "../../componentes/numeroInputComponent";
 
 const CrearFactura = () => {
-  const [pacientes, setPacientes] = useState([]);
   const [obrasSocialesUnPaciente, setObrasSocialesUnPaciente] = useState([]);
   const toast = useToast();
   const [formData, setFormData] = useState({
@@ -22,17 +24,7 @@ const CrearFactura = () => {
     fecha_cobro: null,
   });
 
-  const traerPacientes = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/api/pacientes");
-      if (!response) {
-        console.error("Error en la respuesta al traer los pacientes:", error);
-      }
-      setPacientes(response.data.data);
-    } catch (error) {
-      console.error("Error al traer los pacientes:", error);
-    }
-  };
+  const pacientes = usePacientes();
 
   const traerObrasSocialesUnPaciente = async (pid) => {
     try {
@@ -47,17 +39,6 @@ const CrearFactura = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handleNumberChange = (event) => {
-    const value = event.target.value;
-    const sanitizedValue = value.replace(",", ".");
-    setFormData({
-      ...formData,
-      monto: sanitizedValue,
-    });
-  };
-
-  const formattedValue = formData.monto.replace(".", ",");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,10 +77,6 @@ const CrearFactura = () => {
   };
 
   useEffect(() => {
-    traerPacientes();
-  }, []);
-
-  useEffect(() => {
     if(formData.paciente_id){
       traerObrasSocialesUnPaciente(formData.paciente_id);
     }
@@ -132,21 +109,7 @@ const CrearFactura = () => {
           <form onSubmit={handleSubmit}>
             <VStack spacing={6}>
               <Grid templateColumns="repeat(2, 1fr)" gap={6} w="100%">
-                <FormControl isRequired>
-                  <FormLabel>Paciente</FormLabel>
-                  <Select
-                    placeholder="Selecciona un paciente"
-                    name="paciente_id"
-                    value={formData.paciente_id}
-                    onChange={handleChange}
-                  >
-                    {pacientes.map((paciente) => (
-                      <option key={paciente.id} value={paciente.id}>
-                        {paciente.nombre}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
+                <PacienteSelect pacientes={pacientes} value={formData.paciente_id} onChange={handleChange} />
 
                 <FormControl>
                   <FormLabel>Obra Social</FormLabel>
@@ -169,62 +132,15 @@ const CrearFactura = () => {
                   </Select>
                 </FormControl>
 
-                <FormControl isRequired>
-                  <FormLabel>Punto de venta</FormLabel>
-                  <Input
-                    type="text"
-                    name="punto_de_venta"
-                    placeholder="Ej. 00002"
-                    value={formData.punto_de_venta}
-                    onChange={handleChange}
-                  />
-                </FormControl>
+                <NumeroInputComponent label="Punto de venta" name="punto_de_venta" value={formData.punto_de_venta} onChange={handleChange} placeholder="00002" isRequired={true}/>
 
-                <FormControl isRequired>
-                  <FormLabel>Número de factura</FormLabel>
-                  <Input
-                    type="text"
-                    name="numero_factura"
-                    placeholder="Ej. 0000007"
-                    value={formData.numero_factura}
-                    onChange={handleChange}
-                  />
-                </FormControl>
+                <NumeroInputComponent label="Número de factura" name="numero_factura" value={formData.numero_factura} onChange={handleChange} placeholder="0000007" isRequired={true}/>
 
-                <FormControl isRequired>
-                  <FormLabel>Monto</FormLabel>
-                  <InputGroup>
-                    <InputLeftElement pointerEvents="none" color="gray.500" fontSize="1.2em">
-                      $
-                    </InputLeftElement>
-                    <Input
-                      type="text"
-                      value={formattedValue}
-                      placeholder="23456,78"
-                      onChange={handleNumberChange}
-                    />
-                  </InputGroup>
-                </FormControl>
+                <NumeroInputComponent label="Monto" name="monto" value={formData.monto} onChange={handleChange} placeholder="23456,78" isRequired={true}/>
 
-                <FormControl isRequired>
-                  <FormLabel>Inicio de periodo facturado</FormLabel>
-                  <Input
-                    type="date"
-                    name="fecha_facturada"
-                    value={formData.fecha_facturada}
-                    onChange={handleChange}
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Fecha emisión</FormLabel>
-                  <Input
-                    type="date"
-                    name="fecha_emision"
-                    value={formData.fecha_emision}
-                    onChange={handleChange}
-                  />
-                </FormControl>
+                <FechaComponent label="Inicio de periodo facturado" name="fecha_facturada" value={formData.fecha_facturada} onChange={handleChange} isRequired={true}/>
+                
+                <FechaComponent label="Fecha emisión" name="fecha_emision" value={formData.fecha_emision} onChange={handleChange} isRequired={true}/>
 
                 <FormControl isRequired>
                   <FormLabel>¿Consultorio o a domicilio?</FormLabel>
@@ -269,14 +185,6 @@ const CrearFactura = () => {
                 type="submit"
                 size="lg"
                 w="100%"
-                isDisabled={
-                  !formData.paciente_id || 
-                  !formData.punto_de_venta || 
-                  !formData.numero_factura || 
-                  !formData.monto || 
-                  !formData.fecha_facturada || 
-                  !formData.fecha_emision
-                }
               >
                 Crear Factura
               </Button>

@@ -20,21 +20,22 @@ const getFacturas = async (req, res) => {
                     model: ObraSocial,
                     as: 'obra_social',
                     attributes: ['id', 'nombre', 'cuit']
+                  },
+                  {
+                    model: Paciente,
+                    as: 'paciente',
+                    attributes: ['id', 'nombre', 'dni', 'tutor_id'],
+                    include: [
+                    {
+                        model: Tutor,
+                        as: 'tutor',
+                        attributes: ['nombre', 'dni']
+                    }
+                    ]
                   }
                 ]
               },
-              {
-                model: Paciente,
-                as: 'paciente',
-                attributes: ['id', 'nombre', 'dni', 'tutor_id'],
-                include: [
-                  {
-                    model: Tutor,
-                    as: 'tutor',
-                    attributes: ['nombre', 'dni']
-                  }
-                ]
-              }
+              
             ]
           });
         res.status(200).json({success: true, message:"Facturas traidas con éxito", data: facturas});
