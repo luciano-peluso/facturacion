@@ -1,3 +1,7 @@
+# AFIP SERVICES
+*.crt
+*.key
+
 # Logs
 logs
 *.log
